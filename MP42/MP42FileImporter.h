@@ -14,6 +14,8 @@
 
 #import "mp4v2.h"
 
+#import "MP42Track_Muxer.h"
+
 @class MP42Sample;
 @class MP42Metadata;
 @class MP42Track;

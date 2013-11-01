@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A989F1001823AB2E0070AD8C /* MP42Track_Muxer.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F0FF1823AB2E0070AD8C /* MP42Track_Muxer.h */; };
+		A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F10D1823B3B40070AD8C /* MP42TextSample.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A989F1101823B3B40070AD8C /* MP42TextSample.m in Sources */ = {isa = PBXBuildFile; fileRef = A989F10E1823B3B40070AD8C /* MP42TextSample.m */; };
 		A9B9C1F1182391DF00416A4E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1F0182391DF00416A4E /* Cocoa.framework */; };
 		A9B9C1FB182391DF00416A4E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A9B9C1F9182391DF00416A4E /* InfoPlist.strings */; };
 		A9B9C206182391DF00416A4E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C205182391DF00416A4E /* XCTest.framework */; };
@@ -118,6 +121,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		A989F10A1823AEA90070AD8C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9B9C2B61823944700416A4E /* UniversalDetector.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3DBF4F560BCD396800DA401A;
+			remoteInfo = universaldetector;
+		};
 		A9B9C208182391DF00416A4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A9B9C1E4182391DF00416A4E /* Project object */;
@@ -149,6 +159,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A989F0FF1823AB2E0070AD8C /* MP42Track_Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Track_Muxer.h; sourceTree = "<group>"; };
+		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
+		A989F10E1823B3B40070AD8C /* MP42TextSample.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42TextSample.m; sourceTree = "<group>"; };
 		A9B9C1ED182391DF00416A4E /* MP42.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MP42.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9B9C1F0182391DF00416A4E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A9B9C1F3182391DF00416A4E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -448,6 +461,7 @@
 			children = (
 				A9B9C2421823923100416A4E /* MP42Muxer.h */,
 				A9B9C2431823923100416A4E /* MP42Muxer.m */,
+				A989F0FF1823AB2E0070AD8C /* MP42Track_Muxer.h */,
 				A9B9C2481823923100416A4E /* MP42Sample.h */,
 				A9B9C2491823923100416A4E /* MP42Sample.m */,
 				A9B9C22D1823923100416A4E /* MP42ConverterProtocol.h */,
@@ -492,6 +506,10 @@
 		A9B9C4A418239B7E00416A4E /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				A989F10D1823B3B40070AD8C /* MP42TextSample.h */,
+				A989F10E1823B3B40070AD8C /* MP42TextSample.m */,
+				A9B9C2381823923100416A4E /* MP42Image.h */,
+				A9B9C2391823923100416A4E /* MP42Image.m */,
 				A9B9C2521823923100416A4E /* MP42Utilities.h */,
 				A9B9C2531823923100416A4E /* MP42Utilities.m */,
 				A9B9C24E1823923100416A4E /* MP42SubUtilities.h */,
@@ -500,8 +518,6 @@
 				A9B9C2591823923200416A4E /* MP42XMLReader.m */,
 				A9B9C2361823923100416A4E /* MP42HtmlParser.h */,
 				A9B9C2371823923100416A4E /* MP42HtmlParser.m */,
-				A9B9C2381823923100416A4E /* MP42Image.h */,
-				A9B9C2391823923100416A4E /* MP42Image.m */,
 				A9B9C2C91823968400416A4E /* RegexKitLite.h */,
 				A9B9C2CA1823968400416A4E /* RegexKitLite.m */,
 				A9B9C2CD182396A100416A4E /* SBRatings.h */,
@@ -549,6 +565,7 @@
 				A9B9C2851823923200416A4E /* MP42MediaFormat.h in Headers */,
 				A9B9C2781823923200416A4E /* MP42ConverterProtocol.h in Headers */,
 				A9B9C2931823923200416A4E /* MP42Sample.h in Headers */,
+				A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */,
 				A9B9C2911823923200416A4E /* MP42QTImporter.h in Headers */,
 				A9B9C28F1823923200416A4E /* MP42OCRWrapper.h in Headers */,
 				A9B9C2811823923200416A4E /* MP42HtmlParser.h in Headers */,
@@ -578,6 +595,7 @@
 				A9B9C29D1823923200416A4E /* MP42Utilities.h in Headers */,
 				A9B9C2661823923200416A4E /* MP42AACImporter.h in Headers */,
 				A9B9C2681823923200416A4E /* MP42AC3Importer.h in Headers */,
+				A989F1001823AB2E0070AD8C /* MP42Track_Muxer.h in Headers */,
 				A9B9C26A1823923200416A4E /* MP42AudioConverter.h in Headers */,
 				A9B9C2A11823923200416A4E /* MP42VobSubImporter.h in Headers */,
 				A9B9C2AC1823923200416A4E /* mbs.h in Headers */,
@@ -600,6 +618,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A989F10B1823AEA90070AD8C /* PBXTargetDependency */,
 			);
 			name = MP42;
 			productName = MP42;
@@ -735,6 +754,7 @@
 				A9B9C2821823923200416A4E /* MP42HtmlParser.m in Sources */,
 				A9B9C2861823923200416A4E /* MP42MediaFormat.m in Sources */,
 				A9B9C2A41823923200416A4E /* MP42XMLReader.m in Sources */,
+				A989F1101823B3B40070AD8C /* MP42TextSample.m in Sources */,
 				A9B9C2751823923200416A4E /* MP42ChapterTrack.m in Sources */,
 				A9B9C2C51823957800416A4E /* SBLanguages.m in Sources */,
 				A9B9C2841823923200416A4E /* MP42Image.m in Sources */,
@@ -766,6 +786,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A989F10B1823AEA90070AD8C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = universaldetector;
+			targetProxy = A989F10A1823AEA90070AD8C /* PBXContainerItemProxy */;
+		};
 		A9B9C209182391DF00416A4E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A9B9C1EC182391DF00416A4E /* MP42 */;
@@ -887,6 +912,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MP42/MP42-Prefix.pch";
 				INFOPLIST_FILE = "MP42/MP42-Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/damians/Desktop/MP42/mp4v2,
@@ -908,6 +934,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MP42/MP42-Prefix.pch";
 				INFOPLIST_FILE = "MP42/MP42-Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/damians/Desktop/MP42/mp4v2,

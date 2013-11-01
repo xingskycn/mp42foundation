@@ -14,18 +14,6 @@
 @class MP42SampleBuffer;
 @class MP42Fifo;
 
-typedef struct muxer_helper {
-    // Input helpers
-    MP42FileImporter *importer;
-    id demuxer_context;
-
-    // Output helpers
-    id <MP42ConverterProtocol> converter;
-    MP42Fifo *fifo;
-
-    BOOL done;
-} muxer_helper;
-
 @interface MP42Track : NSObject <NSCoding, NSCopying> {
     MP42TrackId  _Id;
     MP42TrackId  _sourceId;
@@ -52,7 +40,6 @@ typedef struct muxer_helper {
 	MP42Duration _duration;
 
     NSMutableDictionary *_updatedProperty;
-    muxer_helper *_helper;
 }
 
 - (instancetype)initWithSourceURL:(NSURL *)URL trackID:(NSInteger)trackID fileHandle:(MP42FileHandle)fileHandle;
@@ -87,7 +74,5 @@ typedef struct muxer_helper {
 @property(nonatomic, readwrite) BOOL needConversion;
 
 @property(nonatomic, readwrite) uint64_t dataLength;
-
-@property(nonatomic, readonly) muxer_helper *muxer_helper;
 
 @end

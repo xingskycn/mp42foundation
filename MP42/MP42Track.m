@@ -13,6 +13,15 @@
 #import "MP42Fifo.h"
 #import "SBLanguages.h"
 
+#import "MP42Track_Muxer.h"
+
+@interface MP42Track () {
+
+    muxer_helper *_helper;
+}
+
+@end
+
 @implementation MP42Track
 
 - (instancetype)init
@@ -332,8 +341,6 @@
 @synthesize needConversion = _needConversion;
 @synthesize dataLength = _size;
 @synthesize mediaType = _mediaType;
-
-@synthesize muxer_helper = _helper;
 
 - (muxer_helper *)muxer_helper
 {

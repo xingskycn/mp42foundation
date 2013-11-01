@@ -12,47 +12,6 @@
 
 #import "RegexKitLite.h"
 
-@implementation SBTextSample
-
--(NSComparisonResult)compare:(SBTextSample *)otherObject
-{
-    MP4Duration otherTimestamp = [otherObject timestamp];
-
-    if (timestamp < otherTimestamp)
-        return NSOrderedAscending;
-    else if (timestamp > otherTimestamp)
-        return NSOrderedDescending;
-
-    return NSOrderedSame;
-}
-
--(void) dealloc
-{
-    [title release];
-    [super dealloc];
-}
-
-@synthesize timestamp;
-@synthesize title;
-
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [coder encodeInt64:timestamp forKey:@"timestamp"];
-    [coder encodeObject:title forKey:@"title"];
-}
-
-- (id)initWithCoder:(NSCoder *)decoder
-{
-    self = [super init];
-
-    timestamp = [decoder decodeInt64ForKey:@"timestamp"];
-    title = [[decoder decodeObjectForKey:@"title"] retain];
-
-    return self;
-}
-
-@end
-
 @implementation SBSubSerializer
 -(id)init
 {
@@ -518,7 +477,7 @@ int LoadChaptersFromPath(NSString *path, NSMutableArray *ss)
                         res = [NSString stringWithFormat:@"Chapter %d", count];
                     [sc scanString:@"\n" intoString:nil];
 
-                    SBTextSample *chapter = [[SBTextSample alloc] init];
+                    MP42TextSample *chapter = [[MP42TextSample alloc] init];
                     chapter.timestamp = time;
                     chapter.title = res;
 
@@ -548,7 +507,7 @@ int LoadChaptersFromPath(NSString *path, NSMutableArray *ss)
 
                     [sc scanString:@"\n" intoString:nil];
 
-                    SBTextSample *chapter = [[SBTextSample alloc] init];
+                    MP42TextSample *chapter = [[MP42TextSample alloc] init];
                     chapter.timestamp = time;
                     chapter.title = res;
                     

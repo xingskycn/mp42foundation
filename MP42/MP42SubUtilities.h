@@ -8,17 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UniversalDetector.h>
+#import "MP42TextSample.h"
 #import "mp4v2.h"
-
-@interface SBTextSample : NSObject <NSCoding> {
-    MP4Duration timestamp;
-    NSString *title;
-}
-
-@property(readwrite, retain) NSString *title;
-@property(readwrite) MP4Duration timestamp;
-
-@end
 
 @interface SBSubLine : NSObject
 {

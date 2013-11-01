@@ -18,6 +18,8 @@
 #import "MP42Track.h"
 #import "MP42Fifo.h"
 
+#import "MP42Track_Muxer.h"
+
 #if !__LP64__
 #import "MP42QTImporter.h"
 #endif

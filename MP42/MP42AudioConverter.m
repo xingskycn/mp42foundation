@@ -14,6 +14,8 @@
 #import "MP42Fifo.h"
 #import "MP42Utilities.h"
 
+#import "MP42Track_Muxer.h"
+
 #define FIFO_DURATION (0.5f)
 
 NSString * const SBMonoMixdown = @"SBMonoMixdown";

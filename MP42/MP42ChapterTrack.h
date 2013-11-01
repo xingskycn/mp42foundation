@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MP42Track.h"
-
-@class SBTextSample;
+#import "MP42TextSample.h"
 
 @interface MP42ChapterTrack : MP42Track <NSCoding> {
     NSMutableArray *chapters;
@@ -20,10 +19,10 @@
 - (void)addChapter:(NSString *)title duration:(uint64_t)timestamp;
 - (void)removeChapterAtIndex:(NSUInteger)index;
 
-- (void)setTimestamp:(MP42Duration)timestamp forChapter:(SBTextSample *)chapterSample;
-- (void)setTitle:(NSString*)title forChapter:(SBTextSample *)chapterSample;
+- (void)setTimestamp:(MP42Duration)timestamp forChapter:(MP42TextSample *)chapterSample;
+- (void)setTitle:(NSString*)title forChapter:(MP42TextSample *)chapterSample;
 
-- (SBTextSample *)chapterAtIndex:(NSUInteger)index;
+- (MP42TextSample *)chapterAtIndex:(NSUInteger)index;
 
 - (NSInteger)chapterCount;
 
