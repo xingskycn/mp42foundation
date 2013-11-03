@@ -11,7 +11,7 @@
 #import "MP42Muxer.h"
 #import "MP42SubUtilities.h"
 #import "MP42Utilities.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 
 #import <QTKit/QTKit.h>
 
@@ -21,9 +21,10 @@
 
 #import "mp4v2.h"
 
-NSString * const MP42Create64BitData = @"MP4264BitData";
-NSString * const MP42Create64BitTime = @"MP4264BitTime";
-NSString * const MP42CreateChaptersPreviewTrack = @"MP42ChaptersPreview";
+NSString * const MP4264BitData = @"MP4264BitData";
+NSString * const MP4264BitTime = @"MP4264BitTime";
+NSString * const MP42GenerateChaptersPreviewTrack = @"MP42ChaptersPreview";
+NSString * const MP42CustomChaptersPreviewTrack = @"MP42CustomChaptersPreview";
 NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
 @interface MP42File () <MP42MuxerDelegate> {
@@ -106,10 +107,11 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
         _hasFileRepresentation = YES;
 
         _tracks = [[NSMutableArray alloc] init];
-        int i, tracksCount = MP4GetNumberOfTracks(_fileHandle, 0, 0);
+        uint32_t tracksCount = MP4GetNumberOfTracks(_fileHandle, 0, 0);
         MP4TrackId chapterId = findChapterTrackId(_fileHandle);
+        MP4TrackId previewsId = 0; //findChapterPreviewTrackId(_fileHandle);
 
-        for (i=0; i< tracksCount; i++) {
+        for (int i = 0; i< tracksCount; i++) {
             id track;
             MP4TrackId trackId = MP4FindTrackId(_fileHandle, i, 0, 0);
             const char* type = MP4GetTrackType(_fileHandle, trackId);
@@ -140,6 +142,12 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
         [self reconnectReferences];
 
+        for (MP42Track *track in _tracks)
+            if ([track.format isEqualToString:MP42VideoFormatJPEG])
+                previewsId = track.Id;
+
+        [self loadPreviewsFromTrackID:previewsId];
+
         _tracksToBeDeleted = [[NSMutableArray alloc] init];
         _metadata = [[MP42Metadata alloc] initWithSourceURL:_fileURL fileHandle:_fileHandle];
         _importers = [[NSMutableDictionary alloc] init];
@@ -162,6 +170,39 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
             MP42SubtitleTrack *a = (MP42SubtitleTrack *)ref;
             if (a.forcedTrackId)
                 a.forcedTrack = [self trackWithTrackID:a.forcedTrackId];
+        }
+    }
+}
+
+- (void)loadPreviewsFromTrackID:(MP4TrackId) trackID {
+    MP42Track *track = [self trackWithTrackID:trackID];
+    if (track) {
+        MP4SampleId sampleNum = MP4GetTrackNumberOfSamples(_fileHandle, track.Id);
+
+        for (MP4SampleId currentSampleNum = 1; currentSampleNum <= sampleNum; currentSampleNum++) {
+            uint8_t *pBytes = NULL;
+            uint32_t numBytes = 0;
+            MP4Duration duration;
+            MP4Duration renderingOffset;
+            MP4Timestamp pStartTime;
+            bool isSyncSample;
+
+            if (!MP4ReadSample(_fileHandle,
+                               track.Id,
+                               currentSampleNum,
+                               &pBytes, &numBytes,
+                               &pStartTime, &duration, &renderingOffset,
+                               &isSyncSample)) {
+                break;
+            }
+
+            NSData *frameData = [[NSData alloc] initWithBytes:pBytes length:numBytes];
+            MP42Image *frame = [[MP42Image alloc] initWithData:frameData type:MP42_ART_JPEG];
+
+            [[self chapters] chapterAtIndex:currentSampleNum - 1].image = frame;
+
+            [frame release];
+            free(pBytes);
         }
     }
 }
@@ -406,10 +447,10 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
         uint32_t supportedBrandsCount = 0;
         uint32_t flags = 0;
 
-        if ([[attributes valueForKey:MP42Create64BitData] boolValue])
+        if ([[attributes valueForKey:MP4264BitData] boolValue])
             flags += 0x01;
 
-        if ([[attributes valueForKey:MP42Create64BitTime] boolValue])
+        if ([[attributes valueForKey:MP4264BitTime] boolValue])
             flags += 0x02;
 
         if ([fileExtension isEqualToString:MP42FileTypeM4V]) {
@@ -545,8 +586,11 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
     }
 
     // Generate previews images for chapters
-    if ([[attributes valueForKey:MP42CreateChaptersPreviewTrack] boolValue] && [_tracks count])
+    if ([[attributes valueForKey:MP42GenerateChaptersPreviewTrack] boolValue] && [_tracks count]) {
         [self createChaptersPreview];
+    } else if ([[attributes valueForKey:MP42CustomChaptersPreviewTrack] boolValue] && [_tracks count]) {
+        [self customChaptersPreview];
+    }
 
     if ([_delegate respondsToSelector:@selector(endSave:)])
         [_delegate performSelector:@selector(endSave:) withObject:self];
@@ -717,6 +761,118 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 #endif
 
     return [images autorelease];
+}
+
+- (BOOL)muxChaptersPreviewTrackId:(MP4TrackId)jpegTrack withChapterTrack:(MP42ChapterTrack *)chapterTrack andRefTrack:(MP42VideoTrack *)videoTrack {
+    // Reopen the mp4v2 fileHandle
+    _fileHandle = MP4Modify([[_fileURL path] UTF8String], 0);
+    if (_fileHandle == MP4_INVALID_FILE_HANDLE)
+        return NO;
+
+    CGFloat maxWidth = 640;
+    NSSize imageSize = NSMakeSize(videoTrack.trackWidth, videoTrack.trackHeight);
+    if (imageSize.width > maxWidth) {
+        imageSize.height = maxWidth / imageSize.width * imageSize.height;
+        imageSize.width = maxWidth;
+    }
+    NSRect rect = NSMakeRect(0.0, 0.0, imageSize.width, imageSize.height);
+
+    if (jpegTrack ) {
+        MP4DeleteTrack(_fileHandle, jpegTrack);
+    }
+
+    jpegTrack = MP4AddJpegVideoTrack(_fileHandle, MP4GetTrackTimeScale(_fileHandle, [chapterTrack Id]),
+                                         MP4_INVALID_DURATION, imageSize.width, imageSize.height);
+
+    MP4SetTrackLanguage(_fileHandle, jpegTrack, lang_for_english([videoTrack.language UTF8String])->iso639_2);
+    MP4SetTrackIntegerProperty(_fileHandle, jpegTrack, "tkhd.layer", 1);
+    MP4SetTrackDisabled(_fileHandle, jpegTrack);
+
+    NSUInteger idx = 0;
+    MP4Duration duration = 0;
+
+    for (MP42TextSample *chapterT in [chapterTrack chapters]) {
+        duration = MP4GetSampleDuration(_fileHandle, chapterTrack.Id, idx + 1);
+
+        NSData *imageData = chapterT.image.data;
+
+        if (!imageData) {
+            // Scale the image.
+            NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+                                                                               pixelsWide:rect.size.width
+                                                                               pixelsHigh:rect.size.height
+                                                                            bitsPerSample:8
+                                                                          samplesPerPixel:4
+                                                                                 hasAlpha:YES
+                                                                                 isPlanar:NO
+                                                                           colorSpaceName:NSCalibratedRGBColorSpace
+                                                                             bitmapFormat:NSAlphaFirstBitmapFormat
+                                                                              bytesPerRow:0
+                                                                             bitsPerPixel:32];
+            [NSGraphicsContext saveGraphicsState];
+            [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:bitmap]];
+
+            [[NSColor blackColor] set];
+            NSRectFill(rect);
+
+            if (chapterT.image.image)
+                [[chapterT image].image drawInRect:rect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+
+            [NSGraphicsContext restoreGraphicsState];
+
+            imageData = [bitmap representationUsingType:NSJPEGFileType properties:nil];
+            [bitmap release];
+        }
+
+        MP4WriteSample(_fileHandle,
+                       jpegTrack,
+                       [imageData bytes],
+                       [imageData length],
+                       duration,
+                       0,
+                       true);
+        idx++;
+    }
+
+    MP4RemoveAllTrackReferences(_fileHandle, "tref.chap", videoTrack.Id);
+    MP4AddTrackReference(_fileHandle, "tref.chap", chapterTrack.Id, videoTrack.Id);
+    MP4AddTrackReference(_fileHandle, "tref.chap", jpegTrack, videoTrack.Id);
+    copyTrackEditLists(_fileHandle, chapterTrack.Id, jpegTrack);
+
+    MP4Close(_fileHandle, 0);
+
+    return YES;
+}
+
+- (BOOL)customChaptersPreview {
+    NSInteger decodable = 1;
+    MP42ChapterTrack *chapterTrack = nil;
+    MP42VideoTrack *refTrack = nil;
+    MP4TrackId jpegTrack = 0;
+
+    for (MP42Track *track in _tracks) {
+        if ([track isMemberOfClass:[MP42ChapterTrack class]] && !chapterTrack)
+            chapterTrack = (MP42ChapterTrack *)track;
+
+        if ([track isMemberOfClass:[MP42VideoTrack class]] &&
+            ![track.format isEqualToString:MP42VideoFormatJPEG]
+            && !refTrack)
+            refTrack = (MP42VideoTrack *)track;
+
+        if ([track.format isEqualToString:MP42VideoFormatJPEG] && !jpegTrack)
+            jpegTrack = track.Id;
+
+        if ([track.format isEqualToString:MP42VideoFormatH264])
+            if ((((MP42VideoTrack *)track).origProfile) == 110)
+                decodable = 0;
+    }
+
+    if (!refTrack)
+        refTrack = [_tracks objectAtIndex:0];
+
+    [self muxChaptersPreviewTrackId:jpegTrack withChapterTrack:chapterTrack andRefTrack:refTrack];
+
+    return YES;
 }
 
 - (BOOL)createChaptersPreview {

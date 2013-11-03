@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A9B9C1EC182391DF00416A4E"
-               BuildableName = "MP42.framework"
-               BlueprintName = "MP42"
+               BuildableName = "MP42Foundation.framework"
+               BlueprintName = "MP42Foundation"
                ReferencedContainer = "container:MP42.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A9B9C203182391DF00416A4E"
-               BuildableName = "MP42Tests.xctest"
-               BlueprintName = "MP42Tests"
+               BuildableName = "MP42FoundationTests.xctest"
+               BlueprintName = "MP42FoundationTests"
                ReferencedContainer = "container:MP42.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -39,8 +39,8 @@
 
 - (instancetype)initWithURL:(NSURL *)fileURL error:(NSError **)outError;
 
-- (BOOL)containsTrack:(MP42Track*)track;
-- (MP42Track *)inputTrackWithTrackID:(MP4TrackId)trackId;
+- (BOOL)containsTrack:(MP42Track *)track;
+- (MP42Track *)inputTrackWithTrackID:(MP42TrackId)trackId;
 
 - (NSUInteger)timescaleForTrack:(MP42Track *)track;
 - (NSSize)sizeForTrack:(MP42Track *)track;
@@ -59,7 +59,7 @@
 - (BOOL)done;
 - (void)setDone:(BOOL)status;
 
-- (BOOL)cleanUp:(MP4FileHandle) fileHandle;
+- (BOOL)cleanUp:(MP42FileHandle) fileHandle;
 
 @property(readwrite, retain) MP42Metadata *metadata;
 @property(readonly) NSMutableArray  *tracks;

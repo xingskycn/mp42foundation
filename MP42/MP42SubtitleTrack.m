@@ -10,7 +10,7 @@
 #import "MP42Utilities.h"
 #import "MP42MediaFormat.h"
 #import "MP42HtmlParser.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 
 @implementation MP42SubtitleTrack
 

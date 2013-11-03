@@ -12,12 +12,17 @@
 
 @interface MP42ChapterTrack : MP42Track <NSCoding> {
     NSMutableArray *chapters;
+    BOOL _areChaptersEdited;
 }
+
 - (instancetype)initWithSourceURL:(NSURL *)URL trackID:(NSInteger)trackID fileHandle:(MP42FileHandle)fileHandle;
 + (instancetype)chapterTrackFromFile:(NSURL *)URL;
 
 - (void)addChapter:(NSString *)title duration:(uint64_t)timestamp;
+- (void)addChapter:(NSString *)title image:(MP42Image *)image duration:(uint64_t)timestamp;
+
 - (void)removeChapterAtIndex:(NSUInteger)index;
+- (void)removeChaptersAtIndexes:(NSIndexSet *)indexes;
 
 - (void)setTimestamp:(MP42Duration)timestamp forChapter:(MP42TextSample *)chapterSample;
 - (void)setTitle:(NSString*)title forChapter:(MP42TextSample *)chapterSample;

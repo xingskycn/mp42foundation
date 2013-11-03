@@ -11,7 +11,7 @@
 #import "MP42FileImporter.h"
 #import "MP42Sample.h"
 #import "MP42Fifo.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 
 #import "MP42Track_Muxer.h"
 

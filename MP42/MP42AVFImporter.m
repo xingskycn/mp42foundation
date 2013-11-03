@@ -9,7 +9,7 @@
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1060
 
 #import "MP42AVFImporter.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 #import "MP42File.h"
 #import "MP42Image.h"
 

@@ -18,9 +18,10 @@
 
 #import "MP42MediaFormat.h"
 
-extern NSString * const MP42Create64BitData;
-extern NSString * const MP42Create64BitTime;
-extern NSString * const MP42CreateChaptersPreviewTrack;
+extern NSString * const MP4264BitData;
+extern NSString * const MP4264BitTime;
+extern NSString * const MP42GenerateChaptersPreviewTrack;
+extern NSString * const MP42CustomChaptersPreviewTrack;
 extern NSString * const MP42OrganizeAlternateGroups;
 
 @protocol MP42FileDelegate

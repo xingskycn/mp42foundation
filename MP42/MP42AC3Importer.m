@@ -7,7 +7,7 @@
 //
 
 #import "MP42AC3Importer.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 #import "MP42File.h"
 #import "MP42Utilities.h"
 #import "MP42Fifo.h"

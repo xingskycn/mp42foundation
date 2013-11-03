@@ -1,5 +1,5 @@
 //
-//  SBRatings.h
+//  MP42Ratings.h
 //  Subler
 //
 //  Created by Douglas Stebila on 2013-06-02.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SBRatings : NSObject {
+@interface MP42Ratings : NSObject {
 	NSMutableArray *ratingsDictionary;
 	NSMutableArray *ratings;
 	NSMutableArray *iTunesCodes;
@@ -17,7 +17,7 @@
 @property(readonly) NSMutableArray *ratings;
 @property(readonly) NSMutableArray *iTunesCodes;
 
-+ (SBRatings *) defaultManager;
++ (MP42Ratings *) defaultManager;
 
 - (void)updateRatingsCountry;
 - (NSArray *) ratingsCountries;

@@ -24,12 +24,14 @@
 
 -(void) dealloc
 {
+    [image release];
     [title release];
     [super dealloc];
 }
 
 @synthesize timestamp;
 @synthesize title;
+@synthesize image;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {

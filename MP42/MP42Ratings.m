@@ -1,30 +1,30 @@
 //
-//  SBRatings.m
+//  MP42Ratings.m
 //  Subler
 //
 //  Created by Douglas Stebila on 2013-06-02.
 //
 //
 
-#import "SBRatings.h"
+#import "MP42Ratings.h"
 
 #import "JSONKit.h"
 
-@implementation SBRatings
+@implementation MP42Ratings
 
 @synthesize ratings;
 @synthesize iTunesCodes;
 
-+ (SBRatings *) defaultManager {
++ (MP42Ratings *) defaultManager {
     static dispatch_once_t sharedRatingsPred;
-    static SBRatings *sharedRatingsManager = nil;
+    static MP42Ratings *sharedRatingsManager = nil;
     dispatch_once(&sharedRatingsPred, ^{ sharedRatingsManager = [[self alloc] init]; });
     return sharedRatingsManager;
 }
 
 - (id) init {
 	if (self = [super init]) {
-		NSString* ratingsJSON = [[NSBundle mainBundle] pathForResource:@"Ratings" ofType:@"json"];
+		NSString* ratingsJSON = [[NSBundle bundleForClass:[MP42Ratings class]] pathForResource:@"Ratings" ofType:@"json"];
         if (!ratingsJSON) {
             [self release];
             return nil;

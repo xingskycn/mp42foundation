@@ -85,6 +85,7 @@
         _muxed = NO;
         _enabled = NO;
         _mediaType = MP42MediaTypeText;
+        _areChaptersEdited = YES;
 
         chapters = [[NSMutableArray alloc] init];
         LoadChaptersFromPath([_sourceURL path], chapters);
@@ -106,6 +107,21 @@
     newChapter.timestamp = timestamp;
 
     _isEdited = YES;
+    _areChaptersEdited = YES;
+
+    [chapters addObject:newChapter];
+    [chapters sortUsingSelector:@selector(compare:)];
+    [newChapter release];
+}
+
+- (void)addChapter:(NSString *)title image:(MP42Image *)image duration:(uint64_t)timestamp {
+    MP42TextSample *newChapter = [[MP42TextSample alloc] init];
+    newChapter.title = title;
+    newChapter.image = image;
+    newChapter.timestamp = timestamp;
+
+    _isEdited = YES;
+    _areChaptersEdited = YES;
 
     [chapters addObject:newChapter];
     [chapters sortUsingSelector:@selector(compare:)];
@@ -114,13 +130,20 @@
 
 - (void)removeChapterAtIndex:(NSUInteger)index
 {
+    [self removeChaptersAtIndexes:[NSIndexSet indexSetWithIndex:index]];
+}
+
+- (void)removeChaptersAtIndexes:(NSIndexSet *)indexes
+{
     _isEdited = YES;
-    [chapters removeObjectAtIndex:index];
+    _areChaptersEdited = YES;
+    [chapters removeObjectsAtIndexes:indexes];
 }
 
 - (void)setTimestamp:(MP4Duration)timestamp forChapter:(MP42TextSample *)chapterSample
 {
     _isEdited = YES;
+    _areChaptersEdited = YES;
     [chapterSample setTimestamp:timestamp];
     [chapters sortUsingSelector:@selector(compare:)];
 }
@@ -128,6 +151,7 @@
 - (void)setTitle:(NSString *)title forChapter:(MP42TextSample *)chapterSample
 {
     _isEdited = YES;
+    _areChaptersEdited = YES;
     [chapterSample setTitle:title];
 }
 
@@ -140,7 +164,7 @@
 {
     BOOL success = YES;
 
-    if (_isEdited) {
+    if (_isEdited && _areChaptersEdited) {
         MP4Chapter_t * fileChapters = 0;
         MP4Duration refTrackDuration;
         uint32_t chapterCount = 0;

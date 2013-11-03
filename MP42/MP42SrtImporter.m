@@ -10,7 +10,7 @@
 
 #import "MP42File.h"
 #import "MP42SubUtilities.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 
 @implementation MP42SrtImporter
 

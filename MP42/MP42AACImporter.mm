@@ -7,7 +7,7 @@
 //
 
 #import "MP42AACImporter.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 #import "MP42File.h"
 
 @implementation MP42AACImporter

@@ -1,12 +1,12 @@
 //
-//  SBLanguages.m
+//  MP42Languages.m
 //  Subler
 //
 //  Created by Damiano Galassi on 13/08/12.
 //
 //
 
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 
 #include <string.h>
 #include <ctype.h>
@@ -600,12 +600,12 @@ iso639_lang_t * lang_for_english( const char * english )
     return (iso639_lang_t*) languages;
 }
 
-@implementation SBLanguages
+@implementation MP42Languages
 
-+ (SBLanguages *)defaultManager
++ (MP42Languages *)defaultManager
 {
     static dispatch_once_t pred;
-    static SBLanguages *sharedLanguagesManager = nil;
+    static MP42Languages *sharedLanguagesManager = nil;
     
     dispatch_once(&pred, ^{ sharedLanguagesManager = [[self alloc] init]; });
     return sharedLanguagesManager;

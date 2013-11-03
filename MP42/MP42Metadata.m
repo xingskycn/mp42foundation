@@ -11,7 +11,7 @@
 #import "MP42XMLReader.h"
 #import "MP42Image.h"
 #import "RegexKitLite.h"
-#import "SBRatings.h"
+#import "MP42Ratings.h"
 
 typedef struct mediaKind_t
 {
@@ -939,7 +939,7 @@ static const genreType_t genreType_strings[] = {
                 else
                     ratingiTunesCode = nil;
 
-				[tagsDict setObject:[NSNumber numberWithUnsignedInteger:[[SBRatings defaultManager] ratingIndexForiTunesCode:ratingiTunesCode]] forKey:@"Rating"];
+				[tagsDict setObject:[NSNumber numberWithUnsignedInteger:[[MP42Ratings defaultManager] ratingIndexForiTunesCode:ratingiTunesCode]] forKey:@"Rating"];
                 if ([ratingItems count] >= 4)
                     [tagsDict setObject:[ratingItems objectAtIndex:3] forKey:@"Rating Annotation"];
             }
@@ -1280,12 +1280,12 @@ static const genreType_t genreType_strings[] = {
         MP4ItmfData* data = &newItem->dataList.elements[0];
 
         if (![[tagsDict valueForKey:@"Rating"] isKindOfClass:[NSNumber class]] ||
-            [[tagsDict valueForKey:@"Rating"] unsignedIntegerValue] == [[SBRatings defaultManager] unknownIndex]) {
+            [[tagsDict valueForKey:@"Rating"] unsignedIntegerValue] == [[MP42Ratings defaultManager] unknownIndex]) {
             if (!ratingiTunesCode) {
-                ratingiTunesCode = [[[SBRatings defaultManager] iTunesCodes] objectAtIndex:[[SBRatings defaultManager] unknownIndex]];
+                ratingiTunesCode = [[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[MP42Ratings defaultManager] unknownIndex]];
             }
         } else {
-            ratingiTunesCode = [[[SBRatings defaultManager] iTunesCodes] objectAtIndex:[[tagsDict valueForKey:@"Rating"] unsignedIntegerValue]];
+            ratingiTunesCode = [[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[tagsDict valueForKey:@"Rating"] unsignedIntegerValue]];
         }
         NSString *ratingString = ratingiTunesCode;
         if ([[tagsDict valueForKey:@"Rating Annotation"] length] && [ratingString length]) {

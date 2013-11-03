@@ -1,5 +1,5 @@
 //
-//  SBLanguages.h
+//  MP42Languages.h
 //  Subler
 //
 //  Created by Damiano Galassi on 13/08/12.
@@ -28,7 +28,7 @@ extern "C" {
     
     /* find language associated with ISO-639-2 language code */
     iso639_lang_t * lang_for_code2( const char *code2 );
-    
+
     /* find language associated with qt language code */
     iso639_lang_t * lang_for_qtcode( short code );
     
@@ -40,9 +40,9 @@ extern "C" {
 }
 #endif
 
-@interface SBLanguages : NSObject
+@interface MP42Languages : NSObject
 
-+ (SBLanguages *)defaultManager;
++ (MP42Languages *)defaultManager;
 - (NSArray *)languages;
 + (NSString *)iso6391CodeFor:(NSString *)aLanguage;
 

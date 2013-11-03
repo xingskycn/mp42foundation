@@ -12,7 +12,7 @@
 #import "MP42Image.h"
 #import <AudioToolbox/AudioToolbox.h>
 #import <QuickTime/QuickTime.h>
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 #import "QTKitDecrap.h"
 #include "avcodec.h"
 

@@ -7,7 +7,7 @@
 //
 
 #import "MP42H264Importer.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 #import "MP42File.h"
 #include <sys/stat.h>
 

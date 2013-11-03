@@ -7,7 +7,7 @@
 //
 
 #import "MP42Mp4Importer.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 #import "MP42Sample.h"
 
 @interface MP4DemuxkHelper : NSObject {

@@ -7,7 +7,7 @@
 //
 
 #import "MP42OCRWrapper.h"
-#import "SBLanguages.h"
+#import "MP42Languages.h"
 
 // Tesseract OCR
 #include "baseapi.h"
