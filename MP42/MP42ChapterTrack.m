@@ -100,7 +100,7 @@
     return [[[MP42ChapterTrack alloc] initWithTextFile:URL] autorelease];
 }
 
-- (void)addChapter:(NSString *)title duration:(uint64_t)timestamp
+- (NSUInteger)addChapter:(NSString *)title duration:(uint64_t)timestamp
 {
     MP42TextSample *newChapter = [[MP42TextSample alloc] init];
     newChapter.title = title;
@@ -112,9 +112,11 @@
     [chapters addObject:newChapter];
     [chapters sortUsingSelector:@selector(compare:)];
     [newChapter release];
+
+    return [chapters indexOfObject:newChapter];
 }
 
-- (void)addChapter:(NSString *)title image:(MP42Image *)image duration:(uint64_t)timestamp {
+- (NSUInteger)addChapter:(NSString *)title image:(MP42Image *)image duration:(uint64_t)timestamp {
     MP42TextSample *newChapter = [[MP42TextSample alloc] init];
     newChapter.title = title;
     newChapter.image = image;
@@ -126,6 +128,12 @@
     [chapters addObject:newChapter];
     [chapters sortUsingSelector:@selector(compare:)];
     [newChapter release];
+
+    return [chapters indexOfObject:newChapter];
+}
+
+- (NSUInteger)indexOfChapter:(MP42TextSample *)chapterSample {
+    return [chapters indexOfObject:chapterSample];
 }
 
 - (void)removeChapterAtIndex:(NSUInteger)index
