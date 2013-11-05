@@ -58,7 +58,7 @@ int compare_color(rgba_color c1, rgba_color c2) {
     newObject.location = _location;
     newObject.length = _length;
     newObject.color = _color;
-    
+
     return newObject;
 }
 
@@ -116,10 +116,16 @@ int compare_color(rgba_color c1, rgba_color c2) {
     NSRange contentRange, contentInternalRange;
     contentRange.location = openRange.location;
     contentRange.length = closeRange.location + closeRange.length - openRange.location;
-    
+
     contentInternalRange = contentRange;
     contentInternalRange.location += 1;
     contentInternalRange.length -= 2;
+
+    // If the internal content range location is equal to the text length
+    // it means there is no content at all
+    if (contentInternalRange.location == [_text length]) {
+        return NSNotFound;
+    }
 
     content = [_text substringWithRange:contentInternalRange];
 
