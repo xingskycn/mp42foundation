@@ -935,7 +935,7 @@ static const genreType_t genreType_strings[] = {
                 NSArray *ratingItems = [ratingString componentsSeparatedByRegex:splitElements];
                 [ratingString release];
                 if ([ratingItems count] > 2)
-                    ratingiTunesCode = [[NSString stringWithFormat:@"%@|%@|%@|",[ratingItems objectAtIndex:0], [ratingItems objectAtIndex:1], [ratingItems objectAtIndex:2]] retain];
+                    ratingiTunesCode = [NSString stringWithFormat:@"%@|%@|%@|",[ratingItems objectAtIndex:0], [ratingItems objectAtIndex:1], [ratingItems objectAtIndex:2]];
                 else
                     ratingiTunesCode = nil;
 

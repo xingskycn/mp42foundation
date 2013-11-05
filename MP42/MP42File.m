@@ -201,6 +201,7 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
             [[self chapters] chapterAtIndex:currentSampleNum - 1].image = frame;
 
+            [frameData release];
             [frame release];
             free(pBytes);
         }
