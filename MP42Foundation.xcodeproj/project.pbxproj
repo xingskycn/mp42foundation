@@ -15,7 +15,7 @@
 		A9B9C1FB182391DF00416A4E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A9B9C1F9182391DF00416A4E /* InfoPlist.strings */; };
 		A9B9C206182391DF00416A4E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C205182391DF00416A4E /* XCTest.framework */; };
 		A9B9C207182391DF00416A4E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1F0182391DF00416A4E /* Cocoa.framework */; };
-		A9B9C20A182391DF00416A4E /* MP42FoundationFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1ED182391DF00416A4E /* MP42FoundationFoundation.framework */; };
+		A9B9C20A182391DF00416A4E /* MP42Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1ED182391DF00416A4E /* MP42Foundation.framework */; };
 		A9B9C210182391DF00416A4E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A9B9C20E182391DF00416A4E /* InfoPlist.strings */; };
 		A9B9C212182391DF00416A4E /* MP42Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C211182391DF00416A4E /* MP42Tests.m */; };
 		A9B9C2661823923200416A4E /* MP42AACImporter.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C21B1823923100416A4E /* MP42AACImporter.h */; };
@@ -164,7 +164,7 @@
 		A989F0FF1823AB2E0070AD8C /* MP42Track_Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Track_Muxer.h; sourceTree = "<group>"; };
 		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
 		A989F10E1823B3B40070AD8C /* MP42TextSample.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42TextSample.m; sourceTree = "<group>"; };
-		A9B9C1ED182391DF00416A4E /* MP42FoundationFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MP42FoundationFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9B9C1ED182391DF00416A4E /* MP42Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MP42Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9B9C1F0182391DF00416A4E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A9B9C1F3182391DF00416A4E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A9B9C1F4182391DF00416A4E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -311,7 +311,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9B9C207182391DF00416A4E /* Cocoa.framework in Frameworks */,
-				A9B9C20A182391DF00416A4E /* MP42FoundationFoundation.framework in Frameworks */,
+				A9B9C20A182391DF00416A4E /* MP42Foundation.framework in Frameworks */,
 				A9B9C206182391DF00416A4E /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -332,7 +332,7 @@
 		A9B9C1EE182391DF00416A4E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A9B9C1ED182391DF00416A4E /* MP42FoundationFoundation.framework */,
+				A9B9C1ED182391DF00416A4E /* MP42Foundation.framework */,
 				A9B9C204182391DF00416A4E /* MP42FoundationFoundationTests.xctest */,
 			);
 			name = Products;
@@ -609,9 +609,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		A9B9C1EC182391DF00416A4E /* MP42FoundationFoundation */ = {
+		A9B9C1EC182391DF00416A4E /* MP42Foundation */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A9B9C215182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42FoundationFoundation" */;
+			buildConfigurationList = A9B9C215182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42Foundation" */;
 			buildPhases = (
 				A9B9C1E8182391DF00416A4E /* Sources */,
 				A9B9C1E9182391DF00416A4E /* Frameworks */,
@@ -623,14 +623,14 @@
 			dependencies = (
 				A989F10B1823AEA90070AD8C /* PBXTargetDependency */,
 			);
-			name = MP42FoundationFoundation;
+			name = MP42Foundation;
 			productName = MP42;
-			productReference = A9B9C1ED182391DF00416A4E /* MP42FoundationFoundation.framework */;
+			productReference = A9B9C1ED182391DF00416A4E /* MP42Foundation.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		A9B9C203182391DF00416A4E /* MP42FoundationFoundationTests */ = {
+		A9B9C203182391DF00416A4E /* MP42FoundationTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A9B9C218182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42FoundationFoundationTests" */;
+			buildConfigurationList = A9B9C218182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42FoundationTests" */;
 			buildPhases = (
 				A9B9C200182391DF00416A4E /* Sources */,
 				A9B9C201182391DF00416A4E /* Frameworks */,
@@ -641,7 +641,7 @@
 			dependencies = (
 				A9B9C209182391DF00416A4E /* PBXTargetDependency */,
 			);
-			name = MP42FoundationFoundationTests;
+			name = MP42FoundationTests;
 			productName = MP42Tests;
 			productReference = A9B9C204182391DF00416A4E /* MP42FoundationFoundationTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -680,8 +680,8 @@
 			);
 			projectRoot = "";
 			targets = (
-				A9B9C1EC182391DF00416A4E /* MP42FoundationFoundation */,
-				A9B9C203182391DF00416A4E /* MP42FoundationFoundationTests */,
+				A9B9C1EC182391DF00416A4E /* MP42Foundation */,
+				A9B9C203182391DF00416A4E /* MP42FoundationTests */,
 			);
 		};
 /* End PBXProject section */
@@ -797,7 +797,7 @@
 		};
 		A9B9C209182391DF00416A4E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A9B9C1EC182391DF00416A4E /* MP42FoundationFoundation */;
+			target = A9B9C1EC182391DF00416A4E /* MP42Foundation */;
 			targetProxy = A9B9C208182391DF00416A4E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -923,7 +923,7 @@
 					"$(SRCROOT)/ffmpeg/lib",
 					"$(SRCROOT)/Tesseract/lib",
 				);
-				PRODUCT_NAME = MP42FoundationFoundation;
+				PRODUCT_NAME = MP42Foundation;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -945,7 +945,7 @@
 					"$(SRCROOT)/ffmpeg/lib",
 					"$(SRCROOT)/Tesseract/lib",
 				);
-				PRODUCT_NAME = MP42FoundationFoundation;
+				PRODUCT_NAME = MP42Foundation;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -1002,7 +1002,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A9B9C215182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42FoundationFoundation" */ = {
+		A9B9C215182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42Foundation" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A9B9C216182391DF00416A4E /* Debug */,
@@ -1011,7 +1011,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A9B9C218182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42FoundationFoundationTests" */ = {
+		A9B9C218182391DF00416A4E /* Build configuration list for PBXNativeTarget "MP42FoundationTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A9B9C219182391DF00416A4E /* Debug */,
