@@ -100,20 +100,27 @@
     return [[[MP42ChapterTrack alloc] initWithTextFile:URL] autorelease];
 }
 
+- (NSUInteger)addChapter:(MP42TextSample *)chapter
+{
+    _isEdited = YES;
+    _areChaptersEdited = YES;
+
+    [chapters addObject:chapter];
+    [chapters sortUsingSelector:@selector(compare:)];
+
+    return [chapters indexOfObject:chapter];
+}
+
 - (NSUInteger)addChapter:(NSString *)title duration:(uint64_t)timestamp
 {
     MP42TextSample *newChapter = [[MP42TextSample alloc] init];
     newChapter.title = title;
     newChapter.timestamp = timestamp;
 
-    _isEdited = YES;
-    _areChaptersEdited = YES;
-
-    [chapters addObject:newChapter];
-    [chapters sortUsingSelector:@selector(compare:)];
+    NSUInteger idx = [self addChapter:newChapter];
     [newChapter release];
 
-    return [chapters indexOfObject:newChapter];
+    return idx;
 }
 
 - (NSUInteger)addChapter:(NSString *)title image:(MP42Image *)image duration:(uint64_t)timestamp {
@@ -122,14 +129,10 @@
     newChapter.image = image;
     newChapter.timestamp = timestamp;
 
-    _isEdited = YES;
-    _areChaptersEdited = YES;
-
-    [chapters addObject:newChapter];
-    [chapters sortUsingSelector:@selector(compare:)];
+    NSUInteger idx = [self addChapter:newChapter];
     [newChapter release];
 
-    return [chapters indexOfObject:newChapter];
+    return idx;
 }
 
 - (NSUInteger)indexOfChapter:(MP42TextSample *)chapterSample {

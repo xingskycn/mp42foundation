@@ -18,6 +18,7 @@
 - (instancetype)initWithSourceURL:(NSURL *)URL trackID:(NSInteger)trackID fileHandle:(MP42FileHandle)fileHandle;
 + (instancetype)chapterTrackFromFile:(NSURL *)URL;
 
+- (NSUInteger)addChapter:(MP42TextSample *)chapter;
 - (NSUInteger)addChapter:(NSString *)title duration:(uint64_t)timestamp;
 - (NSUInteger)addChapter:(NSString *)title image:(MP42Image *)image duration:(uint64_t)timestamp;
 
