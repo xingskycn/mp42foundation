@@ -846,7 +846,6 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 }
 
 - (BOOL)customChaptersPreview {
-    NSInteger decodable = 1;
     MP42ChapterTrack *chapterTrack = nil;
     MP42VideoTrack *refTrack = nil;
     MP4TrackId jpegTrack = 0;
@@ -862,10 +861,6 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
         if ([track.format isEqualToString:MP42VideoFormatJPEG] && !jpegTrack)
             jpegTrack = track.Id;
-
-        if ([track.format isEqualToString:MP42VideoFormatH264])
-            if ((((MP42VideoTrack *)track).origProfile) == 110)
-                decodable = 0;
     }
 
     if (!refTrack)
