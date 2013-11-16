@@ -10,7 +10,7 @@
 #import "MP42FileImporter.h"
 #import "MP42Muxer.h"
 #import "MP42SubUtilities.h"
-#import "MP42Utilities.h"
+#import "MP42PrivateUtilities.h"
 #import "MP42Languages.h"
 #import "MP42Track+Muxer.h"
 

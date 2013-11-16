@@ -15,7 +15,7 @@
 #import "MP42SubUtilities.h"
 
 #import "mp4v2.h"
-#import "MP42Utilities.h"
+#import "MP42PrivateUtilities.h"
 #import "MP42Track+Muxer.h"
 
 #define REGISTER_DECODER(x) { \

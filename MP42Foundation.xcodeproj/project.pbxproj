@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = A925AAAD18379AF800BE84D4 /* MP42Utilities.h */; };
+		A925AAB018379AF800BE84D4 /* MP42Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = A925AAAE18379AF800BE84D4 /* MP42Utilities.m */; };
 		A947BA9B1824F0B3004C734B /* Ratings.json in Resources */ = {isa = PBXBuildFile; fileRef = A947BA9A1824F0B3004C734B /* Ratings.json */; };
 		A989F1001823AB2E0070AD8C /* MP42Track+Muxer.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */; };
 		A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F10D1823B3B40070AD8C /* MP42TextSample.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -73,8 +75,8 @@
 		A9B9C29A1823923200416A4E /* MP42SubUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C24F1823923100416A4E /* MP42SubUtilities.m */; };
 		A9B9C29B1823923200416A4E /* MP42Track.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2501823923100416A4E /* MP42Track.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B9C29C1823923200416A4E /* MP42Track.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2511823923100416A4E /* MP42Track.m */; };
-		A9B9C29D1823923200416A4E /* MP42Utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2521823923100416A4E /* MP42Utilities.h */; };
-		A9B9C29E1823923200416A4E /* MP42Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2531823923100416A4E /* MP42Utilities.m */; };
+		A9B9C29D1823923200416A4E /* MP42PrivateUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2521823923100416A4E /* MP42PrivateUtilities.h */; };
+		A9B9C29E1823923200416A4E /* MP42PrivateUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2531823923100416A4E /* MP42PrivateUtilities.m */; };
 		A9B9C29F1823923200416A4E /* MP42VideoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2541823923100416A4E /* MP42VideoTrack.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B9C2A01823923200416A4E /* MP42VideoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2551823923100416A4E /* MP42VideoTrack.m */; };
 		A9B9C2A11823923200416A4E /* MP42VobSubImporter.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2561823923200416A4E /* MP42VobSubImporter.h */; };
@@ -160,6 +162,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A925AAAD18379AF800BE84D4 /* MP42Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Utilities.h; sourceTree = "<group>"; };
+		A925AAAE18379AF800BE84D4 /* MP42Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42Utilities.m; sourceTree = "<group>"; };
 		A947BA9A1824F0B3004C734B /* Ratings.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Ratings.json; sourceTree = "<group>"; };
 		A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MP42Track+Muxer.h"; sourceTree = "<group>"; };
 		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
@@ -232,8 +236,8 @@
 		A9B9C24F1823923100416A4E /* MP42SubUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42SubUtilities.m; sourceTree = "<group>"; };
 		A9B9C2501823923100416A4E /* MP42Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Track.h; sourceTree = "<group>"; };
 		A9B9C2511823923100416A4E /* MP42Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42Track.m; sourceTree = "<group>"; };
-		A9B9C2521823923100416A4E /* MP42Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Utilities.h; sourceTree = "<group>"; };
-		A9B9C2531823923100416A4E /* MP42Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42Utilities.m; sourceTree = "<group>"; };
+		A9B9C2521823923100416A4E /* MP42PrivateUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42PrivateUtilities.h; sourceTree = "<group>"; };
+		A9B9C2531823923100416A4E /* MP42PrivateUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42PrivateUtilities.m; sourceTree = "<group>"; };
 		A9B9C2541823923100416A4E /* MP42VideoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42VideoTrack.h; sourceTree = "<group>"; };
 		A9B9C2551823923100416A4E /* MP42VideoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42VideoTrack.m; sourceTree = "<group>"; };
 		A9B9C2561823923200416A4E /* MP42VobSubImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42VobSubImporter.h; sourceTree = "<group>"; };
@@ -517,8 +521,10 @@
 				A9B9C2C31823957800416A4E /* MP42Languages.m */,
 				A9B9C2CD182396A100416A4E /* MP42Ratings.h */,
 				A9B9C2CE182396A100416A4E /* MP42Ratings.m */,
-				A9B9C2521823923100416A4E /* MP42Utilities.h */,
-				A9B9C2531823923100416A4E /* MP42Utilities.m */,
+				A9B9C2521823923100416A4E /* MP42PrivateUtilities.h */,
+				A9B9C2531823923100416A4E /* MP42PrivateUtilities.m */,
+				A925AAAD18379AF800BE84D4 /* MP42Utilities.h */,
+				A925AAAE18379AF800BE84D4 /* MP42Utilities.m */,
 				A9B9C24E1823923100416A4E /* MP42SubUtilities.h */,
 				A9B9C24F1823923100416A4E /* MP42SubUtilities.m */,
 				A9B9C2581823923200416A4E /* MP42XMLReader.h */,
@@ -582,6 +588,7 @@
 				A9B9C2791823923200416A4E /* MP42Fifo.h in Headers */,
 				A9B9C2A31823923200416A4E /* MP42XMLReader.h in Headers */,
 				A9B9C2CB1823968400416A4E /* RegexKitLite.h in Headers */,
+				A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */,
 				A9B9C28D1823923200416A4E /* MP42Muxer.h in Headers */,
 				A9B9C2AD1823923200416A4E /* mpeg4ip_bitstream.h in Headers */,
 				A9B9C2A81823923200416A4E /* MatroskaFile.h in Headers */,
@@ -595,7 +602,7 @@
 				A9B9C2C81823962600416A4E /* UniversalDetector.h in Headers */,
 				A9B9C27F1823923200416A4E /* MP42H264Importer.h in Headers */,
 				A9B9C2D3182396C400416A4E /* JSONKit.h in Headers */,
-				A9B9C29D1823923200416A4E /* MP42Utilities.h in Headers */,
+				A9B9C29D1823923200416A4E /* MP42PrivateUtilities.h in Headers */,
 				A9B9C2661823923200416A4E /* MP42AACImporter.h in Headers */,
 				A9B9C2681823923200416A4E /* MP42AC3Importer.h in Headers */,
 				A989F1001823AB2E0070AD8C /* MP42Track+Muxer.h in Headers */,
@@ -762,7 +769,7 @@
 				A9B9C2751823923200416A4E /* MP42ChapterTrack.m in Sources */,
 				A9B9C2C51823957800416A4E /* MP42Languages.m in Sources */,
 				A9B9C2841823923200416A4E /* MP42Image.m in Sources */,
-				A9B9C29E1823923200416A4E /* MP42Utilities.m in Sources */,
+				A9B9C29E1823923200416A4E /* MP42PrivateUtilities.m in Sources */,
 				A9B9C28C1823923200416A4E /* MP42Mp4Importer.m in Sources */,
 				A9B9C26D1823923200416A4E /* MP42AudioTrack.m in Sources */,
 				A9B9C2901823923200416A4E /* MP42OCRWrapper.mm in Sources */,
@@ -770,6 +777,7 @@
 				A9B9C2A91823923200416A4E /* MatroskaParser.c in Sources */,
 				A9B9C2941823923200416A4E /* MP42Sample.m in Sources */,
 				A9B9C28A1823923200416A4E /* MP42MkvImporter.m in Sources */,
+				A925AAB018379AF800BE84D4 /* MP42Utilities.m in Sources */,
 				A9B9C2731823923200416A4E /* MP42CCImporter.m in Sources */,
 				A9B9C29A1823923200416A4E /* MP42SubUtilities.m in Sources */,
 				A9B9C2981823923200416A4E /* MP42SubtitleTrack.m in Sources */,

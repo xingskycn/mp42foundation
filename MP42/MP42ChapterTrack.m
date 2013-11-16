@@ -8,7 +8,7 @@
 
 #import "MP42ChapterTrack.h"
 #import "MP42SubUtilities.h"
-#import "MP42Utilities.h"
+#import "MP42PrivateUtilities.h"
 #import "MP42MediaFormat.h"
 
 @implementation MP42ChapterTrack

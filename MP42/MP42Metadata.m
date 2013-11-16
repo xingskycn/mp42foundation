@@ -7,7 +7,7 @@
 //
 
 #import "MP42Metadata.h"
-#import "MP42Utilities.h"
+#import "MP42PrivateUtilities.h"
 #import "MP42XMLReader.h"
 #import "MP42Image.h"
 #import "RegexKitLite.h"

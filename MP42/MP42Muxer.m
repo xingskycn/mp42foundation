@@ -14,7 +14,7 @@
 #import "MP42BitmapSubConverter.h"
 
 #import "mp4v2.h"
-#import "MP42Utilities.h"
+#import "MP42PrivateUtilities.h"
 #import "MP42Track+Muxer.h"
 
 @implementation MP42Muxer

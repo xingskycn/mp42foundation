@@ -11,7 +11,7 @@
 #import "MP42Sample.h"
 
 #import "mp4v2.h"
-#import "MP42Utilities.h"
+#import "MP42PrivateUtilities.h"
 #import "MP42Track+Muxer.h"
 
 @interface MP4DemuxkHelper : NSObject {
