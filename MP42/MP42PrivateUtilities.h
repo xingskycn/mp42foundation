@@ -8,6 +8,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "MP42Utilities.h"
 #include "mp4v2.h"
 
 typedef enum {  TRACK_DISABLED = 0x0,
@@ -18,8 +19,6 @@ typedef enum {  TRACK_DISABLED = 0x0,
 } track_header_flags;
 
 NSString* SRTStringFromTime( long long time, long timeScale , const char separator);
-NSString* SMPTEStringFromTime(long long time, long timeScale);
-MP4Duration TimeFromSMPTEString( NSString* SMPTE_string, MP4Duration timeScale );
 
 int MP4SetTrackEnabled(MP4FileHandle fileHandle, MP4TrackId trackId);
 int MP4SetTrackDisabled(MP4FileHandle fileHandle, MP4TrackId trackId);
@@ -28,7 +27,6 @@ int updateTracksCount(MP4FileHandle fileHandle);
 void updateMoovDuration(MP4FileHandle fileHandle);
 
 uint64_t getTrackSize(MP4FileHandle fileHandle, MP4TrackId trackId);
-int isHdVideo(uint64_t width, uint64_t height);
 
 MP4TrackId findChapterTrackId(MP4FileHandle fileHandle);
 MP4TrackId findChapterPreviewTrackId(MP4FileHandle fileHandle);
@@ -49,12 +47,6 @@ CFDataRef createDescExt_XiphVorbis(UInt32 codecPrivateSize, const void * codecPr
 CFDataRef createDescExt_XiphFLAC(UInt32 codecPrivateSize, const void * codecPrivate);
 
 int readAC3Config(uint64_t acmod, uint64_t lfeon, UInt32 *channelsCount, UInt32 *channelLayoutTag);
-
-BOOL isTrackMuxable(NSString * formatName);
-BOOL trackNeedConversion(NSString * formatName);
-
-NSArray *supportedFileFormat();
-BOOL isFileFormatSupported(NSString * fileExt);
 
 int64_t getTrackStartOffset(MP4FileHandle fileHandle, MP4TrackId Id);
 void setTrackStartOffset(MP4FileHandle fileHandle, MP4TrackId Id, int64_t offset);

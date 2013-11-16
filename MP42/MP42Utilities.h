@@ -6,8 +6,15 @@
 //  Copyright (c) 2013 Damiano Galassi. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "MP42MediaFormat.h"
 
-@interface MP42Utilities : NSObject
+NSString * SMPTEStringFromTime(long long time, long timeScale);
+MP42Duration TimeFromSMPTEString(NSString *SMPTE_string, MP42Duration timeScale);
 
-@end
+NSArray *supportedFileFormat();
+BOOL isFileFormatSupported(NSString *fileExt);
+
+BOOL isTrackMuxable(NSString * formatName);
+BOOL trackNeedConversion(NSString * formatName);
+
+int isHdVideo(uint64_t width, uint64_t height);
