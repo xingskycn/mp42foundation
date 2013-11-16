@@ -30,7 +30,23 @@ extern NSString * const MP42OrganizeAlternateGroups;
 - (void)endSave:(id)sender;
 @end
 
-@interface MP42File : NSObject <NSCoding>
+@class MP42Muxer;
+
+@interface MP42File : NSObject <NSCoding> {
+    MP42FileHandle   _fileHandle;
+    NSURL          *_fileURL;
+    id              _delegate;
+
+    NSMutableArray      *_tracksToBeDeleted;
+    NSMutableDictionary *_importers;
+
+    BOOL        _hasFileRepresentation;
+    BOOL        _cancelled;
+
+    NSMutableArray  *_tracks;
+    MP42Metadata    *_metadata;
+    MP42Muxer       *_muxer;
+}
 
 @property(readwrite, assign) id <MP42FileDelegate> delegate;
 

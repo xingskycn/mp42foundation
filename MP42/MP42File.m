@@ -68,21 +68,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     }
 }
 
-@interface MP42File () <MP42MuxerDelegate> {
-    MP4FileHandle   _fileHandle;
-    NSURL          *_fileURL;
-    id              _delegate;
-
-    NSMutableArray      *_tracksToBeDeleted;
-    NSMutableDictionary *_importers;
-
-    BOOL        _hasFileRepresentation;
-    BOOL        _cancelled;
-
-    NSMutableArray  *_tracks;
-    MP42Metadata    *_metadata;
-    MP42Muxer       *_muxer;
-}
+@interface MP42File (MP42FilePrivate)
 
 - (void)reconnectReferences;
 - (void)removeMuxedTrack:(MP42Track *)track;
@@ -546,7 +532,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         [self removeMuxedTrack:track];
 
     // Init the muxer and prepare the work
-    _muxer = [[MP42Muxer alloc] initWithDelegate:self];
+    _muxer = [[MP42Muxer alloc] initWithDelegate:(id <MP42MuxerDelegate>)self];
 
     for (MP42Track *track in _tracks) {
         if (!track.muxed) {
