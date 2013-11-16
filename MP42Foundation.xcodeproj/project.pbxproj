@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = A925AAAD18379AF800BE84D4 /* MP42Utilities.h */; };
+		A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = A925AAAD18379AF800BE84D4 /* MP42Utilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A925AAB018379AF800BE84D4 /* MP42Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = A925AAAE18379AF800BE84D4 /* MP42Utilities.m */; };
+		A925AABC1837A16500BE84D4 /* QTKitDecrap.h in Headers */ = {isa = PBXBuildFile; fileRef = A925AABB1837A16500BE84D4 /* QTKitDecrap.h */; };
+		A925AABE1837A1A100BE84D4 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A925AABD1837A1A100BE84D4 /* QuickTime.framework */; };
 		A947BA9B1824F0B3004C734B /* Ratings.json in Resources */ = {isa = PBXBuildFile; fileRef = A947BA9A1824F0B3004C734B /* Ratings.json */; };
 		A989F1001823AB2E0070AD8C /* MP42Track+Muxer.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */; };
 		A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F10D1823B3B40070AD8C /* MP42TextSample.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -164,6 +166,8 @@
 /* Begin PBXFileReference section */
 		A925AAAD18379AF800BE84D4 /* MP42Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Utilities.h; sourceTree = "<group>"; };
 		A925AAAE18379AF800BE84D4 /* MP42Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42Utilities.m; sourceTree = "<group>"; };
+		A925AABB1837A16500BE84D4 /* QTKitDecrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTKitDecrap.h; sourceTree = "<group>"; };
+		A925AABD1837A1A100BE84D4 /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = System/Library/Frameworks/QuickTime.framework; sourceTree = SDKROOT; };
 		A947BA9A1824F0B3004C734B /* Ratings.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Ratings.json; sourceTree = "<group>"; };
 		A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MP42Track+Muxer.h"; sourceTree = "<group>"; };
 		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
@@ -303,6 +307,7 @@
 				A9B9C2E0182397D400416A4E /* libz.dylib in Frameworks */,
 				A9B9C2B3182393ED00416A4E /* libmp4v2.a in Frameworks */,
 				A9B9C2DC1823972400416A4E /* QTKit.framework in Frameworks */,
+				A925AABE1837A1A100BE84D4 /* QuickTime.framework in Frameworks */,
 				A9B9C2DA1823971F00416A4E /* AudioToolbox.framework in Frameworks */,
 				A9B9C2D81823970E00416A4E /* AVFoundation.framework in Frameworks */,
 				A9B9C2DE1823973200416A4E /* CoreMedia.framework in Frameworks */,
@@ -345,6 +350,7 @@
 		A9B9C1EF182391DF00416A4E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A925AABD1837A1A100BE84D4 /* QuickTime.framework */,
 				A9B9C2B2182393ED00416A4E /* libmp4v2.a */,
 				A9B9C49C1823989C00416A4E /* libjpeg.a */,
 				A9B9C49D1823989C00416A4E /* liblept.a */,
@@ -536,6 +542,7 @@
 				A9B9C2D1182396C400416A4E /* JSONKit.h */,
 				A9B9C2D2182396C400416A4E /* JSONKit.m */,
 				A9B9C2D5182396FB00416A4E /* baseapi.h */,
+				A925AABB1837A16500BE84D4 /* QTKitDecrap.h */,
 				A9B9C2C71823962600416A4E /* UniversalDetector.h */,
 			);
 			name = Utility;
@@ -579,6 +586,7 @@
 				A9B9C2C41823957800416A4E /* MP42Languages.h in Headers */,
 				A9B9C2CF182396A100416A4E /* MP42Ratings.h in Headers */,
 				A9B9C27D1823923200416A4E /* MP42FileImporter.h in Headers */,
+				A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */,
 				A9B9C2911823923200416A4E /* MP42QTImporter.h in Headers */,
 				A9B9C28F1823923200416A4E /* MP42OCRWrapper.h in Headers */,
 				A9B9C2811823923200416A4E /* MP42HtmlParser.h in Headers */,
@@ -588,7 +596,6 @@
 				A9B9C2791823923200416A4E /* MP42Fifo.h in Headers */,
 				A9B9C2A31823923200416A4E /* MP42XMLReader.h in Headers */,
 				A9B9C2CB1823968400416A4E /* RegexKitLite.h in Headers */,
-				A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */,
 				A9B9C28D1823923200416A4E /* MP42Muxer.h in Headers */,
 				A9B9C2AD1823923200416A4E /* mpeg4ip_bitstream.h in Headers */,
 				A9B9C2A81823923200416A4E /* MatroskaFile.h in Headers */,
@@ -610,6 +617,7 @@
 				A9B9C2A11823923200416A4E /* MP42VobSubImporter.h in Headers */,
 				A9B9C2AC1823923200416A4E /* mbs.h in Headers */,
 				A9B9C2891823923200416A4E /* MP42MkvImporter.h in Headers */,
+				A925AABC1837A16500BE84D4 /* QTKitDecrap.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -834,6 +842,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = NO;
@@ -869,7 +878,11 @@
 					"$(SRCROOT)/Tesseract",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = (
+					"-read_only_relocs",
+					suppress,
+				);
 				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -879,6 +892,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = NO;
@@ -909,6 +923,11 @@
 					"$(SRCROOT)/Tesseract",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = (
+					"-read_only_relocs",
+					suppress,
+				);
 				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
 			};

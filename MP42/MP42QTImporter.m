@@ -10,11 +10,17 @@
 #import "MP42QTImporter.h"
 #import "MP42File.h"
 #import "MP42Image.h"
+#import "MP42Languages.h"
+#import "MP42Track+Muxer.h"
+#import "MP42PrivateUtilities.h"
+#import "QTKitDecrap.h"
+
 #import <AudioToolbox/AudioToolbox.h>
 #import <QuickTime/QuickTime.h>
-#import "MP42Languages.h"
-#import "QTKitDecrap.h"
+
 #include "avcodec.h"
+#include "mp4v2.h"
+
 
 @interface MP42QTImporter(Private)
     -(void) movieLoaded;
