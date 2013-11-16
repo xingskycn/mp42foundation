@@ -87,10 +87,10 @@
         [copy->_updatedProperty release];
         copy->_updatedProperty = [_updatedProperty mutableCopy];
 
-        /*if (_helper) {
+        if (_helper) {
             copy->_helper = calloc(1, sizeof(muxer_helper));
-            copy->_helper->importer = _helper->importer;
-        }*/
+            ((muxer_helper *)copy->_helper)->importer = ((muxer_helper *)_helper)->importer;
+        }
     }
 
     return copy;
