@@ -68,7 +68,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     }
 }
 
-@interface MP42File (MP42FilePrivate)
+@interface MP42File () <MP42MuxerDelegate>
 
 - (void)reconnectReferences;
 - (void)removeMuxedTrack:(MP42Track *)track;
@@ -540,7 +540,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         [self removeMuxedTrack:track];
 
     // Init the muxer and prepare the work
-    _muxer = [[MP42Muxer alloc] initWithDelegate:(id <MP42MuxerDelegate>)self];
+    _muxer = [[MP42Muxer alloc] initWithDelegate:self];
 
     for (MP42Track *track in _tracks) {
         if (!track.muxed) {
