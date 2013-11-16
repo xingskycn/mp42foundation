@@ -9,12 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
+#import "MP42MediaFormat.h"
 #import "MP42Sample.h"
-#import "MP42Utilities.h"
-
-#import "mp4v2.h"
-
-#import "MP42Track_Muxer.h"
 
 @class MP42Sample;
 @class MP42Metadata;

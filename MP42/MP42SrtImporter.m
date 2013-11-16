@@ -12,6 +12,10 @@
 #import "MP42SubUtilities.h"
 #import "MP42Languages.h"
 
+#import "mp4v2.h"
+#import "MP42Utilities.h"
+#import "MP42Track+Muxer.h"
+
 @implementation MP42SrtImporter
 
 - (instancetype)initWithURL:(NSURL *)fileURL error:(NSError **)outError

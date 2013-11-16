@@ -13,14 +13,7 @@
 #import "MP42Fifo.h"
 #import "MP42Languages.h"
 
-#import "MP42Track_Muxer.h"
-
-@interface MP42Track () {
-
-    muxer_helper *_helper;
-}
-
-@end
+#import "MP42Track+Muxer.h"
 
 @implementation MP42Track
 
@@ -93,10 +86,10 @@
         [copy->_updatedProperty release];
         copy->_updatedProperty = [_updatedProperty mutableCopy];
 
-        if (_helper) {
+        /*if (_helper) {
             copy->_helper = calloc(1, sizeof(muxer_helper));
             copy->_helper->importer = _helper->importer;
-        }
+        }*/
     }
 
     return copy;
@@ -352,21 +345,22 @@
 
 - (MP42SampleBuffer *)copyNextSample {
     MP42SampleBuffer *sample = nil;
+    muxer_helper * helper = (muxer_helper *)_helper;
 
-    if (_helper->converter) {
-        if ([_helper->importer done])
-            [_helper->converter setInputDone];
+    if (helper->converter) {
+        if ([helper->importer done])
+            [helper->converter setInputDone];
 
-        if ([_helper->converter encoderDone])
-            _helper->done = YES;
+        if ([helper->converter encoderDone])
+            helper->done = YES;
 
-        sample = [_helper->converter copyEncodedSample];
+        sample = [helper->converter copyEncodedSample];
     } else {
-        if ([_helper->fifo isEmpty] && [_helper->importer done])
-            _helper->done = YES;
+        if ([helper->fifo isEmpty] && [helper->importer done])
+            helper->done = YES;
 
-        if ([_helper->fifo count])
-            sample = [_helper->fifo deque];
+        if ([helper->fifo count])
+            sample = [helper->fifo deque];
     }
 
     return sample;

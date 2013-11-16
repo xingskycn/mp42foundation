@@ -12,6 +12,7 @@
 #import "MP42SubUtilities.h"
 #import "MP42Utilities.h"
 #import "MP42Languages.h"
+#import "MP42Track+Muxer.h"
 
 #import <QTKit/QTKit.h>
 
@@ -26,6 +27,46 @@ NSString * const MP4264BitTime = @"MP4264BitTime";
 NSString * const MP42GenerateChaptersPreviewTrack = @"MP42ChaptersPreview";
 NSString * const MP42CustomChaptersPreviewTrack = @"MP42CustomChaptersPreview";
 NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
+
+static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
+{
+    const char* level;
+
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"Debug"]) {
+        switch (loglevel) {
+            case 0:
+                level = "None";
+                break;
+            case 1:
+                level = "Error";
+                break;
+            case 2:
+                level = "Warning";
+                break;
+            case 3:
+                level = "Info";
+                break;
+            case 4:
+                level = "Verbose1";
+                break;
+            case 5:
+                level = "Verbose2";
+                break;
+            case 6:
+                level = "Verbose3";
+                break;
+            case 7:
+                level = "Verbose4";
+                break;
+            default:
+                level = "Unknown";
+                break;
+        }
+        printf("%s: ", level);
+        vprintf(fmt, ap);
+        printf("\n");
+    }
+}
 
 @interface MP42File () <MP42MuxerDelegate> {
     MP4FileHandle   _fileHandle;
@@ -55,9 +96,7 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
 @end
 
-@implementation MP42File {
-    
-}
+@implementation MP42File
 
 - (id)init
 {

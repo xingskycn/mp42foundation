@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-/* MP4 API types */
+/* MP4 primitive types */
 typedef void*       MP42FileHandle;
 typedef uint32_t    MP42TrackId;
 typedef uint64_t    MP42Duration;
@@ -76,3 +76,9 @@ extern NSString *const MP42ClosedCaptionFormatCEA708;
 
 // TimeCode Format
 extern NSString *const MP42TimeCodeFormat;
+
+// Audio downmixes
+extern NSString * const SBMonoMixdown;
+extern NSString * const SBStereoMixdown;
+extern NSString * const SBDolbyMixdown;
+extern NSString * const SBDolbyPlIIMixdown;

@@ -14,6 +14,10 @@
 #import "MP42OCRWrapper.h"
 #import "MP42SubUtilities.h"
 
+#import "mp4v2.h"
+#import "MP42Utilities.h"
+#import "MP42Track+Muxer.h"
+
 #define REGISTER_DECODER(x) { \
 extern AVCodec ff_##x##_decoder; \
 avcodec_register(&ff_##x##_decoder); }

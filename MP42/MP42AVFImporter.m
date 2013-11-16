@@ -13,6 +13,10 @@
 #import "MP42File.h"
 #import "MP42Image.h"
 
+#import "mp4v2.h"
+#import "MP42Utilities.h"
+#import "MP42Track+Muxer.h"
+
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 

@@ -9,6 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "MP42FileImporter.h"
 
+#import "mp4v2.h"
+#import "MP42Utilities.h"
+#import "MP42Track+Muxer.h"
+
 typedef struct framerate_t {
     uint32_t code;
     uint32_t timescale;

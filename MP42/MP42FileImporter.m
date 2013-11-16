@@ -18,15 +18,17 @@
 #import "MP42Track.h"
 #import "MP42Fifo.h"
 
-#import "MP42Track_Muxer.h"
-
 #if !__LP64__
 #import "MP42QTImporter.h"
 #endif
 
 #import "MP42AVFImporter.h"
 
-#include "MP42AudioConverter.h"
+#import "MP42AudioConverter.h"
+
+#import "mp4v2.h"
+#import "MP42Utilities.h"
+#import "MP42Track+Muxer.h"
 
 @implementation MP42FileImporter
 

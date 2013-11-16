@@ -40,6 +40,8 @@
 	MP42Duration _duration;
 
     NSMutableDictionary *_updatedProperty;
+
+    void *_helper;
 }
 
 - (instancetype)initWithSourceURL:(NSURL *)URL trackID:(NSInteger)trackID fileHandle:(MP42FileHandle)fileHandle;

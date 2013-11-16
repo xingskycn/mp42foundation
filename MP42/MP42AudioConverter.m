@@ -14,14 +14,9 @@
 #import "MP42Fifo.h"
 #import "MP42Utilities.h"
 
-#import "MP42Track_Muxer.h"
+#import "MP42Track+Muxer.h"
 
 #define FIFO_DURATION (0.5f)
-
-NSString * const SBMonoMixdown = @"SBMonoMixdown";
-NSString * const SBStereoMixdown = @"SBStereoMixdown";
-NSString * const SBDolbyMixdown = @"SBDolbyMixdown";
-NSString * const SBDolbyPlIIMixdown = @"SBDolbyPlIIMixdown";
 
 @interface NSString (VersionStringCompare)
 - (BOOL)isVersionStringOlderThan:(NSString *)older;

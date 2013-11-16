@@ -16,6 +16,10 @@
 #import "MatroskaFile.h"
 #include "avutil.h"
 
+#import "mp4v2.h"
+#import "MP42Utilities.h"
+#import "MP42Track+Muxer.h"
+
 u_int32_t MP4AV_Ac3GetSamplingRate(u_int8_t* pHdr);
 
 @interface MatroskaSample : NSObject {

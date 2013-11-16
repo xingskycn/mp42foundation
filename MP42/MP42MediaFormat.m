@@ -70,3 +70,9 @@ NSString *const MP42ClosedCaptionFormatCEA708 = @"CEA-708";
 
 // TimeCode Format
 NSString *const MP42TimeCodeFormat = @"TimeCode";
+
+// Audio Downmixes
+NSString * const SBMonoMixdown = @"SBMonoMixdown";
+NSString * const SBStereoMixdown = @"SBStereoMixdown";
+NSString * const SBDolbyMixdown = @"SBDolbyMixdown";
+NSString * const SBDolbyPlIIMixdown = @"SBDolbyPlIIMixdown";
