@@ -30,7 +30,7 @@ NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
 static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 {
-    const char* level;
+    const char *level;
 
     if ([[NSUserDefaults standardUserDefaults] valueForKey:@"Debug"]) {
         switch (loglevel) {
@@ -84,6 +84,12 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 @implementation MP42File
 
++ (void)initialize
+{
+    MP4SetLogCallback(logCallback);
+    MP4LogSetLevel(MP4_LOG_ERROR);
+}
+
 - (id)init
 {
     if ((self = [super init])) {
@@ -97,7 +103,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return self;
 }
 
-- (instancetype)initWithDelegate:(id <MP42FileDelegate>)del;
+- (instancetype)initWithDelegate:(id <MP42FileDelegate>)del
 {
     if ((self = [self init])) {
         _delegate = del;
@@ -106,7 +112,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return self;
 }
 
-- (instancetype)initWithExistingFile:(NSURL *)URL andDelegate:(id <MP42FileDelegate>)del;
+- (instancetype)initWithExistingFile:(NSURL *)URL andDelegate:(id <MP42FileDelegate>)del
 {
     if ((self = [super init]))
 	{
@@ -182,7 +188,8 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 	return self;
 }
 
-- (void)reconnectReferences {
+- (void)reconnectReferences
+{
     for (MP42Track *ref in _tracks) {
         if ([ref isMemberOfClass:[MP42AudioTrack class]]) {
             MP42AudioTrack *a = (MP42AudioTrack *)ref;
@@ -199,7 +206,8 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     }
 }
 
-- (void)loadPreviewsFromTrackID:(MP4TrackId) trackID {
+- (void)loadPreviewsFromTrackID:(MP4TrackId) trackID
+{
     MP42Track *track = [self trackWithTrackID:trackID];
     if (track) {
         MP4SampleId sampleNum = MP4GetTrackNumberOfSamples(_fileHandle, track.Id);

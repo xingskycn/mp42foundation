@@ -350,7 +350,6 @@
 		A9B9C1EF182391DF00416A4E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A925AABD1837A1A100BE84D4 /* QuickTime.framework */,
 				A9B9C2B2182393ED00416A4E /* libmp4v2.a */,
 				A9B9C49C1823989C00416A4E /* libjpeg.a */,
 				A9B9C49D1823989C00416A4E /* liblept.a */,
@@ -362,6 +361,7 @@
 				A9B9C2E4182397F100416A4E /* libicucore.dylib */,
 				A9B9C2E1182397DD00416A4E /* libbz2.dylib */,
 				A9B9C2DF182397D400416A4E /* libz.dylib */,
+				A925AABD1837A1A100BE84D4 /* QuickTime.framework */,
 				A9B9C4921823986200416A4E /* Quartz.framework */,
 				A9B9C2DD1823973200416A4E /* CoreMedia.framework */,
 				A9B9C2DB1823972400416A4E /* QTKit.framework */,
