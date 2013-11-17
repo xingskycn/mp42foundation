@@ -136,7 +136,7 @@ canOutput:
 
 -(SBSubLine*)getSerializedPacket
 {
-	int nlines = [lines count];
+	NSUInteger nlines = [lines count];
     
 	if (!nlines) return nil;
 	
