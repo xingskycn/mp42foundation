@@ -100,11 +100,11 @@
 		A9B9C2C41823957800416A4E /* MP42Languages.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2C21823957800416A4E /* MP42Languages.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B9C2C51823957800416A4E /* MP42Languages.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2C31823957800416A4E /* MP42Languages.m */; };
 		A9B9C2C81823962600416A4E /* UniversalDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2C71823962600416A4E /* UniversalDetector.h */; };
-		A9B9C2CB1823968400416A4E /* RegexKitLite.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2C91823968400416A4E /* RegexKitLite.h */; };
+		A9B9C2CB1823968400416A4E /* RegexKitLite.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2C91823968400416A4E /* RegexKitLite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B9C2CC1823968400416A4E /* RegexKitLite.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2CA1823968400416A4E /* RegexKitLite.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-checker"; }; };
 		A9B9C2CF182396A100416A4E /* MP42Ratings.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2CD182396A100416A4E /* MP42Ratings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B9C2D0182396A100416A4E /* MP42Ratings.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2CE182396A100416A4E /* MP42Ratings.m */; };
-		A9B9C2D3182396C400416A4E /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2D1182396C400416A4E /* JSONKit.h */; };
+		A9B9C2D3182396C400416A4E /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2D1182396C400416A4E /* JSONKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A9B9C2D4182396C400416A4E /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = A9B9C2D2182396C400416A4E /* JSONKit.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-checker"; }; };
 		A9B9C2D6182396FB00416A4E /* baseapi.h in Headers */ = {isa = PBXBuildFile; fileRef = A9B9C2D5182396FB00416A4E /* baseapi.h */; };
 		A9B9C2D81823970E00416A4E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2D71823970E00416A4E /* AVFoundation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -587,6 +587,8 @@
 				A9B9C2CF182396A100416A4E /* MP42Ratings.h in Headers */,
 				A9B9C27D1823923200416A4E /* MP42FileImporter.h in Headers */,
 				A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */,
+				A9B9C2CB1823968400416A4E /* RegexKitLite.h in Headers */,
+				A9B9C2D3182396C400416A4E /* JSONKit.h in Headers */,
 				A9B9C2911823923200416A4E /* MP42QTImporter.h in Headers */,
 				A9B9C28F1823923200416A4E /* MP42OCRWrapper.h in Headers */,
 				A9B9C2811823923200416A4E /* MP42HtmlParser.h in Headers */,
@@ -595,7 +597,6 @@
 				A9B9C26E1823923200416A4E /* MP42AVFImporter.h in Headers */,
 				A9B9C2791823923200416A4E /* MP42Fifo.h in Headers */,
 				A9B9C2A31823923200416A4E /* MP42XMLReader.h in Headers */,
-				A9B9C2CB1823968400416A4E /* RegexKitLite.h in Headers */,
 				A9B9C28D1823923200416A4E /* MP42Muxer.h in Headers */,
 				A9B9C2AD1823923200416A4E /* mpeg4ip_bitstream.h in Headers */,
 				A9B9C2A81823923200416A4E /* MatroskaFile.h in Headers */,
@@ -608,7 +609,6 @@
 				A9B9C2AF1823923200416A4E /* sfifo.h in Headers */,
 				A9B9C2C81823962600416A4E /* UniversalDetector.h in Headers */,
 				A9B9C27F1823923200416A4E /* MP42H264Importer.h in Headers */,
-				A9B9C2D3182396C400416A4E /* JSONKit.h in Headers */,
 				A9B9C29D1823923200416A4E /* MP42PrivateUtilities.h in Headers */,
 				A9B9C2661823923200416A4E /* MP42AACImporter.h in Headers */,
 				A9B9C2681823923200416A4E /* MP42AC3Importer.h in Headers */,
@@ -878,7 +878,7 @@
 					"$(SRCROOT)/Tesseract",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-read_only_relocs",
 					suppress,
