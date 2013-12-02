@@ -34,7 +34,7 @@ public:
     }
 
     char * OCRFrame(const unsigned char *image, size_t bytes_per_pixel, size_t bytes_per_line, size_t width, size_t height) {
-        char* text = tess_base_api.TesseractRect(image,
+        char *text = tess_base_api.TesseractRect(image,
                                                  (int)bytes_per_pixel,
                                                  (int)bytes_per_line,
                                                  0, 0,
