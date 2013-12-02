@@ -73,6 +73,7 @@
 		A925AABC1837A16500BE84D4 /* QTKitDecrap.h in Headers */ = {isa = PBXBuildFile; fileRef = A925AABB1837A16500BE84D4 /* QTKitDecrap.h */; };
 		A925AABE1837A1A100BE84D4 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A925AABD1837A1A100BE84D4 /* QuickTime.framework */; };
 		A947BA9B1824F0B3004C734B /* Ratings.json in Resources */ = {isa = PBXBuildFile; fileRef = A947BA9A1824F0B3004C734B /* Ratings.json */; };
+		A94BFB30184C865C00810224 /* eng.traineddata in CopyFiles */ = {isa = PBXBuildFile; fileRef = A94BFB2C184C862A00810224 /* eng.traineddata */; };
 		A989F1001823AB2E0070AD8C /* MP42Track+Muxer.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */; };
 		A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F10D1823B3B40070AD8C /* MP42TextSample.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A989F1101823B3B40070AD8C /* MP42TextSample.m in Sources */ = {isa = PBXBuildFile; fileRef = A989F10E1823B3B40070AD8C /* MP42TextSample.m */; };
@@ -231,6 +232,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		A94BFB2F184C864900810224 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = tessdata;
+			dstSubfolderSpec = 7;
+			files = (
+				A94BFB30184C865C00810224 /* eng.traineddata in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		A910B5A318394E900064028F /* libmp42.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmp42.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A925AAAD18379AF800BE84D4 /* MP42Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Utilities.h; sourceTree = "<group>"; };
@@ -238,6 +252,7 @@
 		A925AABB1837A16500BE84D4 /* QTKitDecrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTKitDecrap.h; sourceTree = "<group>"; };
 		A925AABD1837A1A100BE84D4 /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = System/Library/Frameworks/QuickTime.framework; sourceTree = SDKROOT; };
 		A947BA9A1824F0B3004C734B /* Ratings.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Ratings.json; sourceTree = "<group>"; };
+		A94BFB2C184C862A00810224 /* eng.traineddata */ = {isa = PBXFileReference; lastKnownFileType = file; name = eng.traineddata; path = Tesseract/share/tessdata/eng.traineddata; sourceTree = SOURCE_ROOT; };
 		A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MP42Track+Muxer.h"; sourceTree = "<group>"; };
 		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
 		A989F10E1823B3B40070AD8C /* MP42TextSample.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42TextSample.m; sourceTree = "<group>"; };
@@ -513,6 +528,7 @@
 			isa = PBXGroup;
 			children = (
 				A947BA9A1824F0B3004C734B /* Ratings.json */,
+				A94BFB2C184C862A00810224 /* eng.traineddata */,
 				A9B9C1F8182391DF00416A4E /* MP42Foundation-Info.plist */,
 				A9B9C1F9182391DF00416A4E /* InfoPlist.strings */,
 				A9B9C1FC182391DF00416A4E /* MP42Foundation-Prefix.pch */,
@@ -753,6 +769,7 @@
 				A9B9C1E9182391DF00416A4E /* Frameworks */,
 				A9B9C1EA182391DF00416A4E /* Headers */,
 				A9B9C1EB182391DF00416A4E /* Resources */,
+				A94BFB2F184C864900810224 /* CopyFiles */,
 			);
 			buildRules = (
 			);

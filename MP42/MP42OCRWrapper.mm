@@ -22,7 +22,7 @@ OCRWrapper(const char* lang, const char* base_path) {
     if (base_path)
         path = [[NSString stringWithUTF8String:base_path] stringByAppendingString:@"/"];
     else
-        path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/Contents/Resources/"];
+        path = [[[NSBundle bundleForClass:[MP42OCRWrapper class]] bundlePath] stringByAppendingString:@"/Versions/A/Resources/"];
 
     setenv("TESSDATA_PREFIX", [path UTF8String], 1);
 
