@@ -16,34 +16,35 @@ using namespace tesseract;
 
 class OCRWrapper {
 public:
-OCRWrapper(const char* lang, const char* base_path) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSString *path = nil;
-    if (base_path)
-        path = [[NSString stringWithUTF8String:base_path] stringByAppendingString:@"/"];
-    else
-        path = [[[NSBundle bundleForClass:[MP42OCRWrapper class]] bundlePath] stringByAppendingString:@"/Versions/A/Resources/"];
+    OCRWrapper(const char *lang, const char *base_path) {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSString *path = nil;
+        if (base_path)
+            path = [[NSString stringWithUTF8String:base_path] stringByAppendingString:@"/"];
+        else
+            path = [[[NSBundle bundleForClass:[MP42OCRWrapper class]] bundlePath] stringByAppendingString:@"/Versions/A/Resources/"];
 
-    setenv("TESSDATA_PREFIX", [path UTF8String], 1);
+        setenv("TESSDATA_PREFIX", [path UTF8String], 1);
 
-    path = [path stringByAppendingString:@"tessdata/"];
+        path = [path stringByAppendingString:@"tessdata/"];
 
-    tess_base_api.Init([path UTF8String], lang, OEM_DEFAULT);
+        tess_base_api.Init([path UTF8String], lang, OEM_DEFAULT);
 
-    [pool release];
-}
-char* OCRFrame(const unsigned char *image, size_t bytes_per_pixel, size_t bytes_per_line, size_t width, size_t height) {
-    char* text = tess_base_api.TesseractRect(image,
-                                             (int)bytes_per_pixel,
-                                             (int)bytes_per_line,
-                                             0, 0,
-                                             (int)width, (int)height);
-    return text;
-}
+        [pool release];
+    }
 
-void End() {
-    tess_base_api.End();
-}
+    char * OCRFrame(const unsigned char *image, size_t bytes_per_pixel, size_t bytes_per_line, size_t width, size_t height) {
+        char* text = tess_base_api.TesseractRect(image,
+                                                 (int)bytes_per_pixel,
+                                                 (int)bytes_per_line,
+                                                 0, 0,
+                                                 (int)width, (int)height);
+        return text;
+    }
+
+    void End() {
+        tess_base_api.End();
+    }
 
 protected:
     TessBaseAPI tess_base_api;
@@ -51,7 +52,7 @@ protected:
 
 @implementation MP42OCRWrapper
 
-- (NSURL*) appSupportUrl
+- (NSURL *)appSupportUrl
 {
     NSURL *URL = nil;
 
@@ -59,7 +60,7 @@ protected:
                                                             NSUserDomainMask,
                                                             YES);
     if ([allPaths count]) {
-        NSString* path = [[allPaths lastObject] stringByAppendingPathComponent:@"Subler"];
+        NSString *path = [[allPaths lastObject] stringByAppendingPathComponent:@"Subler"];
         URL = [NSURL fileURLWithPath:path];
 
         if (URL) {
@@ -68,15 +69,14 @@ protected:
     }
 
     return nil;
-
 }
 
-- (BOOL)tessdataAvailableForLanguage:(NSString*) language
+- (BOOL)tessdataAvailableForLanguage:(NSString *)language
 {
     NSURL *URL = [self appSupportUrl];
 
     if (URL) {
-        NSString* path = [[[URL path] stringByAppendingPathComponent:@"tessdata"] stringByAppendingFormat:@"/%@.traineddata", language];
+        NSString *path = [[[URL path] stringByAppendingPathComponent:@"tessdata"] stringByAppendingFormat:@"/%@.traineddata", language];
         URL = [NSURL fileURLWithPath:path];
 
         if ([[NSFileManager defaultManager] fileExistsAtPath:[URL path]]) {
@@ -87,11 +87,9 @@ protected:
     return NO;
 }
 
-
 - (instancetype)init
 {
-    if ((self = [super init]))
-    {
+    if ((self = [super init])) {
         tess_base = (void *)new OCRWrapper(lang_for_english([_language UTF8String])->iso639_2, NULL);
     }
     return self;
@@ -99,11 +97,10 @@ protected:
 
 - (instancetype)initWithLanguage:(NSString *)language
 {
-    if ((self = [super init]))
-    {
+    if ((self = [super init])) {
         _language = [language retain];
 
-        NSString * lang = [NSString stringWithUTF8String:lang_for_english([_language UTF8String])->iso639_2];
+        NSString *lang = [NSString stringWithUTF8String:lang_for_english([_language UTF8String])->iso639_2];
         NSURL *dataURL = [self appSupportUrl];
         if (![self tessdataAvailableForLanguage:lang]) {
             lang = @"eng";
@@ -116,7 +113,7 @@ protected:
 }
 
 - (NSString *)performOCROnCGImage:(CGImageRef)cgImage {
-    NSMutableString * text;
+    NSMutableString *text = nil;
 
     OCRWrapper *ocr = (OCRWrapper *)tess_base;
     size_t bytes_per_line   = CGImageGetBytesPerRow(cgImage);
@@ -127,7 +124,7 @@ protected:
     CFDataRef data = CGDataProviderCopyData(CGImageGetDataProvider(cgImage));
     const UInt8 *imageData = CFDataGetBytePtr(data);
 
-    char* string = ocr->OCRFrame(imageData,
+    char *string = ocr->OCRFrame(imageData,
                                  bytes_per_pixel,
                                  bytes_per_line,
                                  width,
@@ -136,16 +133,13 @@ protected:
 
     if (string && strlen(string)) {
         text = [NSMutableString stringWithUTF8String:string];
-        if ([text characterAtIndex:[text length] -1] == '\n')
+        if (text && [text characterAtIndex:[text length] -1] == '\n')
             [text replaceOccurrencesOfString:@"\n\n" withString:@"" options:nil range:NSMakeRange(0,[text length])];
     }
-    else
-        text = nil;
 
     delete[]string;
 
     return text;
-
 }
 
 - (void)dealloc {
@@ -156,4 +150,5 @@ protected:
     [_language release];
     [super dealloc];
 }
+
 @end
