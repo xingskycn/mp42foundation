@@ -18,7 +18,7 @@ extern NSString *const MP42FileTypeMP4;
 extern NSString *const MP42FileTypeM4V;
 extern NSString *const MP42FileTypeM4A;
 extern NSString *const MP42FileTypeM4B;
-
+extern NSString *const MP42FileTypeM4R;
 
 // Media Type
 extern NSString *const MP42MediaTypeVideo;

@@ -13,6 +13,7 @@ NSString *const MP42FileTypeMP4 = @"mp4";
 NSString *const MP42FileTypeM4V = @"m4v";
 NSString *const MP42FileTypeM4A = @"m4a";
 NSString *const MP42FileTypeM4B = @"m4b";
+NSString *const MP42FileTypeM4R = @"m4r";
 
 
 // Media Type
