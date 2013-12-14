@@ -30,6 +30,7 @@ static const mediaKind_t mediaKind_strings[] = {
     {14, @"Ringtone"},
     {21, @"Podcast"},
     {23, @"iTunes U"},
+    {27, @"Alert Tone"},
     {0, NULL},
 };
 
