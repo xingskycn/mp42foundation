@@ -134,7 +134,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             }
         }
 
-        _fileURL = [URL retain];
+        _fileURL = [[URL fileReferenceURL] retain];
         _hasFileRepresentation = YES;
 
         _tracks = [[NSMutableArray alloc] init];
@@ -428,10 +428,10 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
         [fileManager release];
     }
-    
+
     if ([_delegate respondsToSelector:@selector(endSave:)])
         [_delegate performSelector:@selector(endSave:) withObject:self];
-    
+
     return noErr;
 }
 
@@ -1061,7 +1061,11 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         [coder encodeObject:fileURL forKey:@"fileUrl"];
     }
 #else
-    [coder encodeObject:_fileURL forKey:@"fileUrl"];
+    if ([_fileURL isFileReferenceURL]) {
+        [coder encodeObject:[NSURL fileURLWithPath:[_fileURL path]] forKey:@"fileUrl"];
+    } else {
+        [coder encodeObject:_fileURL forKey:@"fileUrl"];
+    }
 #endif
 
     [coder encodeObject:_tracksToBeDeleted forKey:@"tracksToBeDeleted"];
