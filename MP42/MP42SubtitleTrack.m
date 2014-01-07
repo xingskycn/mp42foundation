@@ -17,8 +17,9 @@
 - (instancetype)initWithSourceURL:(NSURL *)URL trackID:(NSInteger)trackID fileHandle:(MP4FileHandle)fileHandle
 {
     if ((self = [super initWithSourceURL:URL trackID:trackID fileHandle:fileHandle])) {
+        _mediaType = MP42MediaTypeSubtitle;
+
         if (![_format isEqualToString:MP42SubtitleFormatVobSub]) {
-            _mediaType = MP42MediaTypeSubtitle;
 
             MP4GetTrackIntegerProperty(fileHandle, _Id, "mdia.minf.stbl.stsd.tx3g.defTextBoxBottom", &height);
             MP4GetTrackIntegerProperty(fileHandle, _Id, "mdia.minf.stbl.stsd.tx3g.defTextBoxRight", &width);
@@ -84,8 +85,6 @@
     }
 
     if (_isEdited && !_muxed) {
-        _muxed = YES;
-
         MP4GetTrackFloatProperty(fileHandle, _Id, "tkhd.width", &trackWidth);
         MP4GetTrackFloatProperty(fileHandle, _Id, "tkhd.height", &trackHeight);
 
