@@ -410,6 +410,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
                 done = YES;
             });
 
+            // Loop to check the progress
             while (!done) {
                 unsigned long long fileSize = [[[fileManager attributesOfItemAtPath:[tempURL path] error:nil] valueForKey:NSFileSize] unsignedLongLongValue];
                 [self progressStatus:((CGFloat)fileSize / originalFileSize) * 100];
@@ -417,11 +418,21 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             }
 
             if (noErr) {
-                NSURL *result = nil;
-                noErr = [fileManager replaceItemAtURL:_fileURL withItemAtURL:tempURL backupItemName:nil options:0 resultingItemURL:&result error:&error];
-                if (noErr) {
-                    [_fileURL release];
-                    _fileURL = [result retain];
+                // Addiotional check to see if we can open the optimized file
+                MP42File *optimizedFile = [[MP42File alloc] initWithExistingFile:tempURL andDelegate:nil];
+                if (!optimizedFile) {
+                    // If not, return no
+                    noErr = NO;
+                    [optimizedFile release];
+                } else {
+                    // Else replace the original file
+                    [optimizedFile release];
+                    NSURL *result = nil;
+                    noErr = [fileManager replaceItemAtURL:_fileURL withItemAtURL:tempURL backupItemName:nil options:0 resultingItemURL:&result error:&error];
+                    if (noErr) {
+                        [_fileURL release];
+                        _fileURL = [result retain];
+                    }
                 }
             }
         }
