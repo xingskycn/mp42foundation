@@ -418,7 +418,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             }
 
             if (noErr) {
-                // Addiotional check to see if we can open the optimized file
+                // Additional check to see if we can open the optimized file
                 MP42File *optimizedFile = [[MP42File alloc] initWithExistingFile:tempURL andDelegate:nil];
                 if (!optimizedFile) {
                     // If not, return no
