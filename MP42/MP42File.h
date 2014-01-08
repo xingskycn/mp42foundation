@@ -33,7 +33,7 @@ typedef enum MP42Status : NSInteger {
 @protocol MP42FileDelegate <NSObject>
 @optional
 - (void)progressStatus:(CGFloat)progress;
-- (void)endSave:(id)sender;
+- (void)saveDidEnd:(id)sender;
 @end
 
 @class MP42Muxer;
@@ -56,15 +56,15 @@ typedef enum MP42Status : NSInteger {
     MP42Muxer       *_muxer;
 }
 
-@property(readwrite, assign) id <MP42FileDelegate> delegate;
+@property(nonatomic, readwrite, assign) id <MP42FileDelegate> delegate;
 
-@property(readonly) NSURL *URL;
-@property(readonly) MP42Metadata *metadata;
-@property(readonly) NSArray *tracks;
+@property(nonatomic, readonly) NSURL *URL;
+@property(nonatomic, readonly) MP42Metadata *metadata;
+@property(nonatomic, readonly) NSArray *tracks;
 
-@property(readonly) BOOL hasFileRepresentation;
-@property(readonly) NSUInteger duration;
-@property(readonly) uint64_t dataSize;
+@property(nonatomic, readonly) BOOL hasFileRepresentation;
+@property(nonatomic, readonly) NSUInteger duration;
+@property(nonatomic, readonly) uint64_t dataSize;
 
 - (instancetype)initWithDelegate:(id <MP42FileDelegate>)del;
 - (instancetype)initWithExistingFile:(NSURL *)URL andDelegate:(id <MP42FileDelegate>)del;
