@@ -24,7 +24,13 @@ extern NSString * const MP42GenerateChaptersPreviewTrack;
 extern NSString * const MP42CustomChaptersPreviewTrack;
 extern NSString * const MP42OrganizeAlternateGroups;
 
-@protocol MP42FileDelegate
+typedef enum MP42Status : NSInteger {
+    MP42StatusLoaded = 0,
+    MP42StatusReading,
+    MP42StatusWriting
+} MP42Status;
+
+@protocol MP42FileDelegate <NSObject>
 @optional
 - (void)progressStatus:(CGFloat)progress;
 - (void)endSave:(id)sender;
@@ -41,6 +47,8 @@ extern NSString * const MP42OrganizeAlternateGroups;
     NSMutableDictionary *_importers;
 
     BOOL        _hasFileRepresentation;
+
+    MP42Status  _status;
     BOOL        _cancelled;
 
     NSMutableArray  *_tracks;
@@ -52,7 +60,7 @@ extern NSString * const MP42OrganizeAlternateGroups;
 
 @property(readonly) NSURL *URL;
 @property(readonly) MP42Metadata *metadata;
-@property(readonly, copy) NSArray *tracks;
+@property(readonly) NSArray *tracks;
 
 @property(readonly) BOOL hasFileRepresentation;
 @property(readonly) NSUInteger duration;
@@ -73,12 +81,17 @@ extern NSString * const MP42OrganizeAlternateGroups;
 - (void)moveTrackAtIndex:(NSUInteger)index toIndex:(NSUInteger)newIndex;
 
 - (MP42ChapterTrack *)chapters;
+/** 
+ * Create a set of alternate group the way iTunes and Apple devices want:
+ * one alternate group for sound, one for subtitles, a disabled photo-jpeg track,
+ * a disabled chapter track, and a video track with no alternate group
+ */
 - (void)organizeAlternateGroups;
+
+- (BOOL)optimize;
 
 - (BOOL)writeToUrl:(NSURL *)url withAttributes:(NSDictionary *)attributes error:(NSError **)outError;
 - (BOOL)updateMP4FileWithAttributes:(NSDictionary *)attributes error:(NSError **)outError;
-- (BOOL)optimize;
-
 - (void)cancel;
 
 @end
