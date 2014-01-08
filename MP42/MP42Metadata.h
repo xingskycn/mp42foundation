@@ -49,22 +49,22 @@
 
 - (BOOL) mergeMetadata: (MP42Metadata *) newMetadata;
 
-@property(readonly) NSMutableDictionary *tagsDict;
+@property(nonatomic, readonly) NSMutableDictionary *tagsDict;
 
-@property(readwrite, retain) NSString   *presetName;
+@property(nonatomic, readwrite, retain) NSString   *presetName;
 
-@property(readwrite, retain) NSMutableArray *artworks;
+@property(nonatomic, readwrite, retain) NSMutableArray *artworks;
 
-@property(readwrite, retain) NSArray    *artworkThumbURLs;
-@property(readwrite, retain) NSArray    *artworkFullsizeURLs;
-@property(readwrite, retain) NSArray    *artworkProviderNames;
+@property(nonatomic, readwrite, retain) NSArray    *artworkThumbURLs;
+@property(nonatomic, readwrite, retain) NSArray    *artworkFullsizeURLs;
+@property(nonatomic ,readwrite, retain) NSArray    *artworkProviderNames;
 
-@property(readwrite) uint8_t    mediaKind;
-@property(readwrite) uint8_t    contentRating;
-@property(readwrite) uint8_t    hdVideo;
-@property(readwrite) uint8_t    gapless;
-@property(readwrite) uint8_t    podcast;
-@property(readwrite) BOOL       isEdited;
-@property(readwrite) BOOL       isArtworkEdited;
+@property(nonatomic, readwrite) uint8_t    mediaKind;
+@property(nonatomic, readwrite) uint8_t    contentRating;
+@property(nonatomic, readwrite) uint8_t    hdVideo;
+@property(nonatomic, readwrite) uint8_t    gapless;
+@property(nonatomic, readwrite) uint8_t    podcast;
+@property(nonatomic, readwrite) BOOL       isEdited;
+@property(nonatomic, readwrite) BOOL       isArtworkEdited;
 
 @end
