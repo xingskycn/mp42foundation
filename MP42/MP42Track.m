@@ -346,7 +346,7 @@
 
 - (MP42SampleBuffer *)copyNextSample {
     MP42SampleBuffer *sample = nil;
-    muxer_helper * helper = (muxer_helper *)_helper;
+    muxer_helper *helper = (muxer_helper *)_helper;
 
     if (helper->converter) {
         if ([helper->importer done])

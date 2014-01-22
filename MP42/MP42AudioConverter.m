@@ -597,6 +597,11 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
         inputChannelsCount = [track sourceChannels];
         outputChannelCount = [track channels];
 
+        if (inputChannelsCount == 0 || outputChannelCount == 0 || sampleRate == 0) {
+            [self release];
+            return nil;
+        }
+
         if (outputChannelCount > inputChannelsCount)
             outputChannelCount = inputChannelsCount;
 
@@ -629,8 +634,8 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
         _inputSamplesBuffer = [[MP42Fifo alloc] init];
 
         // Decoder initialization
-        CFDataRef   magicCookie = NULL;
-        NSData * srcMagicCookie = [track.muxer_helper->importer magicCookieForTrack:track];
+        CFDataRef magicCookie = NULL;
+        NSData *srcMagicCookie = [track.muxer_helper->importer magicCookieForTrack:track];
         AudioStreamBasicDescription inputFormat, outputFormat;
 
         bzero( &inputFormat, sizeof( AudioStreamBasicDescription ) );
@@ -750,14 +755,14 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
         UInt32 size = sizeof(inputFormat);
         err = AudioConverterGetProperty( decoderData.converter, kAudioConverterCurrentInputStreamDescription,
                                         &size, &inputFormat);
-        if( err != noErr)
+        if (err != noErr)
             NSLog(@"Boom kAudioConverterCurrentInputStreamDescription %ld",(long)err);
 
         // Read the complete outputStreamDescription from the audio converter.
         size = sizeof(outputFormat);
         err = AudioConverterGetProperty(decoderData.converter, kAudioConverterCurrentOutputStreamDescription,
                                         &size, &outputFormat);
-        if( err != noErr)
+        if (err != noErr)
             NSLog(@"Boom kAudioConverterCurrentOutputStreamDescription %ld",(long)err);
 
         decoderData.inputFormat = inputFormat;

@@ -50,8 +50,8 @@
 
     for (MP42Track *track in _workingTracks) {
         MP4TrackId dstTrackId = 0;
-        NSData *magicCookie;
-        NSInteger timeScale;
+        NSData *magicCookie = nil;;
+        NSInteger timeScale = 0;
         muxer_helper *helper = track.muxer_helper;
 
         if (helper) {
