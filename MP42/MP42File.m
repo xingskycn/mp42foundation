@@ -997,12 +997,13 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         return YES;
     } else if (chapterTrack && jpegTrack) {
         // We already have all the tracks, so hook them up.
-        if ([self startWriting])
+        if (![self startWriting])
             return NO;
 
         MP4RemoveAllTrackReferences(self.fileHandle, "tref.chap", refTrack.Id);
         MP4AddTrackReference(self.fileHandle, "tref.chap", chapterTrack.Id, refTrack.Id);
         MP4AddTrackReference(self.fileHandle, "tref.chap", jpegTrack, refTrack.Id);
+
         [self stopWriting];
     }
 
