@@ -695,7 +695,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         [self removeMuxedTrack:track];
 
     // Init the muxer and prepare the work
-    self.muxer = [[[MP42Muxer alloc] initWithDelegate:self] autorelease];
+    NSMutableArray *tracksToMux = [[NSMutableArray alloc] init];
 
     for (MP42Track *track in self.itracks) {
         if (!track.muxed) {
@@ -723,28 +723,37 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
             // Add the track to the muxer
             if (track.muxer_helper->importer)
-                [self.muxer addTrack:track];
+                [tracksToMux addObject:track];
         }
     }
 
     if (!noErr) {
-        self.muxer = nil;
         [self stopWriting];
         return NO;
     }
 
-    noErr = [self.muxer setup:self.fileHandle error:outError];
+    if ([tracksToMux count]) {
+        self.muxer = [[[MP42Muxer alloc] initWithDelegate:self] autorelease];
 
-    if (!noErr) {
+        for (MP42Track *track in tracksToMux) {
+            [self.muxer addTrack:track];
+        }
+
+        // Setup the muxer
+        noErr = [self.muxer setup:self.fileHandle error:outError];
+
+        if (!noErr) {
+            self.muxer = nil;
+            [self stopWriting];
+            return NO;
+        }
+
+        // Start the muxer and wait
+        [self.muxer work];
         self.muxer = nil;
-        [self stopWriting];
-        return NO;
     }
 
-    // Start the muxer and wait
-    [self.muxer work];
-    self.muxer = nil;
-
+    [tracksToMux release];
     [self.importers removeAllObjects];
 
     // Update modified tracks properties
