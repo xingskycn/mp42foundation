@@ -926,7 +926,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
                 return NO;
 
             // Reopen the mp4v2 fileHandle
-            if ([self startWriting])
+            if (![self startWriting])
                 return NO;
 
             CGFloat maxWidth = 640;
