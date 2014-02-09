@@ -997,14 +997,16 @@ void createTboxAtom(u_int8_t* buffer, u_int16_t top, u_int16_t left, u_int16_t b
     buffer[15] = right & 0xFF;
 }
 
-MP42SampleBuffer* copySubtitleSample(MP4TrackId subtitleTrackId, NSString *string, MP4Duration duration, BOOL forced, BOOL verticalPlacement, CGSize trackSize, int top)
+MP42SampleBuffer * copySubtitleSample(MP4TrackId subtitleTrackId, NSString *string, MP4Duration duration, BOOL forced, BOOL verticalPlacement, BOOL styles, CGSize trackSize, int top)
 {
     u_int8_t *sampleData = NULL, *styleAtom = NULL;
     size_t styleSize = 0, sampleSize = 0, stringLength = 0;
     u_int64_t pos = 0;
 
     string = removeNewLines(string);
-    string = createStyleAtomForString(string, &styleAtom, &styleSize);
+    if (styles) {
+        string = createStyleAtomForString(string, &styleAtom, &styleSize);
+    }
 
     stringLength = strlen([string UTF8String]);
     sampleSize = 2 + (stringLength * sizeof(char)) + styleSize + (forced == 1 ? 8 : 0) + (verticalPlacement == 1 ? 16 : 0);

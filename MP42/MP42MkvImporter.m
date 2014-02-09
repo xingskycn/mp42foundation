@@ -872,7 +872,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 if ([sl->line isEqualToString:@"\n"])
                     sample = copyEmptySubtitleSample(dstTrackId, sl->end_time - sl->begin_time, NO);
                 else
-                    sample = copySubtitleSample(dstTrackId, sl->line, sl->end_time - sl->begin_time, NO, NO, CGSizeMake(0, 0), 0);
+                    sample = copySubtitleSample(dstTrackId, sl->line, sl->end_time - sl->begin_time, NO, NO, YES, CGSizeMake(0, 0), 0);
 
                 if (!sample)
                     break;

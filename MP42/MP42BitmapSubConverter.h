@@ -21,6 +21,7 @@
     NSThread *encoderThread;
 
     MP42OCRWrapper          *ocr;
+    CIContext               *_imgContext;
 	AVCodec                 *avCodec;
 	AVCodecContext          *avContext;
 	AVSubtitle              subtitle;

@@ -99,7 +99,7 @@
             }
             else {
                 int top = (sl->top == INT_MAX) ? trackSize.height : sl->top;
-                sample = copySubtitleSample(track.sourceId, sl->line, sl->end_time - sl->begin_time, sl->forced, _verticalPlacement, trackSize, top);
+                sample = copySubtitleSample(track.sourceId, sl->line, sl->end_time - sl->begin_time, sl->forced, _verticalPlacement, YES, trackSize, top);
             }
 
             [self enqueue:sample];
