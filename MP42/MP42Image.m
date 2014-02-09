@@ -11,6 +11,10 @@
 
 @implementation MP42Image
 
+@synthesize url = _url;
+@synthesize data = _data;
+@synthesize type = _type;
+
 - (instancetype)initWithURL:(NSURL *)url type:(NSInteger)type
 {
     if (self = [super init]) {
@@ -49,6 +53,21 @@
     return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    MP42Image *copy = nil;
+
+    if (_data) {
+        copy = [[MP42Image alloc] initWithData:[_data copy] type:_type];
+    } else if (_image) {
+        copy = [[MP42Image alloc] initWithImage:[_image copy]];
+    } else if (_url) {
+        copy = [[MP42Image alloc] initWithURL:[_url copy] type:_type];
+    }
+
+    return copy;
+}
+
 - (NSImage *)imageFromData:(NSData *)data
 {
     NSImage *image = nil;
@@ -62,11 +81,13 @@
 }
 
 - (NSData *)data {
-    if (_data)
-        return _data;
-    else if (_url) {
-        NSError *outError = nil;
-        _data = [[NSData dataWithContentsOfURL:_url options:NSDataReadingUncached error:&outError] retain];
+    @synchronized(self) {
+        if (_data)
+            return _data;
+        else if (_url) {
+            NSError *outError = nil;
+            _data = [[NSData dataWithContentsOfURL:_url options:NSDataReadingUncached error:&outError] retain];
+        }
     }
 
     return _data;
@@ -74,10 +95,12 @@
 
 - (NSImage *)image
 {
-    if (_image)
-        return _image;
-    else if (self.data) {
-        _image = [[self imageFromData:_data] retain];
+    @synchronized(self) {
+        if (_image)
+            return _image;
+        else if (self.data) {
+            _image = [[self imageFromData:_data] retain];
+        }
     }
 
     return _image;
@@ -127,9 +150,5 @@
     
     [super dealloc];
 }
-
-@synthesize url = _url;
-@synthesize data = _data;
-@synthesize type = _type;
 
 @end
