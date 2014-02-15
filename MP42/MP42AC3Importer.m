@@ -266,10 +266,10 @@ static bool GetFirstHeader(FILE* inFile)
         newTrack.sourceURL = _fileURL;
 
         if (!inFile)
-            inFile = fopen([[_fileURL path] UTF8String], "rb");
+            inFile = fopen([[_fileURL path] fileSystemRepresentation], "rb");
 
         struct stat st;
-        stat([[_fileURL path] UTF8String], &st);
+        stat([[_fileURL path] fileSystemRepresentation], &st);
         size = st.st_size * 8;
 
         // collect all the necessary meta information
@@ -340,7 +340,7 @@ static bool GetFirstHeader(FILE* inFile)
 {
     @autoreleasepool {
         if (!inFile)
-            inFile = fopen([[_fileURL path] UTF8String], "rb");
+            inFile = fopen([[_fileURL path] fileSystemRepresentation], "rb");
 
         MP4TrackId trackId = [[_inputTracks lastObject] sourceId];
 

@@ -105,7 +105,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 - (BOOL)startReading {
     NSAssert(self.fileHandle == MP4_INVALID_FILE_HANDLE, @"File Handle already open");
-    _fileHandle = MP4Read([[self.URL path] UTF8String]);
+    _fileHandle = MP4Read([[self.URL path] fileSystemRepresentation]);
 
     if (self.fileHandle != MP4_INVALID_FILE_HANDLE) {
         self.status = MP42StatusReading;
@@ -124,7 +124,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 - (BOOL)startWriting {
     NSAssert(self.fileHandle == MP4_INVALID_FILE_HANDLE, @"File Handle already open");
-    _fileHandle = MP4Modify([[self.URL path] UTF8String], 0);
+    _fileHandle = MP4Modify([[self.URL path] fileSystemRepresentation], 0);
 
     if (self.fileHandle != MP4_INVALID_FILE_HANDLE) {
         self.status = MP42StatusWriting;
@@ -537,7 +537,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             unsigned long long originalFileSize = [[[fileManager attributesOfItemAtPath:[self.URL path] error:nil] valueForKey:NSFileSize] unsignedLongLongValue];
 
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                noErr = MP4Optimize([[self.URL path] UTF8String], [[tempURL path] UTF8String]);
+                noErr = MP4Optimize([[self.URL path] fileSystemRepresentation], [[tempURL path] fileSystemRepresentation]);
                 done = YES;
             });
 
@@ -660,7 +660,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             supportedBrandsCount = 2;
         }
 
-        self.fileHandle = MP4CreateEx([[self.URL path] UTF8String],
+        self.fileHandle = MP4CreateEx([[self.URL path] fileSystemRepresentation],
                                  flags, 1, 1,
                                  majorBrand, 0,
                                  supportedBrands, supportedBrandsCount);
@@ -818,11 +818,10 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     MP4SetTrackIntegerProperty(self.fileHandle, jpegTrack, "tkhd.layer", 1);
     MP4SetTrackDisabled(self.fileHandle, jpegTrack);
 
-    NSUInteger idx = 0;
-    MP4Duration duration = 0;
+    NSUInteger idx = 1;
 
     for (MP42TextSample *chapterT in [chapterTrack chapters]) {
-        duration = MP4GetSampleDuration(self.fileHandle, chapterTrack.Id, idx + 1);
+        MP4Duration duration = MP4GetSampleDuration(self.fileHandle, chapterTrack.Id, idx++);
 
         NSData *imageData = chapterT.image.data;
 
@@ -861,7 +860,6 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
                        duration,
                        0,
                        true);
-        idx++;
     }
 
     MP4RemoveAllTrackReferences(self.fileHandle, "tref.chap", videoTrack.Id);
@@ -953,11 +951,8 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             MP4SetTrackIntegerProperty(self.fileHandle, jpegTrack, "tkhd.layer", 1);
             MP4SetTrackDisabled(self.fileHandle, jpegTrack);
 
-            NSUInteger idx = 0;
-            MP4Duration duration = 0;
-
-            for (MP42TextSample *chapterT in [chapterTrack chapters]) {
-                duration = MP4GetSampleDuration(self.fileHandle, chapterTrack.Id, idx + 1);
+            for (NSUInteger idx = 0; idx < [[chapterTrack chapters] count]; idx++) {
+                MP4Duration duration = MP4GetSampleDuration(self.fileHandle, chapterTrack.Id, idx + 1);
 
                 // Scale the image.
                 NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
@@ -977,8 +972,9 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
                 [[NSColor blackColor] set];
                 NSRectFill(rect);
 
-                if (idx < [images count])
+                if (idx < [images count]) {
                     [[images objectAtIndex:idx] drawInRect:rect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+                }
 
                 [NSGraphicsContext restoreGraphicsState];
 
@@ -992,7 +988,6 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
                                duration,
                                0,
                                true);
-                idx++;
             }
 
             MP4RemoveAllTrackReferences(self.fileHandle, "tref.chap", refTrack.Id);
@@ -1004,6 +999,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         }
 
         return YES;
+
     } else if (chapterTrack && jpegTrack) {
         // We already have all the tracks, so hook them up.
         if (![self startWriting])

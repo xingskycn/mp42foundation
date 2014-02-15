@@ -24,7 +24,7 @@ static const framerate_t framerates[] =
     { 60, 600, 10 },
     { 0, 24000, 1001 } };
 
-static const framerate_t framerates_thousand[] =
+/*static const framerate_t framerates_thousand[] =
 { { 2398, 24000, 1001 },
 	{ 2400, 600, 25 },
 	{ 2500, 600, 24 },
@@ -33,7 +33,7 @@ static const framerate_t framerates_thousand[] =
     { 5000, 600, 12 },
 	{ 5994, 60000, 1001 },
 	{ 6000, 600, 10 },
-	{ 0, 24000, 1001 } };
+	{ 0, 24000, 1001 } };*/
 
 typedef struct h264_decode_t {
     uint8_t profile;
@@ -1363,10 +1363,10 @@ NSData* H264Info(const char *filePath, uint32_t *pic_width, uint32_t *pic_height
         newTrack.sourceURL = _fileURL;
 
         if (!inFile)
-            inFile = fopen([[_fileURL path] UTF8String], "rb");
+            inFile = fopen([[_fileURL path] fileSystemRepresentation], "rb");
 
         struct stat st;
-        stat([[_fileURL path] UTF8String], &st);
+        stat([[_fileURL path] fileSystemRepresentation], &st);
         _size = st.st_size;
 
         uint32_t tw, th;
@@ -1416,7 +1416,7 @@ NSData* H264Info(const char *filePath, uint32_t *pic_width, uint32_t *pic_height
 {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
     if (!inFile)
-        inFile = fopen([[_fileURL path] UTF8String], "rb");
+        inFile = fopen([[_fileURL path] fileSystemRepresentation], "rb");
 
     MP42Track *track = [_inputTracks lastObject];
     MP4TrackId trackId = [track sourceId];

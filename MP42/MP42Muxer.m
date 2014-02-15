@@ -411,7 +411,7 @@
             for (id importerHelper in trackImportersArray)
                 progress += [importerHelper progress];
 
-            progress = progress /= tracksImportersCount;
+            progress /= tracksImportersCount;
 
             [_delegate progressStatus:progress];
         }

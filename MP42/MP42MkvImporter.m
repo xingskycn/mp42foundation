@@ -167,7 +167,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
             return nil;
         }
 
-        //SegmentInfo *info = mkv_GetFileInfo(matroskaFile);
+        //SegmentInfo *info = mkv_GetFileInfo(_matroskaFile);
         uint64_t *trackSizes = [self copyGuessedTrackDataLength];
 
         NSInteger trackCount = mkv_GetNumTracks(_matroskaFile);
@@ -238,7 +238,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                     newTrack.startOffset = [self matroskaTrackStartTime:mkvTrack Id:i];
 
                 if ([newTrack.format isEqualToString:MP42VideoFormatH264]) {
-                    uint8_t* avcCAtom = (uint8_t *)malloc(mkvTrack->CodecPrivateSize); // mkv stores h.264 avcC in CodecPrivate
+                    uint8_t *avcCAtom = (uint8_t *)malloc(mkvTrack->CodecPrivateSize); // mkv stores h.264 avcC in CodecPrivate
                     memcpy(avcCAtom, mkvTrack->CodecPrivate, mkvTrack->CodecPrivateSize);
                     if (mkvTrack->CodecPrivateSize >= 3) {
                         [(MP42VideoTrack*)newTrack setOrigProfile:avcCAtom[1]];
@@ -505,9 +505,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
 
         [magicCookie appendBytes:aac length:2];
         return [magicCookie autorelease];
-    }
-    
-    if (!strcmp(trackInfo->CodecID, "A_AC3")) {
+    } else if (!strcmp(trackInfo->CodecID, "A_AC3")) {
         mkv_SetTrackMask(_matroskaFile, ~(1 << [track sourceId]));
 
         uint64_t        StartTime, EndTime, FilePos;
@@ -556,8 +554,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
         }
         else
             return nil;
-    }
-    else if (!strcmp(trackInfo->CodecID, "S_VOBSUB")) {
+    } else if (!strcmp(trackInfo->CodecID, "S_VOBSUB")) {
         char *string = (char *) trackInfo->CodecPrivate;
         char *palette = strnstr(string, "palette:", trackInfo->CodecPrivateSize);
 
@@ -573,7 +570,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
         return [NSData dataWithBytes:colorPalette length:sizeof(UInt32)*16];
     }
 
-    NSData * magicCookie = [NSData dataWithBytes:trackInfo->CodecPrivate length:trackInfo->CodecPrivateSize];
+    NSData *magicCookie = [NSData dataWithBytes:trackInfo->CodecPrivate length:trackInfo->CodecPrivateSize];
 
     if (magicCookie)
         return magicCookie;
@@ -620,6 +617,10 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
             }
         }
 
+        if (!demuxHelper) {
+            continue;
+        }
+
         TrackInfo *trackInfo = mkv_GetTrackInfo(_matroskaFile, Track);
 
         if (trackInfo->Type == TT_AUDIO) {
@@ -647,8 +648,9 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                         demuxHelper->ss = [[SBSubSerializer alloc] init];
 
                     NSString *string = [[[NSString alloc] initWithBytes:frame length:FrameSize encoding:NSUTF8StringEncoding] autorelease];
-                    if (!strcmp(trackInfo->CodecID, "S_TEXT/ASS") || !strcmp(trackInfo->CodecID, "S_TEXT/SSA"))
+                    if (!strcmp(trackInfo->CodecID, "S_TEXT/ASS") || !strcmp(trackInfo->CodecID, "S_TEXT/SSA")) {
                         string = StripSSALine(string);
+                    }
                     
                     if ([string length]) {
                         SBSubLine *sl = [[SBSubLine alloc] initWithLine:string start:StartTime/1000000 end:EndTime/1000000];
