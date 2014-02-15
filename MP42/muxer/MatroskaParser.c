@@ -1105,7 +1105,9 @@ static void parseFirstCluster(MatroskaFile *mf,ulonglong toplen) {
       tc = readUInt(mf,(unsigned)len);
       if (!seenTimecode) {
         seenTimecode = 1;
-        mf->firstTimecode += tc;
+        // Commented out, MP42Foundation wants the real timecode,
+        // not timecode starting at 0.
+        //mf->firstTimecode += tc;
       }
 
       if (seenBlock) {
