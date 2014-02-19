@@ -647,8 +647,8 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             supportedBrands[3] = "isom";
             supportedBrandsCount = 4;
         } else if ([fileExtension isEqualToString:MP42FileTypeM4A] ||
-                 [fileExtension isEqualToString:MP42FileTypeM4B] ||
-                 [fileExtension isEqualToString:MP42FileTypeM4R]) {
+                   [fileExtension isEqualToString:MP42FileTypeM4B] ||
+                   [fileExtension isEqualToString:MP42FileTypeM4R]) {
             majorBrand = "M4A ";
             supportedBrands[0] = majorBrand;
             supportedBrands[1] = "mp42";
