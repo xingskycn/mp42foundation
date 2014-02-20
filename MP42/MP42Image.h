@@ -23,11 +23,12 @@ typedef enum MP42TagArtworkType_e {
 
     NSURL   *_url;
     NSData  *_data;
+    NSString *_uuid;
 
     NSInteger _type;
 }
 
-- (instancetype)initWithURL:(NSURL *)url  type:(NSInteger)type;
+- (instancetype)initWithURL:(NSURL *)url type:(NSInteger)type;
 - (instancetype)initWithImage:(NSImage *)image;
 - (instancetype)initWithData:(NSData *)data type:(NSInteger)type;
 - (instancetype)initWithBytes:(const void*)bytes length:(NSUInteger)length type:(NSInteger)type;

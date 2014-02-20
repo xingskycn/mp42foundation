@@ -9,11 +9,18 @@
 #import "MP42Image.h"
 #import <Quartz/Quartz.h>
 
+@interface MP42Image ()
+
+@property (atomic, readonly) NSString *uuid;
+
+@end
+
 @implementation MP42Image
 
 @synthesize url = _url;
 @synthesize data = _data;
 @synthesize type = _type;
+@synthesize uuid = _uuid;
 
 - (instancetype)initWithURL:(NSURL *)url type:(NSInteger)type
 {
@@ -82,9 +89,9 @@
 
 - (NSData *)data {
     @synchronized(self) {
-        if (_data)
+        if (_data) {
             return _data;
-        else if (_url) {
+        } else if (_url) {
             NSError *outError = nil;
             _data = [[NSData dataWithContentsOfURL:_url options:NSDataReadingUncached error:&outError] retain];
         }
@@ -111,9 +118,21 @@
     return IKImageBrowserNSImageRepresentationType;
 }
 
+- (NSString *)uuid
+{
+    @synchronized(self) {
+        if (_uuid == nil) {
+            _uuid = [[NSProcessInfo processInfo] globallyUniqueString];
+        }
+    }
+
+    return _uuid;
+}
+
+
 - (NSString *)imageUID
 {
-    return [self.image description];
+    return self.uuid;
 }
 
 - (id)imageRepresentation
@@ -147,6 +166,7 @@
 {
     [_image release];
     [_data release];
+    [_uuid release];
     
     [super dealloc];
 }
