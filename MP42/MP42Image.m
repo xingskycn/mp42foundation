@@ -122,13 +122,12 @@
 {
     @synchronized(self) {
         if (_uuid == nil) {
-            _uuid = [[NSProcessInfo processInfo] globallyUniqueString];
+            _uuid = [[[NSProcessInfo processInfo] globallyUniqueString] retain];
         }
     }
 
     return _uuid;
 }
-
 
 - (NSString *)imageUID
 {
