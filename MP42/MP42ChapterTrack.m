@@ -26,7 +26,7 @@
 
         chapters = [[NSMutableArray alloc] init];
     }
-    
+
     return self;
 }
 
@@ -48,17 +48,15 @@
 
         unsigned int i = 1;
         MP4Duration sum = 0;
-        while (i <= chapter_count)
-        {
+        while (i <= chapter_count) {
             MP42TextSample *chapter = [[MP42TextSample alloc] init];
 
-            char * title = chapter_list[i-1].title;
+            char *title = chapter_list[i-1].title;
             if ((title[0] == '\xfe' && title[1] == '\xff') || (title[0] == '\xff' && title[1] == '\xfe')) {
                 chapter.title = [[[NSString alloc] initWithBytes:title
 														  length:chapter_list[i-1].titleLength
 														encoding:NSUTF16StringEncoding] autorelease];
-            }
-            else {
+            } else {
                 chapter.title = [NSString stringWithCString:chapter_list[i-1].title encoding: NSUTF8StringEncoding];
             }
 
@@ -225,14 +223,14 @@
                     MP42TextSample * nextChapter = [chapters objectAtIndex:i+1];
                     fileChapters[i].duration = nextChapter.timestamp - chapter.timestamp;
                     sum = nextChapter.timestamp;
-                }
-                else
+                } else {
                     fileChapters[i].duration = refTrackDuration - chapter.timestamp;
+                }
 
                 if (sum > refTrackDuration) {
                     fileChapters[i].duration = refTrackDuration - chapter.timestamp;
                     i++;
-                break;
+                    break;
                 }
             }
 
@@ -243,16 +241,17 @@
             success = _Id = findChapterTrackId(fileHandle);
         }
     }
+
     if (!success) {
-        if ( outError != NULL)
+        if (outError != NULL)
             *outError = MP42Error(@"Failed to mux chapters into mp4 file",
                                   nil,
                                   120);
 
         return success;
-    }
-    else if (_Id)
+    } else if (_Id) {
         success = [super writeToFile:fileHandle error:outError];
+    }
 
     return success;
 }
