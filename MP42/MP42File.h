@@ -40,8 +40,9 @@ typedef enum MP42Status : NSInteger {
 
 @interface MP42File : NSObject <NSCoding> {
     MP42FileHandle   _fileHandle;
-    NSURL          *_fileURL;
-    id              _delegate;
+    NSURL           *_fileURL;
+
+    id <MP42FileDelegate> _delegate;
 
     NSMutableArray      *_tracksToBeDeleted;
     NSMutableDictionary *_importers;
