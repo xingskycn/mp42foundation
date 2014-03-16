@@ -20,6 +20,8 @@
 #import "MP42PrivateUtilities.h"
 #import "MP42Track+Muxer.h"
 
+#define SCALE_FACTOR 1000000.f
+
 u_int32_t MP4AV_Ac3GetSamplingRate(u_int8_t* pHdr);
 
 @interface MatroskaSample : NSObject {
@@ -251,7 +253,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
 
                 double trackTimecodeScale = mkv_TruncFloat(mkvTrack->TimecodeScale);
                 SegmentInfo *segInfo = mkv_GetFileInfo(_matroskaFile);
-                UInt64 scaledDuration = (UInt64)segInfo->Duration / 1000000 * trackTimecodeScale;
+                UInt64 scaledDuration = (UInt64)segInfo->Duration / SCALE_FACTOR * trackTimecodeScale;
 
                 newTrack.duration = scaledDuration;
 
@@ -276,13 +278,13 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
             MP42ChapterTrack *newTrack = [[MP42ChapterTrack alloc] init];
             
             SegmentInfo *segInfo = mkv_GetFileInfo(_matroskaFile);
-            UInt64 scaledDuration = (UInt64)segInfo->Duration / 1000000;
+            UInt64 scaledDuration = (UInt64)segInfo->Duration / SCALE_FACTOR;
             [newTrack setDuration:scaledDuration];
 
             if (count) {
                 unsigned int xi = 0;
                 for (xi = 0; xi < chapters->nChildren; xi++) {
-                    uint64_t timestamp = (chapters->Children[xi].Start) / 1000000;
+                    uint64_t timestamp = (chapters->Children[xi].Start) / SCALE_FACTOR;
                     if (!xi)
                         timestamp = 0;
                     if (xi && timestamp == 0)
@@ -316,7 +318,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
     if (segInfo->Title)
         [mkvMetadata setTag:[NSString stringWithUTF8String:segInfo->Title] forKey:@"Name"];
     
-    Tag* tags;
+    Tag *tags;
     unsigned count;
 
     mkv_GetTags(_matroskaFile, &tags, &count);
@@ -463,15 +465,15 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
     mkv_ReadFrame(_matroskaFile, 0, &Track, &StartTime, &EndTime, &FilePos, &FrameSize, &FrameFlags);
     mkv_Seek(_matroskaFile, 0, 0);
 
-    return StartTime / 1000000;
+    return StartTime / SCALE_FACTOR;
 }
 
 - (NSUInteger)timescaleForTrack:(MP42Track *)track
 {
     TrackInfo *trackInfo = mkv_GetTrackInfo(_matroskaFile, [track sourceId]);
-    if (trackInfo->Type == TT_VIDEO)
+    if (trackInfo->Type == TT_VIDEO) {
         return 100000;
-    else if (trackInfo->Type == TT_AUDIO) {
+    } else if (trackInfo->Type == TT_AUDIO) {
         NSUInteger sampleRate = mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq);
         if (!strcmp(trackInfo->CodecID, "A_AC3")) {
             if (sampleRate < 24000)
@@ -590,7 +592,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
 
     MP42Track           *track = nil;
     MatroskaDemuxHelper *demuxHelper = nil;
-    MatroskaSample      *frameSample = nil, * currentSample = nil;
+    MatroskaSample      *frameSample = nil, *currentSample = nil;
     int64_t             offset, minOffset = 0, duration, next_duration;
 
     const unsigned int bufferSize = 20;
@@ -627,6 +629,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
             demuxHelper->samplesWritten++;
 
             if (readMkvPacket(_ioStream, trackInfo, FilePos, &frame, &FrameSize)) {
+
                 MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
                 sample->data = frame;
                 sample->size = FrameSize;
@@ -636,8 +639,17 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 sample->isSync = YES;
                 sample->trackId = track.sourceId;
 
-                [self enqueue:sample];
-                [sample release];
+                if (demuxHelper->previousSample) {
+                    uint64_t duration = sample->timestamp / (double)1000000.f * (mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq) / 1000.f) - demuxHelper->current_time;
+
+                    demuxHelper->previousSample->duration = duration;
+                    [self enqueue:demuxHelper->previousSample];
+
+                    demuxHelper->current_time += duration;
+                }
+
+                [demuxHelper->previousSample release];
+                demuxHelper->previousSample = sample;
             }
         }
 
@@ -653,7 +665,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                     }
                     
                     if ([string length]) {
-                        SBSubLine *sl = [[SBSubLine alloc] initWithLine:string start:StartTime/1000000 end:EndTime/1000000];
+                        SBSubLine *sl = [[SBSubLine alloc] initWithLine:string start:StartTime / SCALE_FACTOR end:EndTime / SCALE_FACTOR];
                         [demuxHelper->ss addLine:[sl autorelease]];
                     }
                     demuxHelper->samplesWritten++;
@@ -674,7 +686,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                     if (!strcmp(trackInfo->CodecID, "S_HDMV/PGS")) {
                         if (!demuxHelper->previousSample) {
                             demuxHelper->previousSample = [[MP42SampleBuffer alloc] init];
-                            demuxHelper->previousSample->duration = StartTime / 1000000;
+                            demuxHelper->previousSample->duration = StartTime / SCALE_FACTOR;
                             demuxHelper->previousSample->offset = 0;
                             demuxHelper->previousSample->timestamp = 0;
                             demuxHelper->previousSample->isSync = YES;
@@ -688,7 +700,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                                 demuxHelper->previousSample = temp;
                             }
 
-                            demuxHelper->previousSample->duration = (nextSample->timestamp - demuxHelper->previousSample->timestamp) / 1000000;
+                            demuxHelper->previousSample->duration = (nextSample->timestamp - demuxHelper->previousSample->timestamp) / SCALE_FACTOR;
                         }
 
                         [self enqueue:demuxHelper->previousSample];
@@ -701,7 +713,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                     else if (!strcmp(trackInfo->CodecID, "S_VOBSUB")) {
                         if (StartTime > demuxHelper->current_time) {
                             MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
-                            sample->duration = (StartTime - demuxHelper->current_time) / 1000000;
+                            sample->duration = (StartTime - demuxHelper->current_time) / SCALE_FACTOR;
                             sample->size = 2;
                             sample->data = calloc(1, 2);
                             sample->isSync = YES;
@@ -711,7 +723,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                             [sample release];
                         }
                         
-                        nextSample->duration = (EndTime - StartTime ) / 1000000;
+                        nextSample->duration = (EndTime - StartTime ) / SCALE_FACTOR;
                         
                         [self enqueue:nextSample];
                         [nextSample release];
@@ -742,7 +754,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 // matroska stores only the start and end time, so we need to recreate
                 // the frame duration and the offset from the start time, the end time is useless
                 // duration calculation
-                duration = ((MatroskaSample*)[demuxHelper->queue lastObject])->startTime - currentSample->startTime;
+                duration = ((MatroskaSample *)[demuxHelper->queue lastObject])->startTime - currentSample->startTime;
 
                 for (MatroskaSample *sample in demuxHelper->queue)
                     if (sample != currentSample && (sample->startTime >= currentSample->startTime))

@@ -36,6 +36,49 @@
         newTrack.alternate_group = 2;
         newTrack.language = getFilenameLanguage((CFStringRef)[_fileURL path]);
 
+        if ([newTrack.language isEqualToString:@"Unknown"]) {
+			// we couldn't deduce language from the fileURL
+			// -> Let's look into the file itself
+
+			NSString *stringFromFileAtURL = [[NSString alloc]
+											 initWithContentsOfURL:fileURL
+											 encoding:NSUTF8StringEncoding
+											 error:nil];
+			if (stringFromFileAtURL) { // try auto determining
+				NSArray *tagschemes = [NSArray arrayWithObjects:NSLinguisticTagSchemeLanguage, nil];
+				NSLinguisticTagger *tagger = [[NSLinguisticTagger alloc] initWithTagSchemes:tagschemes options:0];
+
+				NSCountedSet *languagesSet = [NSCountedSet new];
+
+				[stringFromFileAtURL enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+					NSRange range = NSMakeRange(0, [line length]);
+					if (range.length > 1) {
+						[tagger setString:line];
+						/*NSString *language = */
+						[tagger tagAtIndex:0 scheme:NSLinguisticTagSchemeLanguage tokenRange:NULL sentenceRange:NULL];
+						NSOrthography *ortho = [tagger orthographyAtIndex:0 effectiveRange:NULL];
+						if (ortho && ![ortho.dominantLanguage isEqualToString:@"und"]) {
+							[languagesSet addObject:ortho.dominantLanguage];
+						}
+					}
+				}];
+
+				NSArray *sortedValues = [languagesSet.allObjects sortedArrayUsingComparator:^(id obj1, id obj2) {
+					NSUInteger n = [languagesSet countForObject:obj1];
+					NSUInteger m = [languagesSet countForObject:obj2];
+					return (n <= m)? (n < m)? NSOrderedAscending : NSOrderedSame : NSOrderedDescending;
+				}];
+				NSString *language = [sortedValues lastObject];
+
+				NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en"];
+				NSString *languageName = [locale displayNameForKey:NSLocaleLanguageCode
+															 value:language];
+                
+				newTrack.language = languageName;
+                [locale release];
+			}
+		}
+
         _ss = [[SBSubSerializer alloc] init];
         if ([[_fileURL pathExtension] caseInsensitiveCompare: @"srt"] == NSOrderedSame) {
             success = LoadSRTFromPath([_fileURL path], _ss, &duration);
