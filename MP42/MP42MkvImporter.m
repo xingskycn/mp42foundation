@@ -639,7 +639,10 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 sample->isSync = YES;
                 sample->trackId = track.sourceId;
 
-                if (demuxHelper->previousSample) {
+                [self enqueue:sample];
+                [sample release];
+
+                /*if (demuxHelper->previousSample) {
                     uint64_t duration = sample->timestamp / (double)1000000.f * (mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq) / 1000.f) - demuxHelper->current_time;
 
                     demuxHelper->previousSample->duration = duration;
@@ -649,7 +652,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 }
 
                 [demuxHelper->previousSample release];
-                demuxHelper->previousSample = sample;
+                demuxHelper->previousSample = sample;*/
             }
         }
 
