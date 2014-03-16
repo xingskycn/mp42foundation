@@ -7,8 +7,11 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "MP42File.h"
 
 @interface MP42Tests : XCTestCase
+
+@property (retain) MP42File *mp4;
 
 @end
 
@@ -17,18 +20,18 @@
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.mp4 = [[[MP42File alloc] init] autorelease];
 }
 
 - (void)tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    self.mp4 = nil;
     [super tearDown];
 }
 
-- (void)testExample
+- (void)testCreation
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+    XCTAssertNotNil(self.mp4, @"MP4File is nil");
 }
 
 @end
