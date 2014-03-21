@@ -564,6 +564,9 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
                         self.URL = result;
                     }
                 }
+            } else {
+                // Remove the temp file if the optimization didn't complete
+                [fileManager removeItemAtPath:[tempURL path] error:NULL];
             }
         }
 
@@ -606,6 +609,9 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 noErr = [fileManager copyItemAtURL:self.URL toURL:url error:outError];
+                if (!noErr && *outError) {
+                    [*outError retain];
+                }
                 done = YES;
             });
 
@@ -620,9 +626,10 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         if (noErr) {
             self.URL = url;
             success = [self updateMP4FileWithAttributes:attributes error:outError];
-        }
-        else
+        } else {
             success = NO;
+            [*outError autorelease];
+        }
     }
     else {
         self.URL = url;
