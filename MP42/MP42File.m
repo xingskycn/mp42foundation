@@ -594,8 +594,10 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 {
     BOOL success = YES;
 
-    if (!url && outError) {
-        *outError = MP42Error(@"Invalid path.", @"The destination path cannot be empty.", 100);
+    if (!url) {
+        if (outError) {
+            *outError = MP42Error(@"Invalid path.", @"The destination path cannot be empty.", 100);
+        }
         return NO;
     }
 
