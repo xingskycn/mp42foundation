@@ -1413,31 +1413,29 @@ static const genreType_t genreType_strings[] = {
 
 - (BOOL) mergeMetadata: (MP42Metadata *) newMetadata
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSString * tagValue;
+    @autoreleasepool {
+        NSString *tagValue;
 
-    [newMetadata retain];
+        [newMetadata retain];
 
-    for (NSString * key in [self writableMetadata])
+        for (NSString *key in [self writableMetadata])
             if((tagValue = [newMetadata.tagsDict valueForKey:key]))
                 [tagsDict setObject:tagValue forKey:key];
 
-    for (NSImage *artwork in newMetadata.artworks) {
-        isArtworkEdited = YES;
-        [artworks addObject:artwork];
+        for (NSImage *artwork in newMetadata.artworks) {
+            isArtworkEdited = YES;
+            [artworks addObject:artwork];
+        }
+
+        mediaKind = newMetadata.mediaKind;
+        contentRating = newMetadata.contentRating;
+        gapless = newMetadata.gapless;
+        hdVideo = newMetadata.hdVideo;
+
+        isEdited = YES;
+
+        [newMetadata release];
     }
-
-    mediaKind = newMetadata.mediaKind;
-    contentRating = newMetadata.contentRating;
-    gapless = newMetadata.gapless;
-    hdVideo = newMetadata.hdVideo;
-
-    isEdited = YES;
-
-    [newMetadata release];
-
-    [pool release];
-
     return YES;
 }
 
