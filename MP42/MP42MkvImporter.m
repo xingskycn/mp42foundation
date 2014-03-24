@@ -673,8 +673,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                     }
                     demuxHelper->samplesWritten++;
                     free(frame);
-                }
-                else {
+                } else {
                     MP42SampleBuffer *nextSample = [[MP42SampleBuffer alloc] init];
 
                     nextSample->duration = 0;
@@ -691,11 +690,10 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                             demuxHelper->previousSample = [[MP42SampleBuffer alloc] init];
                             demuxHelper->previousSample->duration = StartTime / SCALE_FACTOR;
                             demuxHelper->previousSample->offset = 0;
-                            demuxHelper->previousSample->timestamp = 0;
+                            demuxHelper->previousSample->timestamp = StartTime;
                             demuxHelper->previousSample->isSync = YES;
                             demuxHelper->previousSample->trackId = track.sourceId;
-                        }
-                        else {
+                        } else {
                             if (nextSample->timestamp < demuxHelper->previousSample->timestamp) {
                                 // Out of order samples? swap the next with the previous
                                 MP42SampleBuffer *temp = nextSample;
@@ -711,9 +709,8 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
 
                         demuxHelper->previousSample = nextSample;
                         demuxHelper->samplesWritten++;
-                    }
-                    // VobSub seems to have an end duration, and no blank samples, so create a new one each time to fill the gaps
-                    else if (!strcmp(trackInfo->CodecID, "S_VOBSUB")) {
+                    } else if (!strcmp(trackInfo->CodecID, "S_VOBSUB")) {
+                        // VobSub seems to have an end duration, and no blank samples, so create a new one each time to fill the gaps
                         if (StartTime > demuxHelper->current_time) {
                             MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
                             sample->duration = (StartTime - demuxHelper->current_time) / SCALE_FACTOR;
@@ -749,9 +746,9 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
             [demuxHelper->queue addObject:frameSample];
             [frameSample release];
 
-            if ([demuxHelper->queue count] < bufferSize)
+            if ([demuxHelper->queue count] < bufferSize) {
                 continue;
-            else {
+            } else {
                 currentSample = [demuxHelper->queue objectAtIndex:demuxHelper->buffer];
 
                 // matroska stores only the start and end time, so we need to recreate
