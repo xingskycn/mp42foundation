@@ -20,14 +20,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-#define SB_AVF_DEBUG
-
 @interface AVFDemuxHelper : NSObject {
 @public
     CMTimeRange         *edits;
     uint64_t             editsCount;
     uint64_t             editsSize;
+    BOOL                 editOpen;
     int64_t              currentTime;
+    int64_t              currentEditTime;
     AVAssetReaderOutput *assetReaderOutput;
 }
 @end
@@ -37,7 +37,7 @@
 
 @implementation MP42AVFImporter
 
-- (NSString *)formatForTrack: (AVAssetTrack *)track;
+- (NSString *)formatForTrack:(AVAssetTrack *)track;
 {
     NSString *result = @"";
     
@@ -642,13 +642,26 @@
         helper->edits = (CMTimeRange *) realloc(helper->edits, sizeof(CMTimeRange) * helper->editsSize);
     }
     helper->edits[helper->editsCount] = CMTimeRangeMake(time, kCMTimeInvalid);
+    helper->editOpen = YES;
 }
 
-- (void)endEditListAtTime:(CMTime)time helper:(AVFDemuxHelper *)helper {
+- (void)endEditListAtTime:(CMTime)time empty:(BOOL)type helper:(AVFDemuxHelper *)helper {
+    if (!helper->editOpen)
+        return;
+
     time.value -= helper->edits[helper->editsCount].start.value;
     helper->edits[helper->editsCount].duration = time;
+
+    if (type) {
+        helper->edits[helper->editsCount].start.value = -1;
+    }
+
     helper->editsCount++;
+    helper->currentEditTime = 0;
+    helper->editOpen = NO;
 }
+
+//#define SB_AVF_DEBUG
 
 - (void)demux:(id)sender
 {
@@ -685,9 +698,10 @@
 	if (!success)
 		localError = [assetReader error];
 
-    for (MP42Track * track in _inputTracks) {
+    for (MP42Track *track in _inputTracks) {
         demuxHelper = track.muxer_helper->demuxer_context;
         AVAssetReaderOutput *assetReaderOutput = demuxHelper->assetReaderOutput;
+        int32_t timescale = 0;
 
         [self startEditListAtTime:kCMTimeInvalid helper:demuxHelper];
 
@@ -707,22 +721,29 @@
                     void *sampleData = malloc(sampleSize);
                     CMBlockBufferCopyDataBytes(buffer, 0, sampleSize, sampleData);
 
-                    // Read sample attachment, sync to mark the frame as sync, do not display to create a new edit list
+                    // Read sample attachment, sync to mark the frame as sync
                     BOOL sync = 1;
-                    BOOL doNotDisplay = 0;
                     CFArrayRef attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, NO);
                     if (attachmentsArray) {
-                        for (NSDictionary *dict in (NSArray*)attachmentsArray) {
-                            if ([dict valueForKey:(NSString*)kCMSampleAttachmentKey_NotSync])
+                        for (NSDictionary *dict in (NSArray *)attachmentsArray) {
+                            if ([dict valueForKey:(NSString *)kCMSampleAttachmentKey_NotSync])
                                 sync = 0;
-                            if ([dict valueForKey:(NSString*)kCMSampleAttachmentKey_DoNotDisplay]) {
-                                doNotDisplay = 1;
-                            }
                         }
                     }
 
+                    if (timescale == 0) {
+                        timescale = duration.timescale;
+                    }
+
+                    // Check for the initial empty edit
+                    if (demuxHelper->currentTime == 0 && presentationOutputTimeStamp.value != 0) {
+                        CMTime time = CMTimeConvertScale(presentationOutputTimeStamp, duration.timescale, kCMTimeRoundingMethod_Default);
+                        [self endEditListAtTime:time empty:YES helper:demuxHelper];
+                        [self startEditListAtTime:time helper:demuxHelper];
+                    }
+
 #ifdef SB_AVF_DEBUG
-                    NSLog(@"Dur: %lld, D: %lld, P: %lld, PO: %lld Display: %d", duration.value, decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value, doNotDisplay);
+                    NSLog(@"Dur: %lld, D: %lld, P: %lld, PO: %lld", duration.value, decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
 #endif
 
                     CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
@@ -743,7 +764,7 @@
                         CMTime editEnd = CMTimeMake(demuxHelper->currentTime, duration.timescale);
                         editEnd.value += duration.value - trimEndTime.value;
 
-                        [self endEditListAtTime:editEnd helper:demuxHelper];
+                        [self endEditListAtTime:editEnd empty:NO helper:demuxHelper];
                     }
 
                     MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
@@ -759,6 +780,7 @@
                     [sample release];
 
                     demuxHelper->currentTime += duration.value;
+                    demuxHelper->currentEditTime += duration.value;
                     currentDataLength += sampleSize;
                 } else {
                     if (!CMSampleBufferDataIsReady(sampleBuffer))
@@ -816,8 +838,12 @@
                         CMTime editEnd = CMTimeMake(demuxHelper->currentTime, timingArrayOut[0].duration.timescale);
                         editEnd.value += timingArrayOut[0].duration.value * samplesNum  - trimEndTime.value;
 
-                        [self endEditListAtTime:editEnd helper:demuxHelper];
+                        [self endEditListAtTime:editEnd empty:NO helper:demuxHelper];
 
+                    }
+
+                    if (timescale == 0) {
+                        timescale = timingArrayOut[0].duration.timescale;
                     }
 
                     int pos = 0;
@@ -864,19 +890,16 @@
                         }
 
                         BOOL sync = 1;
-                        BOOL doNotDisplay = 0;
                         CFArrayRef attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, NO);
                         if (attachmentsArray) {
-                            for (NSDictionary *dict in (NSArray*)attachmentsArray) {
-                                if ([dict valueForKey:(NSString*)kCMSampleAttachmentKey_NotSync])
+                            for (NSDictionary *dict in (NSArray *)attachmentsArray) {
+                                if ([dict valueForKey:(NSString *)kCMSampleAttachmentKey_NotSync])
                                     sync = 0;
-                                if ([dict valueForKey:(NSString*)kCMSampleAttachmentKey_DoNotDisplay])
-                                    doNotDisplay = 1;
                             }
                         }
 
 #ifdef SB_AVF_DEBUG
-                        //NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
+                        NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
 #endif
                         
                         MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
@@ -892,6 +915,7 @@
                         [sample release];
 
                         demuxHelper->currentTime += sampleTimingInfo.duration.value;
+                        demuxHelper->currentEditTime += sampleTimingInfo.duration.value;
                         currentDataLength += sampleSize;
                     }
 
@@ -914,6 +938,7 @@
                 break;
             }
         }
+        [self endEditListAtTime:CMTimeMake(demuxHelper->currentEditTime, timescale) empty:NO helper:demuxHelper];
     }
 
     [assetReader release];
@@ -932,7 +957,7 @@
     }
 }
 
-- (BOOL)cleanUp:(MP4FileHandle) fileHandle
+- (BOOL)cleanUp:(MP4FileHandle)fileHandle
 {
     uint32_t timescale = MP4GetTimeScale(fileHandle);
 
@@ -958,6 +983,8 @@
 
         if (trackDuration)
             MP4SetTrackIntegerProperty(fileHandle, track.Id, "tkhd.duration", trackDuration);
+
+        free(demuxHelper->edits);
 
     }
     return YES;
