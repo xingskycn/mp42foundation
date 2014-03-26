@@ -225,7 +225,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             if ([track.format isEqualToString:MP42VideoFormatJPEG])
                 previewsId = track.Id;
 
-        [self loadPreviewsFromTrackID:previewsId];
+        //[self loadPreviewsFromTrackID:previewsId];
 
         _tracksToBeDeleted = [[NSMutableArray alloc] init];
         _metadata = [[MP42Metadata alloc] initWithSourceURL:_fileURL fileHandle:_fileHandle];
@@ -281,7 +281,8 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             NSData *frameData = [[NSData alloc] initWithBytes:pBytes length:numBytes];
             MP42Image *frame = [[MP42Image alloc] initWithData:frameData type:MP42_ART_JPEG];
 
-            [[self chapters] chapterAtIndex:currentSampleNum - 1].image = frame;
+            if ([[self chapters].chapters count] >= currentSampleNum)
+                [[self chapters] chapterAtIndex:currentSampleNum - 1].image = frame;
 
             [frameData release];
             [frame release];

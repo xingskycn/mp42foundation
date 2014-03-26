@@ -20,20 +20,15 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
+#define SB_AVF_DEBUG
+
 @interface AVFDemuxHelper : NSObject {
 @public
-    BOOL                countFrames;
-    int64_t             correctionValue;
-    int64_t             disTimeStamp;
-    CMTimeRange         *discontinuity;
-    uint64_t            discontinuityCount;
-    BOOL                doNotDisplay;
-    CMTime              currentTime;
-    CMTime              segmentEndTimestamp;
-    CMTime              segmentDuration;
-    CMTime              segmentStarTime;
+    CMTimeRange         *edits;
+    uint64_t             editsCount;
+    uint64_t             editsSize;
+    int64_t              currentTime;
     AVAssetReaderOutput *assetReaderOutput;
-    int64_t             minDisplayOffset;
 }
 @end
 
@@ -42,9 +37,9 @@
 
 @implementation MP42AVFImporter
 
-- (NSString*)formatForTrack: (AVAssetTrack *)track;
+- (NSString *)formatForTrack: (AVAssetTrack *)track;
 {
-    NSString* result = @"";
+    NSString *result = @"";
     
     CMFormatDescriptionRef formatDescription = NULL;
     NSArray *formatDescriptions = track.formatDescriptions;
@@ -153,6 +148,9 @@
             case kCMVideoCodecType_DVCPROHD1080p30:
             case kCMVideoCodecType_DVCPROHD1080p25:
                 result = @"DVCProHD";
+                break;
+            case 'AVdn':
+                result = @"DNxHD";
                 break;
             default:
                 result = @"Unknown";
@@ -638,15 +636,29 @@
     return nil;
 }
 
+- (void)startEditListAtTime:(CMTime)time helper:(AVFDemuxHelper *)helper {
+    if (helper->editsSize <= helper->editsCount) {
+        helper->editsSize += 20;
+        helper->edits = (CMTimeRange *) realloc(helper->edits, sizeof(CMTimeRange) * helper->editsSize);
+    }
+    helper->edits[helper->editsCount] = CMTimeRangeMake(time, kCMTimeInvalid);
+}
+
+- (void)endEditListAtTime:(CMTime)time helper:(AVFDemuxHelper *)helper {
+    time.value -= helper->edits[helper->editsCount].start.value;
+    helper->edits[helper->editsCount].duration = time;
+    helper->editsCount++;
+}
+
 - (void)demux:(id)sender
 {
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
 	BOOL success = YES;
     OSStatus err = noErr;
 
     uint64_t currentDataLength = 0;
     uint64_t totalDataLength = 0;
-
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
     AVFDemuxHelper *demuxHelper=nil;
     NSError *localError;
@@ -676,6 +688,8 @@
     for (MP42Track * track in _inputTracks) {
         demuxHelper = track.muxer_helper->demuxer_context;
         AVAssetReaderOutput *assetReaderOutput = demuxHelper->assetReaderOutput;
+
+        [self startEditListAtTime:kCMTimeInvalid helper:demuxHelper];
 
         while (!_cancelled) {
             CMSampleBufferRef sampleBuffer = [assetReaderOutput copyNextSampleBuffer];
@@ -707,38 +721,30 @@
                         }
                     }
 
-                    if ((presentationTimeStamp.value + demuxHelper->correctionValue) != presentationOutputTimeStamp.value) {
-                        if (!demuxHelper->discontinuity)
-                            demuxHelper->discontinuity = (CMTimeRange *) malloc(sizeof(CMTimeRange) * 100);
+#ifdef SB_AVF_DEBUG
+                    NSLog(@"Dur: %lld, D: %lld, P: %lld, PO: %lld Display: %d", duration.value, decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value, doNotDisplay);
+#endif
 
-                        NSLog(@"We found a timestamp discontinuity");
-                        NSLog(@"Current presentationTimeStamp: %lld", presentationTimeStamp.value);
-                        demuxHelper->correctionValue =  -presentationTimeStamp.value + presentationOutputTimeStamp.value;
-                        //demuxHelper->disTimeStamp = presentationOutputTimeStamp.value;
-                        NSLog(@"Making an adjustment of %lld", -demuxHelper->correctionValue);
-                        NSLog(@"Timestamp of discontinuity %lld", presentationOutputTimeStamp.value);
+                    CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
+                    if (trimStart) {
+                        CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
 
-                        demuxHelper->discontinuity[demuxHelper->discontinuityCount].start = presentationTimeStamp;
-                        demuxHelper->discontinuity[demuxHelper->discontinuityCount].duration.value = -demuxHelper->correctionValue; //presentationTimeStamp.value;
-                        demuxHelper->discontinuity[demuxHelper->discontinuityCount].duration.timescale = presentationTimeStamp.timescale;
+                        trimStartTime = CMTimeConvertScale(trimStartTime, duration.timescale, kCMTimeRoundingMethod_Default);
+                        CMTime editStart = CMTimeMake(demuxHelper->currentTime, duration.timescale);
+                        editStart.value += trimStartTime.value;
 
-                        demuxHelper->discontinuityCount++;
-                        demuxHelper->countFrames = YES;
+                        [self startEditListAtTime:editStart helper:demuxHelper];
                     }
-                    if (demuxHelper->countFrames) {
-                        demuxHelper->disTimeStamp +=  duration.value;
-                    }
-                    
-                    if (presentationOutputTimeStamp.value >= demuxHelper->currentTime.value) {
-                        demuxHelper->currentTime = presentationOutputTimeStamp;
-                        if (demuxHelper->countFrames) {
-                            demuxHelper->discontinuity[demuxHelper->discontinuityCount-1].duration.value -= demuxHelper->disTimeStamp;
-                            NSLog(@"Corrected decode time stamp: %lld", demuxHelper->disTimeStamp);
-                            }
-                        demuxHelper->countFrames = NO;
-                    }
+                    CFTypeRef trimEnd = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtEnd, kCMAttachmentMode_ShouldNotPropagate);
+                    if (trimEnd) {
+                        CMTime trimEndTime = CMTimeMakeFromDictionary(trimEnd);
 
-                    //NSLog(@"D: %lld, P: %lld, PO: %lld Display: %d", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value, doNotDisplay);
+                        trimEndTime = CMTimeConvertScale(trimEndTime, duration.timescale, kCMTimeRoundingMethod_Default);
+                        CMTime editEnd = CMTimeMake(demuxHelper->currentTime, duration.timescale);
+                        editEnd.value += duration.value - trimEndTime.value;
+
+                        [self endEditListAtTime:editEnd helper:demuxHelper];
+                    }
 
                     MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
                     sample->data = sampleData;
@@ -752,9 +758,9 @@
                     [self enqueue:sample];
                     [sample release];
 
+                    demuxHelper->currentTime += duration.value;
                     currentDataLength += sampleSize;
-                }
-                else {
+                } else {
                     if (!CMSampleBufferDataIsReady(sampleBuffer))
                         CMSampleBufferMakeDataReady(sampleBuffer);
 
@@ -789,8 +795,19 @@
                     CMBlockBufferRef buffer = CMSampleBufferGetDataBuffer(sampleBuffer);
                     size_t bufferSize = CMBlockBufferGetDataLength(buffer);
 
-                    int i = 0, pos = 0;
-                    for (i = 0; i < samplesNum; i++) {
+#ifdef SB_AVF_DEBUG
+#endif
+                    CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
+                    if (trimStart) {
+                        CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
+                    }
+                    CFTypeRef trimEnd = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtEnd, kCMAttachmentMode_ShouldNotPropagate);
+                    if (trimEnd) {
+                        CMTime trimEndTime = CMTimeMakeFromDictionary(trimStart);
+                    }
+
+                    int pos = 0;
+                    for (int i = 0; i < samplesNum; i++) {
                         CMSampleTimingInfo sampleTimingInfo;
                         CMTime decodeTimeStamp = {0,0,0,0};
                         CMTime presentationTimeStamp = {0,0,0,0};
@@ -807,8 +824,7 @@
                             presentationTimeStamp = sampleTimingInfo.presentationTimeStamp;
                             presentationTimeStamp.value = presentationTimeStamp.value + ( sampleTimingInfo.duration.value * i);
 
-                        }
-                        else {
+                        } else {
                             sampleTimingInfo = timingArrayOut[i];
                             decodeTimeStamp = sampleTimingInfo.decodeTimeStamp;
                             presentationTimeStamp = sampleTimingInfo.presentationTimeStamp;
@@ -817,10 +833,11 @@
                         presentationOutputTimeStamp.value = presentationOutputTimeStamp.value + ( sampleTimingInfo.duration.value * i / ( (double) sampleTimingInfo.duration.timescale / presentationOutputTimeStamp.timescale));
 
                         // If the size of sample size array is equal to 1, it means every sample has got the same size
-                        if (sizeArrayEntries ==  1)
+                        if (sizeArrayEntries ==  1) {
                             sampleSize = sizeArrayOut[0];
-                        else
+                        } else {
                             sampleSize = sizeArrayOut[i];
+                        }
 
                         if (!sampleSize)
                             continue;
@@ -844,38 +861,9 @@
                             }
                         }
 
-                        if ((presentationTimeStamp.value + demuxHelper->correctionValue) != presentationOutputTimeStamp.value) {
-                            if (!demuxHelper->discontinuity)
-                                demuxHelper->discontinuity = (CMTimeRange *) malloc(sizeof(CMTimeRange) * 100);
-                            
-                            NSLog(@"We found a timestamp discontinuity");
-                            NSLog(@"Current presentationTimeStamp: %lld", presentationTimeStamp.value);
-                            demuxHelper->correctionValue =  -presentationTimeStamp.value + presentationOutputTimeStamp.value;
-                            //demuxHelper->disTimeStamp = presentationOutputTimeStamp.value;
-                            NSLog(@"Making an adjustment of %lld", -demuxHelper->correctionValue);
-                            NSLog(@"Timestamp of discontinuity %lld", presentationOutputTimeStamp.value);
-                            
-                            demuxHelper->discontinuity[demuxHelper->discontinuityCount].start = presentationTimeStamp;
-                            demuxHelper->discontinuity[demuxHelper->discontinuityCount].duration.value = -demuxHelper->correctionValue; //presentationTimeStamp.value;
-                            demuxHelper->discontinuity[demuxHelper->discontinuityCount].duration.timescale = presentationTimeStamp.timescale;
-                            
-                            demuxHelper->discontinuityCount++;
-                            demuxHelper->countFrames = YES;
-                        }
-                        if (demuxHelper->countFrames) {
-                            demuxHelper->disTimeStamp +=  sampleTimingInfo.duration.value;
-                        }
-                        
-                        if (presentationOutputTimeStamp.value >= demuxHelper->currentTime.value) {
-                            demuxHelper->currentTime = presentationOutputTimeStamp;
-                            if (demuxHelper->countFrames) {
-                                demuxHelper->discontinuity[demuxHelper->discontinuityCount-1].duration.value -= demuxHelper->disTimeStamp;
-                                NSLog(@"Corrected decode time stamp: %lld", demuxHelper->disTimeStamp);
-                            }
-                            demuxHelper->countFrames = NO;
-                        }
-
-                        //NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
+#ifdef SB_AVF_DEBUG
+                        NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
+#endif
                         
                         MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
                         sample->data = sampleData;
@@ -901,8 +889,7 @@
 
                 _progress = (((CGFloat) currentDataLength /  totalDataLength ) * 100);
 
-            }
-            else {
+            } else {
                 AVAssetReaderStatus status = assetReader.status;
 
                 if (status == AVAssetReaderStatusCompleted) {
@@ -933,73 +920,30 @@
 - (BOOL)cleanUp:(MP4FileHandle) fileHandle
 {
     uint32_t timescale = MP4GetTimeScale(fileHandle);
-    long i;
 
     for (MP42Track *track in _inputTracks) {
-        AVAssetTrack *assetTrack = [_localAsset trackWithTrackID:track.sourceId];
-        MP42Track *inputTrack = [self inputTrackWithTrackID:track.sourceId];
-
         MP4Duration trackDuration = 0;
-        MP4Timestamp editDuration;
+        MP42Track *inputTrack = [self inputTrackWithTrackID:track.sourceId];
 
         AVFDemuxHelper *demuxHelper = inputTrack.muxer_helper->demuxer_context;
 
-        for (AVAssetTrackSegment *segment in assetTrack.segments) {
-            bool empty = NO;
-            CMTimeMapping timeMapping = segment.timeMapping;
-            CMTimeValue correction = 0;
+        for (int i = 0; i < demuxHelper->editsCount; i++) {
+            CMTimeRange timeRange = demuxHelper->edits[i];
+            CMTime duration = CMTimeConvertScale(timeRange.duration, timescale, kCMTimeRoundingMethod_Default);
 
-            for (i = demuxHelper->discontinuityCount - 1; i >= 0; i--) {
-                CMTimeRange timeRange = demuxHelper->discontinuity[i];
+            trackDuration += duration.value;
 
-                if (timeMapping.source.start.value > timeRange.start.value) {
-                    correction = timeRange.duration.value;
-                    NSLog(@"Discontinuity --");
-                    NSLog(@"Presentation Time: %lld", timeRange.start.value);
-                    NSLog(@"Timescale: %d", timeRange.start.timescale);
-                    NSLog(@"Correction: %lld", timeRange.duration.value);
+            MP4AddTrackEdit(fileHandle, track.Id, MP4_INVALID_EDIT_ID, timeRange.start.value,
+                            duration.value, 0);
 
-                    break;
-                }
-
-            }
-
-            if (timeMapping.source.duration.flags & kCMTimeFlags_Indefinite || timeMapping.target.duration.flags & kCMTimeFlags_Indefinite) {
-                NSLog(@"Indefinite time mappings");
-            }
-            else {
-                NSLog(@"Source --");
-                NSLog(@"Start: %lld", timeMapping.source.start.value);
-                NSLog(@"Timescale: %d", timeMapping.source.start.timescale);
-                NSLog(@"Duration: %lld", timeMapping.source.duration.value);
-                NSLog(@"Timescale: %d", timeMapping.source.duration.timescale);
-
-                NSLog(@"Target --");
-                NSLog(@"Start %lld", timeMapping.target.start.value);
-                NSLog(@"Timescale: %d", timeMapping.target.start.timescale);
-                NSLog(@"Duration: %lld", timeMapping.target.duration.value);
-                NSLog(@"Timescale: %d", timeMapping.target.start.timescale);
-
-                if (segment.empty) {
-                    NSLog(@"Empty segment");
-                    empty = YES;
-                }
-                
-                editDuration = timeMapping.target.duration.value * ((double) timescale / timeMapping.target.duration.timescale);
-                
-                if (empty)
-                    MP4AddTrackEdit(fileHandle, track.Id, MP4_INVALID_EDIT_ID, -1,
-                                    editDuration, 0);
-                else
-                    MP4AddTrackEdit(fileHandle, track.Id, MP4_INVALID_EDIT_ID, timeMapping.source.start.value - correction,
-                                    editDuration, 0);
-
-                trackDuration = trackDuration + editDuration;
-
-            }
+#ifdef SB_AVF_DEBUG
+            NSLog(@"Edit start: %lld, duration: %lld", timeRange.start.value, duration.value);
+#endif
         }
+
         if (trackDuration)
             MP4SetTrackIntegerProperty(fileHandle, track.Id, "tkhd.duration", trackDuration);
+
     }
     return YES;
 }
