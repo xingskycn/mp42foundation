@@ -24,8 +24,7 @@
 extern AVCodec ff_##x##_decoder; \
 avcodec_register(&ff_##x##_decoder); }
 
-void FFInitFFmpeg()
-{
+void FFInitFFmpeg() {
 	static dispatch_once_t once;
 
 	dispatch_once(&once, ^{
@@ -52,17 +51,33 @@ void FFInitFFmpeg()
     return _imgContext;
 }
 
-- (CGImageRef)createfilteredCGImage:(CGImageRef)image CF_RETURNS_RETAINED
-{
+- (CGImageRef)createfilteredCGImage:(CGImageRef)image CF_RETURNS_RETAINED {
     CIImage *ciImage = [CIImage imageWithCGImage:image];
+
+    // A filter to increase the subtitle image contrast
     CIFilter *contrastFilter = [CIFilter filterWithName:@"CIColorControls"
                                           keysAndValues:kCIInputImageKey, ciImage,
-                                @"inputContrast", @(1.6f),
-                                @"inputBrightness", @(0.4f),
-                                nil];
+                                            @"inputContrast", @(1.6f),
+                                            @"inputBrightness", @(0.4f),
+                                            nil];
+
+    // A black image to compose the subtitle over
+    CIImage *blackImage = [CIImage imageWithColor:[CIColor colorWithRed:0 green:0 blue:0]];
+
+    CIVector *cropRect =[CIVector vectorWithX:0 Y:0 Z: CGImageGetWidth(image) W: CGImageGetHeight(image)];
+    CIFilter *cropFilter = [CIFilter filterWithName:@"CICrop"];
+    [cropFilter setValue:blackImage forKey:@"inputImage"];
+    [cropFilter setValue:cropRect forKey:@"inputRectangle"];
+
+    // Compose the subtitle over the black background
+    CIFilter *compositingFilter = [CIFilter filterWithName:@"CISourceOverCompositing"];
+    [compositingFilter setValue:[contrastFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+    [compositingFilter setValue:[cropFilter valueForKey:@"outputImage"] forKey:@"inputBackgroundImage"];
+
+    // Invert the image colors
     CIFilter *invertFilter = [CIFilter filterWithName:@"CIColorInvert"
-                                        keysAndValues:kCIInputImageKey, [contrastFilter valueForKey:kCIOutputImageKey],
-                              nil];
+                                        keysAndValues:kCIInputImageKey, [compositingFilter valueForKey:kCIOutputImageKey],
+                                        nil];
 
     CIImage *filteredImage = [invertFilter valueForKey:kCIOutputImageKey];
     CGImageRef filteredImgRef = [self.imgContext createCGImage:filteredImage fromRect:[filteredImage extent]];
@@ -276,10 +291,8 @@ void FFInitFFmpeg()
                 memset(imageData, 0, rect->w * rect->h * 4);
 
                 int xx, yy;
-                for (yy = 0; yy < rect->h; yy++)
-                {
-                    for (xx = 0; xx < rect->w; xx++)
-                    {
+                for (yy = 0; yy < rect->h; yy++) {
+                    for (xx = 0; xx < rect->w; xx++) {
                         uint32_t argb;
                         int pixel;
                         uint8_t color;
@@ -289,12 +302,6 @@ void FFInitFFmpeg()
                         argb = ((uint32_t*)rect->pict.data[1])[color];
 
                         imageData[yy * rect->w + xx] = EndianU32_BtoN(argb);
-                        /* Remove the alpha channel, and set fully transparent pixel to black
-                         TODO: real compositing on a black background */
-                        if (!(imageData[yy * rect->w + xx] & 0xFF))
-                            imageData[yy * rect->w + xx] = 0x000000FF;
-                        else
-                            imageData[yy * rect->w + xx] = (imageData[yy * rect->w + xx] & 0xFFFFFF00) + 0xFF;
                     }
                 }
 
@@ -318,8 +325,10 @@ void FFInitFFmpeg()
                                                    kCGRenderingIntentDefault);
                 CGColorSpaceRelease(colorSpace);
 
+                CGImageRef filteredCGImage = [self createfilteredCGImage:cgImage];
+
                 MP42SampleBuffer *subSample = nil;
-                if ((text = [ocr performOCROnCGImage:cgImage]))
+                if ((text = [ocr performOCROnCGImage:filteredCGImage]))
                     subSample = copySubtitleSample(sampleBuffer->trackId, text, sampleBuffer->duration, forced, NO, NO, CGSizeMake(0,0), 0);
                 else
                     subSample = copyEmptySubtitleSample(sampleBuffer->trackId, sampleBuffer->duration, forced);
@@ -330,7 +339,8 @@ void FFInitFFmpeg()
                 CGImageRelease(cgImage);
                 CGDataProviderRelease(provider);
                 CFRelease(imgData);
-                
+                CFRelease(filteredCGImage);
+
                 free(imageData);
             }
             
