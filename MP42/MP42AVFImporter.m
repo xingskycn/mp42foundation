@@ -797,13 +797,27 @@
 
 #ifdef SB_AVF_DEBUG
 #endif
+
                     CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
                     if (trimStart) {
                         CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
+                        trimStartTime = CMTimeConvertScale(trimStartTime, timingArrayOut[0].duration.timescale, kCMTimeRoundingMethod_Default);
+
+                        CMTime editStart = CMTimeMake(demuxHelper->currentTime, timingArrayOut[0].duration.timescale);
+                        editStart.value += trimStartTime.value;
+
+                        [self startEditListAtTime:editStart helper:demuxHelper];
                     }
                     CFTypeRef trimEnd = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtEnd, kCMAttachmentMode_ShouldNotPropagate);
                     if (trimEnd) {
-                        CMTime trimEndTime = CMTimeMakeFromDictionary(trimStart);
+                        CMTime trimEndTime = CMTimeMakeFromDictionary(trimEnd);
+                        trimEndTime = CMTimeConvertScale(trimEndTime, timingArrayOut[0].duration.timescale, kCMTimeRoundingMethod_Default);
+
+                        CMTime editEnd = CMTimeMake(demuxHelper->currentTime, timingArrayOut[0].duration.timescale);
+                        editEnd.value += timingArrayOut[0].duration.value * samplesNum  - trimEndTime.value;
+
+                        [self endEditListAtTime:editEnd helper:demuxHelper];
+
                     }
 
                     int pos = 0;
@@ -823,14 +837,14 @@
                             
                             presentationTimeStamp = sampleTimingInfo.presentationTimeStamp;
                             presentationTimeStamp.value = presentationTimeStamp.value + ( sampleTimingInfo.duration.value * i);
-
                         } else {
                             sampleTimingInfo = timingArrayOut[i];
                             decodeTimeStamp = sampleTimingInfo.decodeTimeStamp;
                             presentationTimeStamp = sampleTimingInfo.presentationTimeStamp;
                         }
 
-                        presentationOutputTimeStamp.value = presentationOutputTimeStamp.value + ( sampleTimingInfo.duration.value * i / ( (double) sampleTimingInfo.duration.timescale / presentationOutputTimeStamp.timescale));
+                        presentationOutputTimeStamp.value = presentationOutputTimeStamp.value + (sampleTimingInfo.duration.value * i /
+                                                                                                 ((double) sampleTimingInfo.duration.timescale / presentationOutputTimeStamp.timescale));
 
                         // If the size of sample size array is equal to 1, it means every sample has got the same size
                         if (sizeArrayEntries ==  1) {
@@ -862,7 +876,7 @@
                         }
 
 #ifdef SB_AVF_DEBUG
-                        NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
+                        //NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
 #endif
                         
                         MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
@@ -877,6 +891,7 @@
                         [self enqueue:sample];
                         [sample release];
 
+                        demuxHelper->currentTime += sampleTimingInfo.duration.value;
                         currentDataLength += sampleSize;
                     }
 
