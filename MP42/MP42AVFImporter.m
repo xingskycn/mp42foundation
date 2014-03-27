@@ -686,7 +686,9 @@
     if (type)
         helper->edits[helper->editsCount].start.value = -1;
 
-    helper->editsCount++;
+    if (helper->edits[helper->editsCount].duration.value > 0) {
+        helper->editsCount++;
+    }
     helper->editOpen = NO;
 }
 
@@ -765,7 +767,7 @@
                     }
 
                     // Check for the initial empty edit
-                    if (demuxHelper->currentTime == 0 && presentationOutputTimeStamp.value != 0) {
+                    if (demuxHelper->currentTime == 0 && presentationOutputTimeStamp.value > 0) {
                         CMTime time = CMTimeConvertScale(presentationOutputTimeStamp, duration.timescale, kCMTimeRoundingMethod_Default);
                         [self endEditListAtTime:time empty:YES helper:demuxHelper];
                         [self startEditListAtTime:time helper:demuxHelper];
