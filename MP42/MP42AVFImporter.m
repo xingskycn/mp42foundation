@@ -168,18 +168,19 @@
 
         _fileURL = [fileURL retain];
         _localAsset = [[AVAsset assetWithURL:_fileURL] retain];
-
         _tracksArray = [[NSMutableArray alloc] init];
+
         NSArray *tracks = [_localAsset tracks];
 
         NSArray *availableChapter = [_localAsset availableChapterLocales];
         MP42ChapterTrack *chapters = nil;
 
+        // Checks if there is a chapter tracks
         if ([tracks count]) {
             for (NSLocale *locale in availableChapter) {
                 chapters = [[MP42ChapterTrack alloc] init];
                 NSArray *chapterList = [_localAsset chapterMetadataGroupsWithTitleLocale:locale containingItemsWithCommonKeys:nil];
-                for (AVTimedMetadataGroup* chapterData in chapterList) {
+                for (AVTimedMetadataGroup *chapterData in chapterList) {
                     for (AVMetadataItem *item in [chapterData items]) {
                         CMTime time = [item time];
                         [chapters addChapter:[item stringValue] duration:time.value * time.timescale / 1000];
@@ -188,30 +189,31 @@
             }
         }
 
+        // Converts the tracks to the MP42File types
         for (AVAssetTrack *track in tracks) {
             MP42Track *newTrack = nil;
 
+            // Retrieves the formatDescription
             CMFormatDescriptionRef formatDescription = NULL;
             NSArray *formatDescriptions = track.formatDescriptions;
 			if ([formatDescriptions count] > 0)
 				formatDescription = (CMFormatDescriptionRef)[formatDescriptions objectAtIndex:0];
 
-            NSArray *trackMetadata = [track metadataForFormat:AVMetadataFormatQuickTimeUserData];
-
             if ([[track mediaType] isEqualToString:AVMediaTypeVideo]) {
-                newTrack = [[MP42VideoTrack alloc] init];
+                // Video type, do the usual video things
+                MP42VideoTrack *videoTrack = [[MP42VideoTrack alloc] init];
                 CGSize naturalSize = [track naturalSize];
 
-                [(MP42VideoTrack*)newTrack setTrackWidth: naturalSize.width];
-                [(MP42VideoTrack*)newTrack setTrackHeight: naturalSize.height];
+                videoTrack.trackWidth = naturalSize.width;
+                videoTrack.trackHeight = naturalSize.height;
 
-                [(MP42VideoTrack*)newTrack setWidth: naturalSize.width];
-                [(MP42VideoTrack*)newTrack setHeight: naturalSize.height];
+                videoTrack.width = naturalSize.width;
+                videoTrack.height = naturalSize.height;
 
                 if (formatDescription) {
                     CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions(formatDescription);
-                    [(MP42VideoTrack*)newTrack setWidth: dimensions.width];
-                    [(MP42VideoTrack*)newTrack setHeight: dimensions.height];
+                    videoTrack.width = dimensions.width;
+                    videoTrack.height = dimensions.height;
 
                     // Reads the pixel aspect ratio information
                     CFDictionaryRef pixelAspectRatioFromCMFormatDescription = CMFormatDescriptionGetExtension(formatDescription, kCMFormatDescriptionExtension_PixelAspectRatio);
@@ -219,8 +221,8 @@
                         NSInteger hSpacing, vSpacing;
                         CFNumberGetValue(CFDictionaryGetValue(pixelAspectRatioFromCMFormatDescription, kCMFormatDescriptionKey_PixelAspectRatioHorizontalSpacing), kCFNumberIntType, &hSpacing);
                         CFNumberGetValue(CFDictionaryGetValue(pixelAspectRatioFromCMFormatDescription, kCMFormatDescriptionKey_PixelAspectRatioVerticalSpacing), kCFNumberIntType, &vSpacing);
-                        [(MP42VideoTrack*)newTrack setHSpacing:hSpacing];
-                        [(MP42VideoTrack*)newTrack setVSpacing:vSpacing];
+                        videoTrack.hSpacing = hSpacing;
+                        videoTrack.vSpacing = vSpacing;
                     }
                     // Reads the clean aperture information
                     CFDictionaryRef cleanApertureFromCMFormatDescription = CMFormatDescriptionGetExtension(formatDescription, kCMFormatDescriptionExtension_CleanAperture);
@@ -236,48 +238,56 @@
                         CFNumberGetValue(CFDictionaryGetValue(cleanApertureFromCMFormatDescription, kCMFormatDescriptionKey_CleanApertureVerticalOffset),
                                          kCFNumberDoubleType, &cleanApertureVerticalOffset);
 
-                        [(MP42VideoTrack*)newTrack setCleanApertureWidthN:cleanApertureWidth];
-                        [(MP42VideoTrack*)newTrack setCleanApertureWidthD:1];
-                        [(MP42VideoTrack*)newTrack setCleanApertureHeightN:cleanApertureHeight];
-                        [(MP42VideoTrack*)newTrack setCleanApertureHeightD:1];
-                        [(MP42VideoTrack*)newTrack setHorizOffN:cleanApertureHorizontalOffset];
-                        [(MP42VideoTrack*)newTrack setHorizOffD:1];
-                        [(MP42VideoTrack*)newTrack setVertOffN:cleanApertureVerticalOffset];
-                        [(MP42VideoTrack*)newTrack setVertOffD:1];
+                        videoTrack.cleanApertureWidthN = cleanApertureWidth;
+                        videoTrack.cleanApertureWidthD = 1;
+                        videoTrack.cleanApertureHeightN = cleanApertureHeight;
+                        videoTrack.cleanApertureHeightD = 1;
+                        videoTrack.horizOffN = cleanApertureHorizontalOffset;
+                        videoTrack.horizOffD = 1;
+                        videoTrack.vertOffN = cleanApertureVerticalOffset;
+                        videoTrack.VertOffD = 1;
                     }
                 }
+                newTrack = videoTrack;
             } else if ([[track mediaType] isEqualToString:AVMediaTypeAudio]) {
-                newTrack = [[MP42AudioTrack alloc] init];
+                // Audio type, check the channel layout and channels number
+                MP42AudioTrack *audioTrack = [[MP42AudioTrack alloc] init];
 
                 if (formatDescription) {
                     size_t layoutSize = 0;
                     const AudioChannelLayout *layout = CMAudioFormatDescriptionGetChannelLayout(formatDescription, &layoutSize);
 
                     if (layoutSize) {
-                        [(MP42AudioTrack*)newTrack setChannels:AudioChannelLayoutTag_GetNumberOfChannels(layout->mChannelLayoutTag)];
-                        [(MP42AudioTrack*)newTrack setChannelLayoutTag:layout->mChannelLayoutTag];
+                        audioTrack.channels = AudioChannelLayoutTag_GetNumberOfChannels(layout->mChannelLayoutTag);
+                        audioTrack.channelLayoutTag = layout->mChannelLayoutTag;
                     } else {
-                        [(MP42AudioTrack*)newTrack setChannels:1];
+                        audioTrack.channels = 1;
                     }
                 }
+                newTrack = audioTrack;
             } else if ([[track mediaType] isEqualToString:AVMediaTypeSubtitle]) {
+                // Subtitle type, nothing interesting here
                 newTrack = [[MP42SubtitleTrack alloc] init];
             } else if ([[track mediaType] isEqualToString:AVMediaTypeText]) {
                 // It looks like there is no way to know what text track is used for chapters in the original file.
-                if (chapters)
+                if (chapters) {
                     newTrack = chapters;
-                else
+                } else {
                     newTrack = [[MP42ChapterTrack alloc] init];
+                }
             } else {
+                // Unknown type
                 newTrack = [[MP42Track alloc] init];
             }
 
+            // Set the usual track properties
             newTrack.format = [self formatForTrack:track];
             newTrack.Id = [track trackID];
             newTrack.sourceURL = _fileURL;
             newTrack.dataLength = [track totalSampleDataLength];
 
             // "name" is undefined in AVMetadataFormat.h, so read the official track name "tnam", and then "name". On 10.7, "name" is returned as an NSData
+            NSArray *trackMetadata = [track metadataForFormat:AVMetadataFormatQuickTimeUserData];
             id trackName = [[[AVMetadataItem metadataItemsFromArray:trackMetadata withKey:AVMetadataQuickTimeUserDataKeyTrackName keySpace:nil] lastObject] value];
             id trackName_oldFormat = [[[AVMetadataItem metadataItemsFromArray:trackMetadata withKey:@"name" keySpace:nil] lastObject] value];
             if (trackName && [trackName isKindOfClass:[NSString class]]) {
@@ -305,7 +315,7 @@
     return self;
 }
 
--(void)convertMetadata {
+- (void)convertMetadata {
     NSArray *items = nil;
     NSDictionary *commonItemsDict = [NSDictionary dictionaryWithObjectsAndKeys:@"Name", AVMetadataCommonKeyTitle,
                                      //nil, AVMetadataCommonKeyCreator,
@@ -559,14 +569,14 @@
             else if (code == kCMVideoCodecType_MPEG4Video)
                 magicCookie = CFDictionaryGetValue(atoms, @"esds");
 
-            return (NSData*)magicCookie;
+            return (NSData *)magicCookie;
         } else if ([[assetTrack mediaType] isEqualToString:AVMediaTypeAudio]) {
             size_t cookieSizeOut;
             const void *magicCookie = CMAudioFormatDescriptionGetMagicCookie(formatDescription, &cookieSizeOut);
 
             if (code == kAudioFormatMPEG4AAC || code == kAudioFormatMPEG4AAC_HE || code == kAudioFormatMPEG4AAC_HE_V2) {
                 // Extract DecoderSpecific info
-                UInt8* buffer;
+                UInt8 *buffer;
                 int size;
                 ReadESDSDescExt((void*)magicCookie, &buffer, &size, 0);
 
