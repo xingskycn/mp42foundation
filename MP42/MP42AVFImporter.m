@@ -36,8 +36,7 @@
 
 @implementation MP42AVFImporter
 
-- (NSString *)formatForTrack:(AVAssetTrack *)track;
-{
+- (NSString *)formatForTrack:(AVAssetTrack *)track {
     NSString *result = @"";
     
     CMFormatDescriptionRef formatDescription = NULL;
@@ -159,13 +158,11 @@
     return result;
 }
 
-- (NSString*)langForTrack: (AVAssetTrack *)track
-{
+- (NSString *)langForTrack:(AVAssetTrack *)track {
     return [NSString stringWithUTF8String:lang_for_qtcode([[track languageCode] integerValue])->eng_name];
 }
 
-- (instancetype)initWithURL:(NSURL *)fileURL error:(NSError **)outError
-{
+- (instancetype)initWithURL:(NSURL *)fileURL error:(NSError **)outError {
     if ((self = [super init])) {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
@@ -308,8 +305,7 @@
     return self;
 }
 
--(void)convertMetadata
-{
+-(void)convertMetadata {
     NSArray *items = nil;
     NSDictionary *commonItemsDict = [NSDictionary dictionaryWithObjectsAndKeys:@"Name", AVMetadataCommonKeyTitle,
                                      //nil, AVMetadataCommonKeyCreator,
@@ -343,7 +339,7 @@
         if ([items count])
             [_metadata setTag:[[items lastObject] value] forKey:[commonItemsDict objectForKey:commonKey]];
     }
-    
+
     items = [AVMetadataItem metadataItemsFromArray:_localAsset.commonMetadata withKey:AVMetadataCommonKeyArtwork keySpace:AVMetadataKeySpaceCommon];
     if ([items count]) {
         id artworkData = [[items lastObject] value];
@@ -518,10 +514,9 @@
     }
 }
 
-- (NSUInteger)timescaleForTrack:(MP42Track *)track
-{
+- (NSUInteger)timescaleForTrack:(MP42Track *)track {
     AVAssetTrack *assetTrack = [_localAsset trackWithTrackID:[track sourceId]];
-    
+
     CMFormatDescriptionRef formatDescription = NULL;
     NSArray *formatDescriptions = assetTrack.formatDescriptions;
     if ([formatDescriptions count] > 0)
@@ -538,15 +533,13 @@
     return [assetTrack naturalTimeScale];
 }
 
-- (NSSize)sizeForTrack:(MP42Track *)track
-{
-    MP42VideoTrack* currentTrack = (MP42VideoTrack*) track;
+- (NSSize)sizeForTrack:(MP42Track *)track {
+    MP42VideoTrack *currentTrack = (MP42VideoTrack *)track;
 
     return NSMakeSize([currentTrack width], [currentTrack height]);
 }
 
-- (NSData*)magicCookieForTrack:(MP42Track *)track
-{
+- (NSData *)magicCookieForTrack:(MP42Track *)track {
     AVAssetTrack *assetTrack = [_localAsset trackWithTrackID:[track sourceId]];
 
     CMFormatDescriptionRef formatDescription = NULL;
@@ -567,9 +560,7 @@
                 magicCookie = CFDictionaryGetValue(atoms, @"esds");
 
             return (NSData*)magicCookie;
-        }
-        else if ([[assetTrack mediaType] isEqualToString:AVMediaTypeAudio]) {
-
+        } else if ([[assetTrack mediaType] isEqualToString:AVMediaTypeAudio]) {
             size_t cookieSizeOut;
             const void *magicCookie = CMAudioFormatDescriptionGetMagicCookie(formatDescription, &cookieSizeOut);
 
@@ -580,8 +571,7 @@
                 ReadESDSDescExt((void*)magicCookie, &buffer, &size, 0);
 
                 return [NSData dataWithBytes:buffer length:size];
-            }
-            else if (code == kAudioFormatAppleLossless) {
+            } else if (code == kAudioFormatAppleLossless) {
                 if (cookieSizeOut > 48) {
                     // Remove unneeded parts of the cookie, as describred in ALACMagicCookieDescription.txt
                     magicCookie += 24;
@@ -589,8 +579,7 @@
                 }
 
                 return [NSData dataWithBytes:magicCookie length:cookieSizeOut];
-            }
-            else if (code == kAudioFormatAC3) {
+            } else if (code == kAudioFormatAC3) {
                 OSStatus err = noErr;
                 size_t channelLayoutSize = 0;
                 const AudioStreamBasicDescription *asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription);
@@ -648,8 +637,7 @@
 
                 return [ac3Info autorelease];
 
-            }
-            else if (cookieSizeOut)
+            } else if (cookieSizeOut)
                 return [NSData dataWithBytes:magicCookie length:cookieSizeOut];
         }
     }
@@ -688,8 +676,7 @@
 
 //#define SB_AVF_DEBUG
 
-- (void)demux:(id)sender
-{
+- (void)demux:(id)sender {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
 	BOOL success = YES;
@@ -973,8 +960,7 @@
     [pool release];
 }
 
-- (void)startReading
-{
+- (void)startReading {
     [super startReading];
 
     if (!_demuxerThread && !_done) {
@@ -984,8 +970,7 @@
     }
 }
 
-- (BOOL)cleanUp:(MP4FileHandle)fileHandle
-{
+- (BOOL)cleanUp:(MP4FileHandle)fileHandle {
     uint32_t timescale = MP4GetTimeScale(fileHandle);
 
     for (MP42Track *track in _inputTracks) {
@@ -1017,10 +1002,8 @@
     return YES;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     [_localAsset release];
-
     [super dealloc];
 }
 
