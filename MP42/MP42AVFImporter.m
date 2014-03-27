@@ -38,12 +38,12 @@
 
 - (NSString *)formatForTrack:(AVAssetTrack *)track {
     NSString *result = @"";
-    
+
     CMFormatDescriptionRef formatDescription = NULL;
     NSArray *formatDescriptions = track.formatDescriptions;
     if ([formatDescriptions count] > 0)
         formatDescription = (CMFormatDescriptionRef)[formatDescriptions objectAtIndex:0];
-    
+
     if (formatDescription) {
         FourCharCode code = CMFormatDescriptionGetMediaSubType(formatDescription);
         switch (code) {
@@ -315,6 +315,10 @@
     return self;
 }
 
+
+/**
+ *  Converts the AVAsset metadata to the MP42File format
+ */
 - (void)convertMetadata {
     NSArray *items = nil;
     NSDictionary *commonItemsDict = [NSDictionary dictionaryWithObjectsAndKeys:@"Name", AVMetadataCommonKeyTitle,
@@ -360,10 +364,10 @@
         }
     }
 
-    NSArray* availableMetadataFormats = [_localAsset availableMetadataFormats];
+    NSArray *availableMetadataFormats = [_localAsset availableMetadataFormats];
 
     if ([availableMetadataFormats containsObject:AVMetadataFormatiTunesMetadata]) {
-        NSArray* itunesMetadata = [_localAsset metadataForFormat:AVMetadataFormatiTunesMetadata];
+        NSArray *itunesMetadata = [_localAsset metadataForFormat:AVMetadataFormatiTunesMetadata];
         
         NSDictionary *itunesMetadataDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                             @"Album",               AVMetadataiTunesMetadataKeyAlbum,
@@ -454,7 +458,7 @@
         }*/
     }
     if ([availableMetadataFormats containsObject:AVMetadataFormatQuickTimeMetadata]) {
-        NSArray* quicktimeMetadata = [_localAsset metadataForFormat:AVMetadataFormatQuickTimeMetadata];
+        NSArray *quicktimeMetadata = [_localAsset metadataForFormat:AVMetadataFormatQuickTimeMetadata];
         
         NSDictionary *quicktimeMetadataDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                                @"Arist",        AVMetadataQuickTimeMetadataKeyAuthor,
@@ -490,7 +494,7 @@
         }
     }
     if ([availableMetadataFormats containsObject:AVMetadataFormatQuickTimeUserData]) {
-        NSArray* quicktimeUserDataMetadata = [_localAsset metadataForFormat:AVMetadataFormatQuickTimeUserData];
+        NSArray *quicktimeUserDataMetadata = [_localAsset metadataForFormat:AVMetadataFormatQuickTimeUserData];
         
         NSDictionary *quicktimeUserDataMetadataDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                                        @"Album",                AVMetadataQuickTimeUserDataKeyAlbum,
@@ -544,9 +548,12 @@
 }
 
 - (NSSize)sizeForTrack:(MP42Track *)track {
-    MP42VideoTrack *currentTrack = (MP42VideoTrack *)track;
-
-    return NSMakeSize([currentTrack width], [currentTrack height]);
+    if ([track isKindOfClass:[MP42VideoTrack class]]) {
+        MP42VideoTrack *currentTrack = (MP42VideoTrack *)track;
+        return NSMakeSize(currentTrack.width, currentTrack.height);
+    } else {
+        return NSMakeSize(0, 0);
+    }
 }
 
 - (NSData *)magicCookieForTrack:(MP42Track *)track {
@@ -676,9 +683,8 @@
     time.value -= helper->edits[helper->editsCount].start.value;
     helper->edits[helper->editsCount].duration = time;
 
-    if (type) {
+    if (type)
         helper->edits[helper->editsCount].start.value = -1;
-    }
 
     helper->editsCount++;
     helper->editOpen = NO;
@@ -695,15 +701,16 @@
     uint64_t currentDataLength = 0;
     uint64_t totalDataLength = 0;
 
-    AVFDemuxHelper *demuxHelper=nil;
+    AVFDemuxHelper *demuxHelper = nil;
     NSError *localError;
     AVAssetReader *assetReader = [[AVAssetReader alloc] initWithAsset:_localAsset error:&localError];
 
 	success = (assetReader != nil);
 	if (success) {
-        for (MP42Track * track in _inputTracks) {
-            AVAssetReaderOutput *assetReaderOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:[_localAsset trackWithTrackID:track.sourceId] outputSettings:nil];
-            if (! [assetReader canAddOutput: assetReaderOutput])
+        for (MP42Track *track in _inputTracks) {
+            AVAssetReaderOutput *assetReaderOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:[_localAsset trackWithTrackID:track.sourceId]
+                                                                                                outputSettings:nil];
+            if (![assetReader canAddOutput: assetReaderOutput])
                 NSLog(@"Unable to add the output to assetReader!");
 
             [assetReader addOutput:assetReaderOutput];
@@ -842,9 +849,6 @@
                     // Get CMBlockBufferRef to extract the actual data later
                     CMBlockBufferRef buffer = CMSampleBufferGetDataBuffer(sampleBuffer);
                     size_t bufferSize = CMBlockBufferGetDataLength(buffer);
-
-#ifdef SB_AVF_DEBUG
-#endif
 
                     // Check if we have to trim the start or end of a sample
                     // If so it means we need to start/end an edit
@@ -987,10 +991,10 @@
         MP4Duration trackDuration = 0;
         MP42Track *inputTrack = [self inputTrackWithTrackID:track.sourceId];
 
-        AVFDemuxHelper *demuxHelper = inputTrack.muxer_helper->demuxer_context;
+        AVFDemuxHelper *helper = inputTrack.muxer_helper->demuxer_context;
 
-        for (int i = 0; i < demuxHelper->editsCount; i++) {
-            CMTimeRange timeRange = demuxHelper->edits[i];
+        for (int i = 0; i < helper->editsCount; i++) {
+            CMTimeRange timeRange = helper->edits[i];
             CMTime duration = CMTimeConvertScale(timeRange.duration, timescale, kCMTimeRoundingMethod_Default);
 
             trackDuration += duration.value;
@@ -998,15 +1002,12 @@
             MP4AddTrackEdit(fileHandle, track.Id, MP4_INVALID_EDIT_ID, timeRange.start.value,
                             duration.value, 0);
 
-#ifdef SB_AVF_DEBUG
-            NSLog(@"Edit start: %lld, duration: %lld", timeRange.start.value, duration.value);
-#endif
         }
 
         if (trackDuration)
             MP4SetTrackIntegerProperty(fileHandle, track.Id, "tkhd.duration", trackDuration);
 
-        free(demuxHelper->edits);
+        free(helper->edits);
 
     }
     return YES;
