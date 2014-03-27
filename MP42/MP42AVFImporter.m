@@ -27,7 +27,6 @@
     uint64_t             editsSize;
     BOOL                 editOpen;
     int64_t              currentTime;
-    int64_t              currentEditTime;
     AVAssetReaderOutput *assetReaderOutput;
 }
 @end
@@ -217,6 +216,7 @@
                     [(MP42VideoTrack*)newTrack setWidth: dimensions.width];
                     [(MP42VideoTrack*)newTrack setHeight: dimensions.height];
 
+                    // Reads the pixel aspect ratio information
                     CFDictionaryRef pixelAspectRatioFromCMFormatDescription = CMFormatDescriptionGetExtension(formatDescription, kCMFormatDescriptionExtension_PixelAspectRatio);
                     if (pixelAspectRatioFromCMFormatDescription) {
                         NSInteger hSpacing, vSpacing;
@@ -225,9 +225,31 @@
                         [(MP42VideoTrack*)newTrack setHSpacing:hSpacing];
                         [(MP42VideoTrack*)newTrack setVSpacing:vSpacing];
                     }
+                    // Reads the clean aperture information
+                    CFDictionaryRef cleanApertureFromCMFormatDescription = CMFormatDescriptionGetExtension(formatDescription, kCMFormatDescriptionExtension_CleanAperture);
+                    if (cleanApertureFromCMFormatDescription) {
+                        double cleanApertureWidth, cleanApertureHeight;
+                        double cleanApertureHorizontalOffset, cleanApertureVerticalOffset;
+                        CFNumberGetValue(CFDictionaryGetValue(cleanApertureFromCMFormatDescription, kCMFormatDescriptionKey_CleanApertureWidth),
+                                         kCFNumberDoubleType, &cleanApertureWidth);
+                        CFNumberGetValue(CFDictionaryGetValue(cleanApertureFromCMFormatDescription, kCMFormatDescriptionKey_CleanApertureHeight),
+                                         kCFNumberDoubleType, &cleanApertureHeight);
+                        CFNumberGetValue(CFDictionaryGetValue(cleanApertureFromCMFormatDescription, kCMFormatDescriptionKey_CleanApertureHorizontalOffset),
+                                         kCFNumberDoubleType, &cleanApertureHorizontalOffset);
+                        CFNumberGetValue(CFDictionaryGetValue(cleanApertureFromCMFormatDescription, kCMFormatDescriptionKey_CleanApertureVerticalOffset),
+                                         kCFNumberDoubleType, &cleanApertureVerticalOffset);
+
+                        [(MP42VideoTrack*)newTrack setCleanApertureWidthN:cleanApertureWidth];
+                        [(MP42VideoTrack*)newTrack setCleanApertureWidthD:1];
+                        [(MP42VideoTrack*)newTrack setCleanApertureHeightN:cleanApertureHeight];
+                        [(MP42VideoTrack*)newTrack setCleanApertureHeightD:1];
+                        [(MP42VideoTrack*)newTrack setHorizOffN:cleanApertureHorizontalOffset];
+                        [(MP42VideoTrack*)newTrack setHorizOffD:1];
+                        [(MP42VideoTrack*)newTrack setVertOffN:cleanApertureVerticalOffset];
+                        [(MP42VideoTrack*)newTrack setVertOffD:1];
+                    }
                 }
-            }
-            else if ([[track mediaType] isEqualToString:AVMediaTypeAudio]) {
+            } else if ([[track mediaType] isEqualToString:AVMediaTypeAudio]) {
                 newTrack = [[MP42AudioTrack alloc] init];
 
                 if (formatDescription) {
@@ -235,24 +257,21 @@
                     const AudioChannelLayout *layout = CMAudioFormatDescriptionGetChannelLayout(formatDescription, &layoutSize);
 
                     if (layoutSize) {
-                        [(MP42AudioTrack*)newTrack setChannels: AudioChannelLayoutTag_GetNumberOfChannels(layout->mChannelLayoutTag)];
-                        [(MP42AudioTrack*)newTrack setChannelLayoutTag: layout->mChannelLayoutTag];
+                        [(MP42AudioTrack*)newTrack setChannels:AudioChannelLayoutTag_GetNumberOfChannels(layout->mChannelLayoutTag)];
+                        [(MP42AudioTrack*)newTrack setChannelLayoutTag:layout->mChannelLayoutTag];
+                    } else {
+                        [(MP42AudioTrack*)newTrack setChannels:1];
                     }
-                    else
-                        [(MP42AudioTrack*)newTrack setChannels: 1];
                 }
-            }
-            else if ([[track mediaType] isEqualToString:AVMediaTypeSubtitle]) {
+            } else if ([[track mediaType] isEqualToString:AVMediaTypeSubtitle]) {
                 newTrack = [[MP42SubtitleTrack alloc] init];
-            }
-            else if ([[track mediaType] isEqualToString:AVMediaTypeText]) {
+            } else if ([[track mediaType] isEqualToString:AVMediaTypeText]) {
                 // It looks like there is no way to know what text track is used for chapters in the original file.
                 if (chapters)
                     newTrack = chapters;
                 else
                     newTrack = [[MP42ChapterTrack alloc] init];
-            }
-            else {
+            } else {
                 newTrack = [[MP42Track alloc] init];
             }
 
@@ -264,12 +283,13 @@
             // "name" is undefined in AVMetadataFormat.h, so read the official track name "tnam", and then "name". On 10.7, "name" is returned as an NSData
             id trackName = [[[AVMetadataItem metadataItemsFromArray:trackMetadata withKey:AVMetadataQuickTimeUserDataKeyTrackName keySpace:nil] lastObject] value];
             id trackName_oldFormat = [[[AVMetadataItem metadataItemsFromArray:trackMetadata withKey:@"name" keySpace:nil] lastObject] value];
-            if (trackName && [trackName isKindOfClass:[NSString class]])
+            if (trackName && [trackName isKindOfClass:[NSString class]]) {
                 newTrack.name = trackName;
-            else if (trackName_oldFormat && [trackName_oldFormat isKindOfClass:[NSString class]])
+            } else if (trackName_oldFormat && [trackName_oldFormat isKindOfClass:[NSString class]]) {
                 newTrack.name = trackName_oldFormat;
-            else if (trackName_oldFormat && [trackName_oldFormat isKindOfClass:[NSData class]])
+            } else if (trackName_oldFormat && [trackName_oldFormat isKindOfClass:[NSData class]]) {
                 newTrack.name = [NSString stringWithCString:[trackName_oldFormat bytes] encoding:NSMacOSRomanStringEncoding];
+            }
 
             newTrack.language = [self langForTrack:track];
 
@@ -417,7 +437,7 @@
             }
         }
 
-        items = [AVMetadataItem metadataItemsFromArray:itunesMetadata withKey:AVMetadataiTunesMetadataKeyCoverArt keySpace:AVMetadataKeySpaceiTunes];
+        /*items = [AVMetadataItem metadataItemsFromArray:itunesMetadata withKey:AVMetadataiTunesMetadataKeyCoverArt keySpace:AVMetadataKeySpaceiTunes];
         if ([items count]) {
             id artworkData = [[items lastObject] value];
             if ([artworkData isKindOfClass:[NSData class]]) {
@@ -425,7 +445,7 @@
                 [_metadata.artworks addObject:[[[MP42Image alloc] initWithImage:image] autorelease]];
                 [image release];
             }
-        }
+        }*/
     }
     if ([availableMetadataFormats containsObject:AVMetadataFormatQuickTimeMetadata]) {
         NSArray* quicktimeMetadata = [_localAsset metadataForFormat:AVMetadataFormatQuickTimeMetadata];
@@ -636,6 +656,9 @@
     return nil;
 }
 
+/**
+ * Starts a new edit
+ */
 - (void)startEditListAtTime:(CMTime)time helper:(AVFDemuxHelper *)helper {
     if (helper->editsSize <= helper->editsCount) {
         helper->editsSize += 20;
@@ -645,6 +668,9 @@
     helper->editOpen = YES;
 }
 
+/**
+ * Closes a opened edit
+ */
 - (void)endEditListAtTime:(CMTime)time empty:(BOOL)type helper:(AVFDemuxHelper *)helper {
     if (!helper->editOpen)
         return;
@@ -657,7 +683,6 @@
     }
 
     helper->editsCount++;
-    helper->currentEditTime = 0;
     helper->editOpen = NO;
 }
 
@@ -740,12 +765,15 @@
                         CMTime time = CMTimeConvertScale(presentationOutputTimeStamp, duration.timescale, kCMTimeRoundingMethod_Default);
                         [self endEditListAtTime:time empty:YES helper:demuxHelper];
                         [self startEditListAtTime:time helper:demuxHelper];
+                        demuxHelper->currentTime += time.value;
                     }
 
 #ifdef SB_AVF_DEBUG
                     NSLog(@"Dur: %lld, D: %lld, P: %lld, PO: %lld", duration.value, decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
 #endif
 
+                    // Check if we have to trim the start or end of a sample
+                    // If so it means we need to start/end an edit
                     CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
                     if (trimStart) {
                         CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
@@ -767,6 +795,7 @@
                         [self endEditListAtTime:editEnd empty:NO helper:demuxHelper];
                     }
 
+                    // Enqueues the new sample
                     MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
                     sample->data = sampleData;
                     sample->size = sampleSize;
@@ -780,9 +809,9 @@
                     [sample release];
 
                     demuxHelper->currentTime += duration.value;
-                    demuxHelper->currentEditTime += duration.value;
                     currentDataLength += sampleSize;
                 } else {
+                    // The CMSampleBufferRef contains more than one sample
                     if (!CMSampleBufferDataIsReady(sampleBuffer))
                         CMSampleBufferMakeDataReady(sampleBuffer);
 
@@ -820,6 +849,8 @@
 #ifdef SB_AVF_DEBUG
 #endif
 
+                    // Check if we have to trim the start or end of a sample
+                    // If so it means we need to start/end an edit
                     CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
                     if (trimStart) {
                         CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
@@ -849,8 +880,8 @@
                     int pos = 0;
                     for (int i = 0; i < samplesNum; i++) {
                         CMSampleTimingInfo sampleTimingInfo;
-                        CMTime decodeTimeStamp = {0,0,0,0};
-                        CMTime presentationTimeStamp = {0,0,0,0};
+                        CMTime decodeTimeStamp;
+                        CMTime presentationTimeStamp;
                         CMTime presentationOutputTimeStamp = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer);
 
                         size_t sampleSize;
@@ -889,6 +920,7 @@
                             pos += sampleSize;
                         }
 
+                        // Read sample attachment, sync to mark the frame as sync
                         BOOL sync = 1;
                         CFArrayRef attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, NO);
                         if (attachmentsArray) {
@@ -901,12 +933,13 @@
 #ifdef SB_AVF_DEBUG
                         NSLog(@"D: %lld, P: %lld, PO: %lld", decodeTimeStamp.value, presentationTimeStamp.value, presentationOutputTimeStamp.value);
 #endif
-                        
+
+                        // Enqueues the new sample
                         MP42SampleBuffer *sample = [[MP42SampleBuffer alloc] init];
                         sample->data = sampleData;
                         sample->size = sampleSize;
                         sample->duration = sampleTimingInfo.duration.value;
-                        sample->offset = 0; //-sampleTimingInfo.decodeTimeStamp.value + sampleTimingInfo.presentationTimeStamp.value;
+                        sample->offset = -decodeTimeStamp.value + presentationTimeStamp.value;
                         sample->timestamp = sampleTimingInfo.presentationTimeStamp.value;
                         sample->isSync = sync;
                         sample->trackId = track.sourceId;
@@ -915,13 +948,12 @@
                         [sample release];
 
                         demuxHelper->currentTime += sampleTimingInfo.duration.value;
-                        demuxHelper->currentEditTime += sampleTimingInfo.duration.value;
                         currentDataLength += sampleSize;
                     }
 
-                    if(timingArrayOut)
+                    if (timingArrayOut)
                         free(timingArrayOut);
-                    if(sizeArrayOut)
+                    if (sizeArrayOut)
                         free(sizeArrayOut);
                 }
                 CFRelease(sampleBuffer);
@@ -929,16 +961,11 @@
                 _progress = (((CGFloat) currentDataLength /  totalDataLength ) * 100);
 
             } else {
-                AVAssetReaderStatus status = assetReader.status;
-
-                if (status == AVAssetReaderStatusCompleted) {
-                    NSLog(@"AVAssetReader: done");
-                }
-
                 break;
             }
         }
-        [self endEditListAtTime:CMTimeMake(demuxHelper->currentEditTime, timescale) empty:NO helper:demuxHelper];
+        // Closes the last edit
+        [self endEditListAtTime:CMTimeMake(demuxHelper->currentTime, timescale) empty:NO helper:demuxHelper];
     }
 
     [assetReader release];
