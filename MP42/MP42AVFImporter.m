@@ -776,20 +776,11 @@
                         }
                     }
 
-                    if (timescale == 0) {
-                        timescale = duration.timescale;
-                    }
-
                     CMTime currentOutputTimeStamp = CMTimeConvertScale(presentationOutputTimeStamp, duration.timescale, kCMTimeRoundingMethod_Default);
 
                     int64_t delta = presentationTimeStamp.value - currentOutputTimeStamp.value;
-
-                    // Check for the initial empty edit
-                    if (demuxHelper->currentTime == 0 && presentationOutputTimeStamp.value > 0) {
-                        CMTime time = CMTimeConvertScale(presentationOutputTimeStamp, duration.timescale, kCMTimeRoundingMethod_Default);
-                        [demuxHelper endEditListAtTime:time empty:YES];
-                        [demuxHelper startEditListAtTime:time];
-                        demuxHelper->currentTime += time.value;
+                    if (timescale == 0) {
+                        timescale = duration.timescale;
                     }
 
                     CFDictionaryRef attachments = CMCopyDictionaryOfAttachments(NULL, sampleBuffer, kCMAttachmentMode_ShouldPropagate);
@@ -823,10 +814,16 @@
 
                     if (delta != demuxHelper->delta && currentOutputTimeStamp.value > demuxHelper->currentTime) {
                         if (![demuxHelper isEditListOpen]) {
-                            CMTime editStart = CMTimeMake(demuxHelper->currentTime, duration.timescale);
+                            CMTime editStart = CMTimeMake(demuxHelper->currentTime + delta, duration.timescale);
                             [demuxHelper startEditListAtTime:editStart];
                             CMTime editEnd = CMTimeMake(demuxHelper->currentTime - delta, duration.timescale);
                             [demuxHelper endEditListAtTime:editEnd empty:YES];
+                            demuxHelper->currentTime += delta;
+                        } else {
+                            CMTime editEnd = CMTimeMake(demuxHelper->currentTime + currentOutputTimeStamp.value, duration.timescale);
+                            [demuxHelper endEditListAtTime:editEnd empty:YES];
+                            [demuxHelper startEditListAtTime:editEnd];
+                            demuxHelper->currentTime += currentOutputTimeStamp.value;
                         }
                         demuxHelper->delta = delta;
                     }
