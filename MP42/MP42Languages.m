@@ -637,7 +637,7 @@ iso639_lang_t * lang_for_english( const char * english )
         [languagesArray release];
     }
 
-    return [_languagesArray copy];
+    return [[_languagesArray copy] autorelease];
 }
 
 - (NSArray *)iso6391languages {
@@ -659,7 +659,7 @@ iso639_lang_t * lang_for_english( const char * english )
         [languagesArray release];
     }
 
-    return [_iso6391languagesArray copy];
+    return [[_iso6391languagesArray copy] autorelease];
 }
 
 + (NSString *)iso6391CodeFor:(NSString *)aLanguage {
