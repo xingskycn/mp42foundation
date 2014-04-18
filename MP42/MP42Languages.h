@@ -40,10 +40,17 @@ extern "C" {
 }
 #endif
 
-@interface MP42Languages : NSObject
+@interface MP42Languages : NSObject {
+    @private
+    NSArray *_languagesArray;
+    NSArray *_iso6391languagesArray;
+}
 
 + (MP42Languages *)defaultManager;
+
 - (NSArray *)languages;
+- (NSArray *)iso6391languages;
+
 + (NSString *)iso6391CodeFor:(NSString *)aLanguage;
 
 @end

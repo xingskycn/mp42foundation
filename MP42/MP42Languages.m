@@ -606,31 +606,60 @@ iso639_lang_t * lang_for_english( const char * english )
 {
     static dispatch_once_t pred;
     static MP42Languages *sharedLanguagesManager = nil;
-    
+
     dispatch_once(&pred, ^{ sharedLanguagesManager = [[self alloc] init]; });
     return sharedLanguagesManager;
 }
 
+- (NSArray *)commonLanguages {
+    return @[@"Unknown", @"English", @"French", @"German", @"Italian", @"Dutch",
+             @"Swedish" , @"Spanish" , @"Danish" , @"Portuguese", @"Norwegian", @"Hebrew",
+             @"Japanese", @"Arabic", @"Finnish", @"Modern Greek", @"Icelandic", @"Maltese", @"Turkish",
+             @"Croatian", @"Chinese", @"Urdu", @"Hindi", @"Thai", @"Korean", @"Lithuanian", @"Polish",
+             @"Hungarian", @"Estonian", @"Latvian", @"Northern Sami", @"Faroese", @"Persian", @"Romanian", @"Russian",
+             @"Irish", @"Serbian", @"Albanian", @"Bulgarian", @"Czech", @"Slovak", @"Slovenian"];
+}
+
 - (NSArray *)languages {
-    NSMutableArray *languagesArray = [[NSMutableArray alloc] init];
-    iso639_lang_t *_languages;
-    for ( _languages = (iso639_lang_t *) languages; _languages->iso639_2; _languages++ )
-        [languagesArray addObject:[NSString stringWithUTF8String:_languages->eng_name]];
+    if (!_languagesArray) {
+        NSMutableArray *languagesArray = [[NSMutableArray alloc] init];
 
-    NSArray *top_languages = [NSArray arrayWithObjects:  @"Unknown", @"English", @"French", @"German", @"Italian", @"Dutch",
-				  @"Swedish" , @"Spanish" , @"Danish" , @"Portuguese", @"Norwegian", @"Hebrew",
-				  @"Japanese", @"Arabic", @"Finnish", @"Modern Greek", @"Icelandic", @"Maltese", @"Turkish",
-				  @"Croatian", @"Chinese", @"Urdu", @"Hindi", @"Thai", @"Korean", @"Lithuanian", @"Polish",
-				  @"Hungarian", @"Estonian", @"Latvian", @"Northern Sami", @"Faroese", @"Persian", @"Romanian", @"Russian",
-				  @"Irish", @"Serbian", @"Albanian", @"Bulgarian", @"Czech", @"Slovak", @"Slovenian", nil];
+        iso639_lang_t *_languages;
+        for ( _languages = (iso639_lang_t *) languages; _languages->iso639_2; _languages++ )
+            [languagesArray addObject:[NSString stringWithUTF8String:_languages->eng_name]];
 
-    [languagesArray removeObjectsInArray:top_languages];
+        [languagesArray removeObjectsInArray:[self commonLanguages]];
 
-    for (NSString* lang in [top_languages reverseObjectEnumerator]) {
-        [languagesArray insertObject:lang atIndex:0];
+        for (NSString *lang in [[self commonLanguages] reverseObjectEnumerator]) {
+            [languagesArray insertObject:lang atIndex:0];
+        }
+        _languagesArray = [languagesArray copy];
+        [languagesArray release];
     }
 
-    return [languagesArray autorelease];
+    return [_languagesArray copy];
+}
+
+- (NSArray *)iso6391languages {
+    if (!_iso6391languagesArray) {
+        NSMutableArray *languagesArray = [[NSMutableArray alloc] init];
+
+        iso639_lang_t *_languages;
+        for (_languages = (iso639_lang_t *) languages; _languages->iso639_2; _languages++) {
+            if (strlen(_languages->iso639_1))
+                [languagesArray addObject:[NSString stringWithUTF8String:_languages->eng_name]];
+        }
+
+        [languagesArray removeObjectsInArray:[self commonLanguages]];
+
+        for (NSString *lang in [[self commonLanguages] reverseObjectEnumerator]) {
+            [languagesArray insertObject:lang atIndex:0];
+        }
+        _iso6391languagesArray = [languagesArray copy];
+        [languagesArray release];
+    }
+
+    return [_iso6391languagesArray copy];
 }
 
 + (NSString *)iso6391CodeFor:(NSString *)aLanguage {
