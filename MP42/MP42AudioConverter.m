@@ -700,12 +700,12 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
 
         // initialize the decoder
         err = AudioConverterNew( &inputFormat, &outputFormat, &decoderData.converter );
-        if ( err != noErr) {
+        if (err != noErr) {
             if (outError)
                 if (![self errorMessageForFormat:track.sourceFormat error:outError]) {
-                *outError = MP42Error(@"Audio Converter Error.",
-                                      @"The Audio Converter can not be initialized",
-                                      130);
+                    *outError = MP42Error(@"Audio Converter Error.",
+                                          @"The Audio Converter can not be initialized",
+                                          130);
                 }
             if (magicCookie)
                 CFRelease(magicCookie);

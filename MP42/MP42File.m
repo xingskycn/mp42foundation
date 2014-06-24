@@ -23,8 +23,7 @@ NSString * const MP42GenerateChaptersPreviewTrack = @"MP42ChaptersPreview";
 NSString * const MP42CustomChaptersPreviewTrack = @"MP42CustomChaptersPreview";
 NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
-static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
-{
+static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     const char *level;
 
     if ([[NSUserDefaults standardUserDefaults] valueForKey:@"Debug"]) {
@@ -97,8 +96,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 @synthesize status = _status;
 @synthesize muxer = _muxer;
 
-+ (void)initialize
-{
++ (void)initialize {
     MP4SetLogCallback(logCallback);
     MP4LogSetLevel(MP4_LOG_ERROR);
 }
@@ -140,8 +138,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 #pragma mark - Inits
 
-- (id)init
-{
+- (id)init {
     if ((self = [super init])) {
         _hasFileRepresentation = NO;
         _tracks = [[NSMutableArray alloc] init];
@@ -153,8 +150,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return self;
 }
 
-- (instancetype)initWithDelegate:(id <MP42FileDelegate>)del
-{
+- (instancetype)initWithDelegate:(id <MP42FileDelegate>)del {
     if ((self = [self init])) {
         _delegate = del;
     }
@@ -162,19 +158,20 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return self;
 }
 
-- (instancetype)initWithExistingFile:(NSURL *)URL andDelegate:(id <MP42FileDelegate>)del
-{
-    if ((self = [super init]))
-	{
+- (instancetype)initWithExistingFile:(NSURL *)URL andDelegate:(id <MP42FileDelegate>)del {
+    self = [super init];
+    if (self) {
         _delegate = del;
         _fileURL = [[URL fileReferenceURL] retain];
-        _hasFileRepresentation = YES;
 
+        // Open the file for reading
         if (![self startReading]) {
             [self release];
 			return nil;
         }
 
+        // Check the major brand
+        // and refuse to open mov movies.
         const char *brand = NULL;
         MP4GetStringProperty(_fileHandle, "ftyp.majorBrand", &brand);
         if (brand != NULL) {
@@ -185,6 +182,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
             }
         }
 
+        // Wraps the tracks in obj-c objects
         _tracks = [[NSMutableArray alloc] init];
         uint32_t tracksCount = MP4GetNumberOfTracks(_fileHandle, 0, 0);
         MP4TrackId chapterId = findChapterTrackId(_fileHandle);
@@ -193,52 +191,64 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         for (int i = 0; i< tracksCount; i++) {
             id track;
             MP4TrackId trackId = MP4FindTrackId(_fileHandle, i, 0, 0);
-            const char* type = MP4GetTrackType(_fileHandle, trackId);
+            const char *type = MP4GetTrackType(_fileHandle, trackId);
 
-            if (MP4_IS_AUDIO_TRACK_TYPE(type))
+            if (MP4_IS_AUDIO_TRACK_TYPE(type)) {
                 track = [MP42AudioTrack alloc];
-            else if (MP4_IS_VIDEO_TRACK_TYPE(type))
+            } else if (MP4_IS_VIDEO_TRACK_TYPE(type)) {
                 track = [MP42VideoTrack alloc];
-            else if (!strcmp(type, MP4_TEXT_TRACK_TYPE)) {
-                if (trackId == chapterId)
+            } else if (!strcmp(type, MP4_TEXT_TRACK_TYPE)) {
+                if (trackId == chapterId) {
                     track = [MP42ChapterTrack alloc];
-                else
+                } else {
                     track = [MP42Track alloc];
-            }
-            else if (!strcmp(type, MP4_SUBTITLE_TRACK_TYPE))
+                }
+            } else if (!strcmp(type, MP4_SUBTITLE_TRACK_TYPE)) {
                 track = [MP42SubtitleTrack alloc];
-            else if (!strcmp(type, MP4_SUBPIC_TRACK_TYPE))
+            } else if (!strcmp(type, MP4_SUBPIC_TRACK_TYPE)) {
                 track = [MP42SubtitleTrack alloc];
-            else if (!strcmp(type, MP4_CC_TRACK_TYPE))
+            } else if (!strcmp(type, MP4_CC_TRACK_TYPE)) {
                 track = [MP42ClosedCaptionTrack alloc];
-            else
+            } else {
                 track = [MP42Track alloc];
+            }
 
             track = [track initWithSourceURL:_fileURL trackID:trackId fileHandle:_fileHandle];
             [_tracks addObject:track];
             [track release];
         }
 
+        // Restore the tracks references in the wrapped tracks
         [self reconnectReferences];
 
+        // Ugly hack to check for the previews track
         for (MP42Track *track in _tracks)
             if ([track.format isEqualToString:MP42VideoFormatJPEG])
                 previewsId = track.Id;
 
+        // Load the previews images
         [self loadPreviewsFromTrackID:previewsId];
 
-        _tracksToBeDeleted = [[NSMutableArray alloc] init];
+        // Load the metadata
         _metadata = [[MP42Metadata alloc] initWithSourceURL:_fileURL fileHandle:_fileHandle];
+
+        // Initialize things
+        _hasFileRepresentation = YES;
+        _tracksToBeDeleted = [[NSMutableArray alloc] init];
         _importers = [[NSMutableDictionary alloc] init];
 
+        // Close the file
         [self stopReading];
 	}
 
 	return self;
 }
 
-- (void)reconnectReferences
-{
+/**
+ *  Loads the tracks references and convert them
+ *  to objects references
+ */
+- (void)reconnectReferences {
     for (MP42Track *ref in self.itracks) {
         if ([ref isMemberOfClass:[MP42AudioTrack class]]) {
             MP42AudioTrack *a = (MP42AudioTrack *)ref;
@@ -255,8 +265,12 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     }
 }
 
-- (void)loadPreviewsFromTrackID:(MP4TrackId) trackID
-{
+/**
+ *  Load the previews image from a track
+ *
+ *  @param trackID the id of the previews track
+ */
+- (void)loadPreviewsFromTrackID:(MP4TrackId)trackID {
     MP42Track *track = [self trackWithTrackID:trackID];
     if (track) {
         MP4SampleId sampleNum = MP4GetTrackNumberOfSamples(self.fileHandle, track.Id);
@@ -293,8 +307,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 #pragma mark - File Inspections
 
-- (NSUInteger)duration
-{
+- (NSUInteger)duration {
     NSUInteger duration = 0;
     NSUInteger trackDuration = 0;
     for (MP42Track *track in self.itracks)
@@ -312,13 +325,12 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return estimation;
 }
 
-- (MP42ChapterTrack *)chapters
-{
+- (MP42ChapterTrack *)chapters {
     MP42ChapterTrack *chapterTrack = nil;
 
     for (MP42Track *track in self.itracks)
         if ([track isMemberOfClass:[MP42ChapterTrack class]])
-            chapterTrack = (MP42ChapterTrack *) track;
+            chapterTrack = (MP42ChapterTrack *)track;
 
     return [[chapterTrack retain] autorelease];
 }
@@ -327,28 +339,20 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return [NSArray arrayWithArray:self.itracks];
 }
 
-- (NSUInteger)tracksCount
-{
-    return [self.itracks count];
-}
-
-- (id)trackAtIndex:(NSUInteger)index
-{
+- (id)trackAtIndex:(NSUInteger)index {
     return [self.itracks objectAtIndex:index];
 }
 
-- (id)trackWithTrackID:(NSUInteger)trackId
-{
+- (id)trackWithTrackID:(NSUInteger)trackID {
     for (MP42Track *track in self.itracks) {
-        if (track.Id == trackId)
+        if (track.Id == trackID)
             return track;
     }
 
     return nil;
 }
 
-- (NSArray *)tracksWithMediaType:(NSString *)mediaType
-{
+- (NSArray *)tracksWithMediaType:(NSString *)mediaType {
     NSMutableArray *tracks = [NSMutableArray array];
 
     for (MP42Track *track in self.itracks) {
@@ -361,9 +365,10 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 #pragma mark - Editing
 
-- (void)addTrack:(MP42Track *)track
-{
+- (void)addTrack:(MP42Track *)track {
     NSAssert(self.status != MP42StatusWriting, @"Unsupported operation: trying to add a track while the file is open for writing");
+    NSAssert(![self.itracks containsObject:track], @"Unsupported operation: trying to add a track that is already present.");
+
     track.sourceId = track.Id;
     track.Id = 0;
     track.muxed = NO;
@@ -405,14 +410,12 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     [self.itracks addObject:track];
 }
 
-- (void)removeTrackAtIndex:(NSUInteger) index
-{
+- (void)removeTrackAtIndex:(NSUInteger)index {
     NSAssert(self.status != MP42StatusWriting, @"Unsupported operation: trying to remove a track while the file is open for writing");
     [self removeTracksAtIndexes:[NSIndexSet indexSetWithIndex:index]];
 }
 
-- (void)removeTracksAtIndexes:(NSIndexSet *)indexes
-{
+- (void)removeTracksAtIndexes:(NSIndexSet *)indexes {
     NSUInteger index = [indexes firstIndex];
     while (index != NSNotFound) {
         MP42Track *track = [self.itracks objectAtIndex:index];
@@ -442,8 +445,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     [self.itracks removeObjectsAtIndexes:indexes];
 }
 
-- (void)moveTrackAtIndex:(NSUInteger)index toIndex:(NSUInteger) newIndex
-{
+- (void)moveTrackAtIndex:(NSUInteger)index toIndex:(NSUInteger)newIndex {
     NSAssert(self.status != MP42StatusWriting, @"Unsupported operation: trying to move tracks while the file is open for writing");
     id track = [[self.itracks objectAtIndex:index] retain];
 
@@ -454,8 +456,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     [track release];
 }
 
-- (void)organizeAlternateGroupsForMediaType:(NSString *)mediaType withGroupID:(NSUInteger)groupID
-{
+- (void)organizeAlternateGroupsForMediaType:(NSString *)mediaType withGroupID:(NSUInteger)groupID {
     NSArray *tracks = [self tracksWithMediaType:mediaType];
     BOOL enabled = NO;
 
@@ -476,8 +477,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         [[tracks objectAtIndex:0] setEnabled:YES];
 }
 
-- (void)organizeAlternateGroups
-{
+- (void)organizeAlternateGroups {
     NSAssert(self.status != MP42StatusWriting, @"Unsupported operation: trying to organize alternate groups while the file is open for writing");
 
     NSArray *typeToOrganize = @[MP42MediaTypeVideo,
@@ -497,8 +497,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 #pragma mark - Editing internal
 
-- (void)removeMuxedTrack:(MP42Track *)track
-{
+- (void)removeMuxedTrack:(MP42Track *)track {
     if (!self.fileHandle)
         return;
 
@@ -517,8 +516,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 #pragma mark - Saving
 
-- (BOOL)optimize
-{
+- (BOOL)optimize {
     __block BOOL noErr = NO;
     __block BOOL done = NO;
 
@@ -580,8 +578,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return noErr;
 }
 
-- (void)cancel;
-{
+- (void)cancel {
     _cancelled = YES;
     [self.muxer cancel];
 }
@@ -591,8 +588,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
         [_delegate progressStatus:progress];
 }
 
-- (BOOL)writeToUrl:(NSURL *)url withAttributes:(NSDictionary *)attributes error:(NSError **)outError
-{
+- (BOOL)writeToUrl:(NSURL *)url withAttributes:(NSDictionary *)attributes error:(NSError **)outError {
     BOOL success = YES;
 
     if (!url) {
@@ -685,8 +681,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return success;
 }
 
-- (BOOL)updateMP4FileWithAttributes:(NSDictionary *)attributes error:(NSError **)outError
-{
+- (BOOL)updateMP4FileWithAttributes:(NSDictionary *)attributes error:(NSError **)outError {
     BOOL noErr = YES;
 
     // Organize the alternate groups
@@ -1027,8 +1022,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
 
 #pragma mark - Others
 
-- (void)encodeWithCoder:(NSCoder *)coder
-{
+- (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeInt:2 forKey:@"MP42FileVersion"];
 
 #ifdef SB_SANDBOX
@@ -1063,8 +1057,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     [coder encodeObject:self.metadata forKey:@"metadata"];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
-{
+- (id)initWithCoder:(NSCoder *)decoder {
     self = [super init];
 
     NSData *bookmarkData = [decoder decodeObjectForKey:@"bookmark"];
@@ -1091,8 +1084,7 @@ static void logCallback(MP4LogLevel loglevel, const char* fmt, va_list ap)
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_fileURL release];
     [_tracks release];
     [_importers release];
