@@ -518,6 +518,27 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 
 #pragma mark - Saving
 
+- (NSURL *)tempURL {
+    NSURL *tempURL = nil;
+    #ifdef SB_SANDBOX
+        NSURL *folderURL = [fileURL URLByDeletingLastPathComponent];
+        tempURL = [fileManager URLForDirectory:NSItemReplacementDirectory inDomain:NSUserDomainMask appropriateForURL:folderURL create:YES error:&error];
+    #else
+    // Snow Leopard has got some issue with file reference URLs so here's a workaround
+    if (NSAppKitVersionNumber <= NSAppKitVersionNumber10_6) {
+        tempURL = [[NSURL fileURLWithPath:[self.URL path]] URLByDeletingLastPathComponent];
+    } else {
+        tempURL = [self.URL URLByDeletingLastPathComponent];
+    }
+    #endif
+
+    if (tempURL) {
+        tempURL = [tempURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.tmp", [self.URL lastPathComponent]]];
+    }
+
+    return tempURL;
+}
+
 - (BOOL)optimize {
     __block BOOL noErr = NO;
     __block BOOL done = NO;
@@ -526,15 +547,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         NSError *error;
 
         NSFileManager *fileManager = [[NSFileManager alloc] init];
-#ifdef SB_SANDBOX
-        NSURL *folderURL = [fileURL URLByDeletingLastPathComponent];
-        NSURL *tempURL = [fileManager URLForDirectory:NSItemReplacementDirectory inDomain:NSUserDomainMask appropriateForURL:folderURL create:YES error:&error];
-#else
-        NSURL *tempURL = [self.URL URLByDeletingLastPathComponent];
-#endif
-        if (tempURL) {
-            tempURL = [tempURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.tmp", [self.URL lastPathComponent]]];
+        NSURL *tempURL = [self tempURL];
 
+        if (tempURL) {
             unsigned long long originalFileSize = [[[fileManager attributesOfItemAtPath:[self.URL path] error:nil] valueForKey:NSFileSize] unsignedLongLongValue];
 
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
@@ -549,23 +564,16 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
                 usleep(450000);
             }
 
-            if (noErr) {
-                // Additional check to see if we can open the optimized file
-                MP42File *optimizedFile = [[MP42File alloc] initWithExistingFile:tempURL andDelegate:nil];
-                if (!optimizedFile) {
-                    // If not, return no
-                    noErr = NO;
-                    [optimizedFile release];
-                } else {
-                    // Else replace the original file
-                    [optimizedFile release];
-                    NSURL *result = nil;
-                    noErr = [fileManager replaceItemAtURL:self.URL withItemAtURL:tempURL backupItemName:nil options:0 resultingItemURL:&result error:&error];
-                    if (noErr) {
-                        self.URL = result;
-                    }
+            // Additional check to see if we can open the optimized file
+            if (noErr && [[[MP42File alloc] initWithExistingFile:tempURL andDelegate:nil] autorelease]) {
+                // Replace the original file
+                NSURL *result = nil;
+                noErr = [fileManager replaceItemAtURL:self.URL withItemAtURL:tempURL backupItemName:nil options:0 resultingItemURL:&result error:&error];
+                if (noErr) {
+                    self.URL = result;
                 }
-            } else {
+            }
+            if (!noErr) {
                 // Remove the temp file if the optimization didn't complete
                 [fileManager removeItemAtPath:[tempURL path] error:NULL];
             }
