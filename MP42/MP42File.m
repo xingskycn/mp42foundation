@@ -508,9 +508,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         MP4ChapterType err = MP4DeleteChapters(self.fileHandle, MP4ChapterTypeAny, track.Id);
         if (err == 0)
             MP4DeleteTrack(self.fileHandle, track.Id);
-    }
-    else
+    } else {
         MP4DeleteTrack(self.fileHandle, track.Id);
+    }
 
     updateTracksCount(self.fileHandle);
     updateMoovDuration(self.fileHandle);
