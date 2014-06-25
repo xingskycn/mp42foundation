@@ -365,9 +365,11 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 
 #pragma mark - Editing
 
-- (void)addTrack:(MP42Track *)track {
+- (MP42Track *)addTrack:(MP42Track *)track {
     NSAssert(self.status != MP42StatusWriting, @"Unsupported operation: trying to add a track while the file is open for writing");
     NSAssert(![self.itracks containsObject:track], @"Unsupported operation: trying to add a track that is already present.");
+
+    track = [track copy];
 
     track.sourceId = track.Id;
     track.Id = 0;
@@ -408,6 +410,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     }
 
     [self.itracks addObject:track];
+    [track release];
+
+    return track;
 }
 
 - (void)removeTrackAtIndex:(NSUInteger)index {

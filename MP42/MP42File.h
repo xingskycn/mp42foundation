@@ -45,7 +45,7 @@ typedef enum MP42Status : NSInteger {
 @class MP42Muxer;
 
 /**
- *  MP42File
+ *  A MP42File object is an object that represents a mp4 file.
  */
 @interface MP42File : NSObject <NSCoding> {
 @private
@@ -148,10 +148,13 @@ typedef enum MP42Status : NSInteger {
 
 /**
  *  Add a track to the mp4 file.
+ *  The track will be copied, the new track instance will be returned.
  *
  *  @param track A MP42Track instance.
+ *
+ *  @return the copied track
  */
-- (void)addTrack:(MP42Track *)track;
+- (MP42Track *)addTrack:(MP42Track *)track;
 
 /**
  *  Removes a track at the index.
@@ -200,8 +203,30 @@ typedef enum MP42Status : NSInteger {
  */
 - (BOOL)optimize;
 
+/**
+ *  Exports a MP42File object.
+ *
+ *  @param url        An NSURL object that specifies a url to a file.
+ *  @param attributes An NSDictionary object that specifies the desired operation and its options,
+ *  @param outError   A pointer to an NSError object; if the operation fails, an NSError object is returned in this location.
+ *
+ *  @return YES if the movie file was successfully created, NO otherwise.
+ */
 - (BOOL)writeToUrl:(NSURL *)url withAttributes:(NSDictionary *)attributes error:(NSError **)outError;
+
+/**
+ *  Updates a MP42File object.
+ *
+ *  @param attributes An NSDictionary object that specifies the desired operation and its options.
+ *  @param outError   A pointer to an NSError object; if the operation fails, an NSError object is returned in this location.
+ *
+ *  @return YES if the movie file was successfully created, NO otherwise.
+ */
 - (BOOL)updateMP4FileWithAttributes:(NSDictionary *)attributes error:(NSError **)outError;
+
+/**
+ *  Cancels a write/update operation.
+ */
 - (void)cancel;
 
 @end
