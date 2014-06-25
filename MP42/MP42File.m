@@ -526,7 +526,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     #else
     // Snow Leopard has got some issue with file reference URLs so here's a workaround
     if (NSAppKitVersionNumber <= NSAppKitVersionNumber10_6) {
-        tempURL = [[NSURL fileURLWithPath:[self.URL path]] URLByDeletingLastPathComponent];
+        tempURL = [[self.URL filePathURL] URLByDeletingLastPathComponent];
     } else {
         tempURL = [self.URL URLByDeletingLastPathComponent];
     }
@@ -617,6 +617,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
             unsigned long long originalFileSize = [[[fileManager attributesOfItemAtPath:[self.URL path] error:NULL] valueForKey:NSFileSize] unsignedLongLongValue];
 
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                NSLog(@"%@", self.URL);
+                NSLog(@"%@", url);
+
                 noErr = [fileManager copyItemAtURL:self.URL toURL:url error:outError];
                 if (!noErr && *outError) {
                     [*outError retain];
@@ -1054,7 +1057,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     }
 #else
     if ([self.URL isFileReferenceURL]) {
-        [coder encodeObject:[NSURL fileURLWithPath:[self.URL path]] forKey:@"fileUrl"];
+        [coder encodeObject:[self.URL filePathURL] forKey:@"fileUrl"];
     } else {
         [coder encodeObject:self.URL forKey:@"fileUrl"];
     }
