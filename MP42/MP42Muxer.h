@@ -16,6 +16,7 @@
 @end
 
 @interface MP42Muxer : NSObject {
+@private
     MP4FileHandle   _fileHandle;
     id              _delegate;
 

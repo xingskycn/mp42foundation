@@ -10,6 +10,7 @@
 #import "MP42Track.h"
 
 @interface MP42AudioTrack : MP42Track <NSCoding, NSCopying> {
+@private
     float _volume;
     UInt32 _channels;
     UInt32 _sourceChannels;

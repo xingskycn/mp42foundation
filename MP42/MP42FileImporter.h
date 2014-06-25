@@ -17,6 +17,7 @@
 @class MP42Track;
 
 @interface MP42FileImporter : NSObject {
+@protected
     NSURL   *_fileURL;
 
     NSInteger       _chapterId;

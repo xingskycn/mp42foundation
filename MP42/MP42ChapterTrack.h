@@ -11,6 +11,7 @@
 #import "MP42TextSample.h"
 
 @interface MP42ChapterTrack : MP42Track <NSCoding> {
+@private
     NSMutableArray *chapters;
     BOOL _areChaptersEdited;
 }

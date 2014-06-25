@@ -10,6 +10,7 @@
 #import "MP42Track.h"
 
 @interface MP42VideoTrack : MP42Track <NSCoding> {
+@protected
     uint64_t width, height;
     float trackWidth, trackHeight;
 

@@ -10,5 +10,4 @@
 #import "MP42VideoTrack.h"
 
 @interface MP42ClosedCaptionTrack : MP42VideoTrack
-
 @end

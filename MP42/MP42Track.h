@@ -7,14 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MP42ConverterProtocol.h"
 #import "MP42MediaFormat.h"
 
-@class MP42FileImporter;
-@class MP42SampleBuffer;
-@class MP42Fifo;
-
+/**
+ *  MP42Track
+ */
 @interface MP42Track : NSObject <NSCoding, NSCopying> {
+@protected
     MP42TrackId  _Id;
     MP42TrackId  _sourceId;
 
@@ -47,7 +46,6 @@
 - (instancetype)initWithSourceURL:(NSURL *)URL trackID:(NSInteger)trackID fileHandle:(MP42FileHandle)fileHandle;
 
 - (BOOL)writeToFile:(MP42FileHandle)fileHandle error:(NSError **)outError;
-- (MP42SampleBuffer *)copyNextSample;
 
 - (NSString *)timeString;
 - (NSString *)formatSummary;

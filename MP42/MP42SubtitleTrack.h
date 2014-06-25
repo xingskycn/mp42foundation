@@ -10,6 +10,7 @@
 #import "MP42VideoTrack.h"
 
 @interface MP42SubtitleTrack : MP42VideoTrack <NSCoding> {
+@private
     BOOL _verticalPlacement;
     BOOL _someSamplesAreForced;
     BOOL _allSamplesAreForced;

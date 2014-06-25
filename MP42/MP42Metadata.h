@@ -10,6 +10,7 @@
 #import "MP42MediaFormat.h"
 
 @interface MP42Metadata : NSObject <NSCoding, NSCopying> {
+@private
     NSString                *presetName;
     NSURL                   *sourceURL;
     NSMutableDictionary     *tagsDict;

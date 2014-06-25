@@ -81,6 +81,9 @@
 		A989F1001823AB2E0070AD8C /* MP42Track+Muxer.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */; };
 		A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */ = {isa = PBXBuildFile; fileRef = A989F10D1823B3B40070AD8C /* MP42TextSample.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A989F1101823B3B40070AD8C /* MP42TextSample.m in Sources */ = {isa = PBXBuildFile; fileRef = A989F10E1823B3B40070AD8C /* MP42TextSample.m */; };
+		A991714C195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
+		A991714D195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
+		A991714E195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
 		A9B9C1F1182391DF00416A4E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1F0182391DF00416A4E /* Cocoa.framework */; };
 		A9B9C1FB182391DF00416A4E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A9B9C1F9182391DF00416A4E /* InfoPlist.strings */; };
 		A9B9C206182391DF00416A4E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C205182391DF00416A4E /* XCTest.framework */; };
@@ -262,6 +265,7 @@
 		A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MP42Track+Muxer.h"; sourceTree = "<group>"; };
 		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
 		A989F10E1823B3B40070AD8C /* MP42TextSample.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42TextSample.m; sourceTree = "<group>"; };
+		A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MP42Track+Muxer.m"; sourceTree = "<group>"; };
 		A9B9C1ED182391DF00416A4E /* MP42Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MP42Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9B9C1F0182391DF00416A4E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A9B9C1F3182391DF00416A4E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -593,6 +597,7 @@
 				A9B9C2421823923100416A4E /* MP42Muxer.h */,
 				A9B9C2431823923100416A4E /* MP42Muxer.m */,
 				A989F0FF1823AB2E0070AD8C /* MP42Track+Muxer.h */,
+				A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */,
 				A9B9C2481823923100416A4E /* MP42Sample.h */,
 				A9B9C2491823923100416A4E /* MP42Sample.m */,
 				A9B9C22D1823923100416A4E /* MP42ConverterProtocol.h */,
@@ -911,6 +916,7 @@
 				A910B5D618394EB20064028F /* MP42MediaFormat.m in Sources */,
 				A910B5D818394EB20064028F /* MP42TextSample.m in Sources */,
 				A910B5DA18394EB20064028F /* MP42Image.m in Sources */,
+				A991714E195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */,
 				A910B5DC18394EB20064028F /* MP42Languages.m in Sources */,
 				A910B5DE18394EB20064028F /* MP42Ratings.m in Sources */,
 				A910B5E018394EB20064028F /* MP42PrivateUtilities.m in Sources */,
@@ -961,6 +967,7 @@
 				A9B9C2921823923200416A4E /* MP42QTImporter.m in Sources */,
 				A9B9C2A21823923200416A4E /* MP42VobSubImporter.m in Sources */,
 				A9B9C28E1823923200416A4E /* MP42Muxer.m in Sources */,
+				A991714C195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */,
 				A9B9C2D0182396A100416A4E /* MP42Ratings.m in Sources */,
 				A9B9C2691823923200416A4E /* MP42AC3Importer.m in Sources */,
 				A9B9C26F1823923200416A4E /* MP42AVFImporter.m in Sources */,
@@ -999,6 +1006,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A991714D195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */,
 				A9B9C212182391DF00416A4E /* MP42Tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1136,7 +1144,7 @@
 					"-read_only_relocs",
 					suppress,
 				);
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx10.9;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -1181,7 +1189,7 @@
 					"-read_only_relocs",
 					suppress,
 				);
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx10.9;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;

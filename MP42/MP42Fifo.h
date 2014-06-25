@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface MP42Fifo : NSObject {
+@private
     id *_array;
 
     int32_t     _head;

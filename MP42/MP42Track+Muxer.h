@@ -27,4 +27,6 @@ typedef struct muxer_helper {
 
 @property(nonatomic, readonly) muxer_helper *muxer_helper;
 
+- (MP42SampleBuffer *)copyNextSample;
+
 @end
