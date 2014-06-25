@@ -365,11 +365,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 
 #pragma mark - Editing
 
-- (MP42Track *)addTrack:(MP42Track *)track {
+- (void)addTrack:(MP42Track *)track {
     NSAssert(self.status != MP42StatusWriting, @"Unsupported operation: trying to add a track while the file is open for writing");
     NSAssert(![self.itracks containsObject:track], @"Unsupported operation: trying to add a track that is already present.");
-
-    track = [track copy];
 
     track.sourceId = track.Id;
     track.Id = 0;
@@ -393,26 +391,25 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
             MP42AudioTrack *audioTrack = (MP42AudioTrack *)track;
             track.format = MP42AudioFormatAAC;
             audioTrack.sourceChannels = audioTrack.channels;
-            if ([audioTrack.mixdownType isEqualToString:SBMonoMixdown] || audioTrack.sourceChannels == 1)
+            if ([audioTrack.mixdownType isEqualToString:SBMonoMixdown] || audioTrack.sourceChannels == 1) {
                 audioTrack.channels = 1;
-            else if (audioTrack.mixdownType)
+            } else if (audioTrack.mixdownType) {
                 audioTrack.channels = 2;
-        }
-        else if ([track isMemberOfClass:[MP42SubtitleTrack class]])
+            }
+        } else if ([track isMemberOfClass:[MP42SubtitleTrack class]]) {
             track.format = MP42SubtitleFormatTx3g;
+        }
     }
 
     if (track.muxer_helper->importer && track.sourceURL) {
-        if ([self.importers objectForKey:[[track sourceURL] path]])
+        if ([self.importers objectForKey:[[track sourceURL] path]]) {
             track.muxer_helper->importer = [_importers objectForKey:[[track sourceURL] path]];
-        else
+        } else {
             [self.importers setObject:track.muxer_helper->importer forKey:[[track sourceURL] path]];
+        }
     }
 
     [self.itracks addObject:track];
-    [track release];
-
-    return track;
 }
 
 - (void)removeTrackAtIndex:(NSUInteger)index {

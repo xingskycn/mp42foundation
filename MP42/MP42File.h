@@ -148,13 +148,11 @@ typedef enum MP42Status : NSInteger {
 
 /**
  *  Add a track to the mp4 file.
- *  The track will be copied, the new track instance will be returned.
  *
  *  @param track A MP42Track instance.
  *
- *  @return the copied track
  */
-- (MP42Track *)addTrack:(MP42Track *)track;
+- (void)addTrack:(MP42Track *)track;
 
 /**
  *  Removes a track at the index.
