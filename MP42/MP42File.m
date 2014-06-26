@@ -544,7 +544,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     __block BOOL done = NO;
 
     @autoreleasepool {
-        NSError *error;
+        NSError *error = nil;
 
         NSFileManager *fileManager = [[NSFileManager alloc] init];
         NSURL *tempURL = [self tempURL];
