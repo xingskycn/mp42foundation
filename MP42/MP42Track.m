@@ -122,9 +122,9 @@
             if (cString)
                 if (!MP4SetTrackName(fileHandle, _Id, cString))
                     NSLog(@"Unable to set the track name");
-        }
-        else
+        } else {
             MP4SetTrackName(fileHandle, _Id, "\0");
+        }
     }
     if ([_updatedProperty valueForKey:@"alternate_group"] || !_muxed)
         MP4SetTrackIntegerProperty(fileHandle, _Id, "tkhd.alternate_group", _alternate_group);
@@ -292,8 +292,7 @@
                     relativeToURL:nil
                     bookmarkDataIsStale:&bookmarkDataIsStale
                     error:&error] retain];
-    }
-    else {
+    } else {
         _sourceURL = [[decoder decodeObjectForKey:@"sourceURL"] retain];
     }
 

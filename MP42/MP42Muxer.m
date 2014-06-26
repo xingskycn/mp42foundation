@@ -400,10 +400,11 @@
             break;
 
         // If all tracks are done, exit the loop
-        if (done == tracksCount)
+        if (done == tracksCount) {
             break;
-        else
+        } else {
             done = 0;
+        }
 
         // Update progress
         if (!(update % 200)) {

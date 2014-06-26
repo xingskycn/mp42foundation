@@ -942,92 +942,22 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     if (!refTrack)
         refTrack = [self.itracks objectAtIndex:0];
 
-    if (chapterTrack && !jpegTrack && decodable) {
-        @autoreleasepool {
-            NSArray *images = [MP42PreviewGenerator generatePreviewImagesFromChapters:[chapterTrack chapters] andFile:self.URL];
+    if (decodable) {
+        NSArray *images = [MP42PreviewGenerator generatePreviewImagesFromChapters:[chapterTrack chapters] andFile:self.URL];
 
-            // If we haven't got any images, return.
-            if (!images || ![images count])
-                return NO;
-
-            // Reopen the mp4v2 fileHandle
-            if (![self startWriting])
-                return NO;
-
-            CGFloat maxWidth = 640;
-            NSSize imageSize = [[images objectAtIndex:0] size];
-            if (imageSize.width > maxWidth) {
-                imageSize.height = maxWidth / imageSize.width * imageSize.height;
-                imageSize.width = maxWidth;
-            }
-            NSRect rect = NSMakeRect(0.0, 0.0, imageSize.width, imageSize.height);
-
-            jpegTrack = MP4AddJpegVideoTrack(self.fileHandle, MP4GetTrackTimeScale(self.fileHandle, [chapterTrack Id]),
-                                             MP4_INVALID_DURATION, imageSize.width, imageSize.height);
-
-            MP4SetTrackLanguage(self.fileHandle, jpegTrack, lang_for_english([refTrack.language UTF8String])->iso639_2);
-            MP4SetTrackIntegerProperty(self.fileHandle, jpegTrack, "tkhd.layer", 1);
-            MP4SetTrackDisabled(self.fileHandle, jpegTrack);
-
-            for (NSUInteger idx = 0; idx < [[chapterTrack chapters] count]; idx++) {
-                MP4Duration duration = MP4GetSampleDuration(self.fileHandle, chapterTrack.Id, idx + 1);
-
-                // Scale the image.
-                NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
-                                                                                   pixelsWide:rect.size.width
-                                                                                   pixelsHigh:rect.size.height
-                                                                                bitsPerSample:8
-                                                                              samplesPerPixel:4
-                                                                                     hasAlpha:YES
-                                                                                     isPlanar:NO
-                                                                               colorSpaceName:NSCalibratedRGBColorSpace
-                                                                                 bitmapFormat:NSAlphaFirstBitmapFormat
-                                                                                  bytesPerRow:0
-                                                                                 bitsPerPixel:32];
-                [NSGraphicsContext saveGraphicsState];
-                [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:bitmap]];
-
-                [[NSColor blackColor] set];
-                NSRectFill(rect);
-
-                if (idx < [images count]) {
-                    [[images objectAtIndex:idx] drawInRect:rect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
-                }
-
-                [NSGraphicsContext restoreGraphicsState];
-
-                NSData *data = [bitmap representationUsingType:NSJPEGFileType properties:nil];
-                [bitmap release];
-
-                MP4WriteSample(self.fileHandle,
-                               jpegTrack,
-                               [data bytes],
-                               [data length],
-                               duration,
-                               0,
-                               true);
-            }
-
-            MP4RemoveAllTrackReferences(self.fileHandle, "tref.chap", refTrack.Id);
-            MP4AddTrackReference(self.fileHandle, "tref.chap", chapterTrack.Id, refTrack.Id);
-            MP4AddTrackReference(self.fileHandle, "tref.chap", jpegTrack, refTrack.Id);
-            copyTrackEditLists(self.fileHandle, chapterTrack.Id, jpegTrack);
-
-            [self stopWriting];
-        }
-
-        return YES;
-
-    } else if (chapterTrack && jpegTrack) {
-        // We already have all the tracks, so hook them up.
-        if (![self startWriting])
+        // If we haven't got any images, return.
+        if (!images || ![images count])
             return NO;
 
-        MP4RemoveAllTrackReferences(self.fileHandle, "tref.chap", refTrack.Id);
-        MP4AddTrackReference(self.fileHandle, "tref.chap", chapterTrack.Id, refTrack.Id);
-        MP4AddTrackReference(self.fileHandle, "tref.chap", jpegTrack, refTrack.Id);
+        NSArray *chapters = chapterTrack.chapters;
+        [images enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            MP42TextSample *chapter = [chapters objectAtIndex:idx];
+            chapter.image = [[[MP42Image alloc] initWithImage:obj] autorelease];
+        }];
 
-        [self stopWriting];
+        [self muxChaptersPreviewTrackId:jpegTrack withChapterTrack:chapterTrack andRefTrack:refTrack];
+
+        return YES;
     }
 
     return NO;

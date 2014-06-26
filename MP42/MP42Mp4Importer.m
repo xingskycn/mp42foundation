@@ -14,7 +14,7 @@
 #import "MP42PrivateUtilities.h"
 #import "MP42Track+Muxer.h"
 
-@interface MP4DemuxkHelper : NSObject {
+@interface MP4DemuxHelper : NSObject {
 @public
     MP4SampleId     currentSampleId;
     uint64_t        totalSampleNumber;
@@ -25,7 +25,7 @@
 }
 @end
 
-@implementation MP4DemuxkHelper
+@implementation MP4DemuxHelper
 @end
 
 @implementation MP42Mp4Importer
@@ -217,13 +217,13 @@
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
     NSInteger tracksNumber = [_inputTracks count];
     NSInteger tracksDone = 0;
-    MP4DemuxkHelper *demuxHelper;
+    MP4DemuxHelper *demuxHelper;
 
     if (!_fileHandle)
         return;
 
     for (MP42Track *track in _inputTracks) {
-        track.muxer_helper->demuxer_context = [[MP4DemuxkHelper alloc] init];
+        track.muxer_helper->demuxer_context = [[MP4DemuxHelper alloc] init];
         demuxHelper = track.muxer_helper->demuxer_context;
         demuxHelper->totalSampleNumber = MP4GetTrackNumberOfSamples(_fileHandle, track.sourceId);
         demuxHelper->timeScale = MP4GetTrackTimeScale(_fileHandle, track.sourceId);
