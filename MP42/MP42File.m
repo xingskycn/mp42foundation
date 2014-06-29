@@ -642,8 +642,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
             success = NO;
             [*outError autorelease];
         }
-    }
-    else {
+    } else {
         self.URL = url;
 
         NSString *fileExtension = [self.URL pathExtension];
