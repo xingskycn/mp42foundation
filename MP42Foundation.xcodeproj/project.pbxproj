@@ -192,6 +192,13 @@
 		A9B9C49F1823989C00416A4E /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49C1823989C00416A4E /* libjpeg.a */; };
 		A9B9C4A01823989C00416A4E /* liblept.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49D1823989C00416A4E /* liblept.a */; };
 		A9B9C4A11823989C00416A4E /* libtesseract.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49E1823989C00416A4E /* libtesseract.a */; };
+		A9DFBDA1195FF5BA00410060 /* MP42Heap.h in Headers */ = {isa = PBXBuildFile; fileRef = A9DFBD9F195FF5BA00410060 /* MP42Heap.h */; };
+		A9DFBDA2195FF5BA00410060 /* MP42Heap.h in Headers */ = {isa = PBXBuildFile; fileRef = A9DFBD9F195FF5BA00410060 /* MP42Heap.h */; };
+		A9DFBDA3195FF5BA00410060 /* MP42Heap.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDA0195FF5BA00410060 /* MP42Heap.m */; };
+		A9DFBDA4195FF5BA00410060 /* MP42Heap.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDA0195FF5BA00410060 /* MP42Heap.m */; };
+		A9DFBDA5195FF5BA00410060 /* MP42Heap.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDA0195FF5BA00410060 /* MP42Heap.m */; };
+		A9DFBDCB1960174500410060 /* MP42EditListsReconstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = A9DFBDC91960174500410060 /* MP42EditListsReconstructor.h */; };
+		A9DFBDCC1960174500410060 /* MP42EditListsReconstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDCA1960174500410060 /* MP42EditListsReconstructor.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -380,6 +387,10 @@
 		A9B9C49C1823989C00416A4E /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjpeg.a; path = Tesseract/lib/libjpeg.a; sourceTree = "<group>"; };
 		A9B9C49D1823989C00416A4E /* liblept.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblept.a; path = Tesseract/lib/liblept.a; sourceTree = "<group>"; };
 		A9B9C49E1823989C00416A4E /* libtesseract.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtesseract.a; path = Tesseract/lib/libtesseract.a; sourceTree = "<group>"; };
+		A9DFBD9F195FF5BA00410060 /* MP42Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42Heap.h; sourceTree = "<group>"; };
+		A9DFBDA0195FF5BA00410060 /* MP42Heap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42Heap.m; sourceTree = "<group>"; };
+		A9DFBDC91960174500410060 /* MP42EditListsReconstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42EditListsReconstructor.h; sourceTree = "<group>"; };
+		A9DFBDCA1960174500410060 /* MP42EditListsReconstructor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42EditListsReconstructor.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -603,6 +614,8 @@
 				A9B9C22D1823923100416A4E /* MP42ConverterProtocol.h */,
 				A9B9C22E1823923100416A4E /* MP42Fifo.h */,
 				A9B9C22F1823923100416A4E /* MP42Fifo.m */,
+				A9DFBD9F195FF5BA00410060 /* MP42Heap.h */,
+				A9DFBDA0195FF5BA00410060 /* MP42Heap.m */,
 				A9B9C2321823923100416A4E /* MP42FileImporter.h */,
 				A9B9C2331823923100416A4E /* MP42FileImporter.m */,
 				A9B9C4A518239BE900416A4E /* converters */,
@@ -629,6 +642,8 @@
 				A9B9C24B1823923100416A4E /* MP42SrtImporter.m */,
 				A9B9C2231823923100416A4E /* MP42AVFImporter.h */,
 				A9B9C2241823923100416A4E /* MP42AVFImporter.m */,
+				A9DFBDC91960174500410060 /* MP42EditListsReconstructor.h */,
+				A9DFBDCA1960174500410060 /* MP42EditListsReconstructor.m */,
 				A9B9C2271823923100416A4E /* MP42CCImporter.h */,
 				A9B9C2281823923100416A4E /* MP42CCImporter.m */,
 				A9B9C21B1823923100416A4E /* MP42AACImporter.h */,
@@ -696,6 +711,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A91711E7187D547D00459495 /* MP42PreviewGenerator.h in Headers */,
+				A9DFBDA2195FF5BA00410060 /* MP42Heap.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -704,6 +720,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9B9C27B1823923200416A4E /* MP42File.h in Headers */,
+				A9DFBDCB1960174500410060 /* MP42EditListsReconstructor.h in Headers */,
 				A9B9C29B1823923200416A4E /* MP42Track.h in Headers */,
 				A9B9C29F1823923200416A4E /* MP42VideoTrack.h in Headers */,
 				A9B9C26C1823923200416A4E /* MP42AudioTrack.h in Headers */,
@@ -744,6 +761,7 @@
 				A9B9C2C81823962600416A4E /* UniversalDetector.h in Headers */,
 				A9B9C27F1823923200416A4E /* MP42H264Importer.h in Headers */,
 				A9B9C29D1823923200416A4E /* MP42PrivateUtilities.h in Headers */,
+				A9DFBDA1195FF5BA00410060 /* MP42Heap.h in Headers */,
 				A9B9C2661823923200416A4E /* MP42AACImporter.h in Headers */,
 				A9B9C2681823923200416A4E /* MP42AC3Importer.h in Headers */,
 				A989F1001823AB2E0070AD8C /* MP42Track+Muxer.h in Headers */,
@@ -940,6 +958,7 @@
 				A910B60918394EB20064028F /* MP42Mp4Importer.m in Sources */,
 				A910B60B18394EB20064028F /* MP42QTImporter.m in Sources */,
 				A910B60D18394EB20064028F /* MP42SrtImporter.m in Sources */,
+				A9DFBDA5195FF5BA00410060 /* MP42Heap.m in Sources */,
 				A910B60F18394EB20064028F /* MP42AVFImporter.m in Sources */,
 				A910B61118394EB20064028F /* MP42CCImporter.m in Sources */,
 				A910B61318394EB20064028F /* MP42AACImporter.mm in Sources */,
@@ -980,6 +999,7 @@
 				A9B9C2821823923200416A4E /* MP42HtmlParser.m in Sources */,
 				A9B9C2861823923200416A4E /* MP42MediaFormat.m in Sources */,
 				A9B9C2A41823923200416A4E /* MP42XMLReader.m in Sources */,
+				A9DFBDCC1960174500410060 /* MP42EditListsReconstructor.m in Sources */,
 				A989F1101823B3B40070AD8C /* MP42TextSample.m in Sources */,
 				A9B9C2751823923200416A4E /* MP42ChapterTrack.m in Sources */,
 				A9B9C2C51823957800416A4E /* MP42Languages.m in Sources */,
@@ -991,6 +1011,7 @@
 				A9B9C2881823923200416A4E /* MP42Metadata.m in Sources */,
 				A9B9C2A91823923200416A4E /* MatroskaParser.c in Sources */,
 				A9B9C2941823923200416A4E /* MP42Sample.m in Sources */,
+				A9DFBDA3195FF5BA00410060 /* MP42Heap.m in Sources */,
 				A9B9C28A1823923200416A4E /* MP42MkvImporter.m in Sources */,
 				A925AAB018379AF800BE84D4 /* MP42Utilities.m in Sources */,
 				A9B9C2731823923200416A4E /* MP42CCImporter.m in Sources */,
@@ -1006,6 +1027,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9DFBDA4195FF5BA00410060 /* MP42Heap.m in Sources */,
 				A991714D195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */,
 				A9B9C212182391DF00416A4E /* MP42Tests.m in Sources */,
 			);

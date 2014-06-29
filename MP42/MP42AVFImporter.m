@@ -17,64 +17,27 @@
 #import "MP42PrivateUtilities.h"
 #import "MP42Track+Muxer.h"
 
+#import "MP42EditListsReconstructor.h"
+
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
 @interface AVFDemuxHelper : NSObject {
 @public
-    CMTimeRange         *edits;
-    uint64_t             editsCount;
-    uint64_t             editsSize;
-    BOOL                 editOpen;
     int64_t              currentTime;
     int64_t              delta;
     AVAssetReaderOutput *assetReaderOutput;
-}
 
-- (void)startEditListAtTime:(CMTime)time;
-- (void)endEditListAtTime:(CMTime)time empty:(BOOL)type;
-- (BOOL)isEditListOpen;
+    MP42EditListsReconstructor *editsConstructor;
+}
 
 @end
 
 @implementation AVFDemuxHelper
 
-/**
- * Starts a new edit
- */
-- (void)startEditListAtTime:(CMTime)time {
-    if (editsSize <= editsCount) {
-        editsSize += 20;
-        edits = (CMTimeRange *) realloc(edits, sizeof(CMTimeRange) * editsSize);
-    }
-    edits[editsCount] = CMTimeRangeMake(time, kCMTimeInvalid);
-    editOpen = YES;
-}
-
-/**
- * Closes a opened edit
- */
-- (void)endEditListAtTime:(CMTime)time empty:(BOOL)type {
-    if (!editOpen)
-        return;
-
-    time.value -= edits[editsCount].start.value;
-    edits[editsCount].duration = time;
-
-    if (type)
-        edits[editsCount].start.value = -1;
-
-    if (edits[editsCount].duration.value > 0) {
-        editsCount++;
-    }
-    editOpen = NO;
-}
-
-/**
- * Returns if there is an open edit list
- */
-- (BOOL)isEditListOpen {
-    return editOpen;
+- (void)dealloc {
+    [editsConstructor release];
+    [super dealloc];
 }
 
 @end
@@ -706,8 +669,6 @@
     return nil;
 }
 
-#define SB_AVF_DEBUG
-
 - (void)demux:(id)sender {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
@@ -734,6 +695,7 @@
             track.muxer_helper->demuxer_context = [[AVFDemuxHelper alloc] init];
             demuxHelper = track.muxer_helper->demuxer_context;
             demuxHelper->assetReaderOutput = assetReaderOutput;
+            demuxHelper->editsConstructor = [[MP42EditListsReconstructor alloc] init];
 
             totalDataLength += [track dataLength];
         }
@@ -746,9 +708,6 @@
     for (MP42Track *track in _inputTracks) {
         demuxHelper = track.muxer_helper->demuxer_context;
         AVAssetReaderOutput *assetReaderOutput = demuxHelper->assetReaderOutput;
-        int32_t timescale = 0;
-
-        [demuxHelper startEditListAtTime:kCMTimeInvalid];
 
         while (!_cancelled) {
             CMSampleBufferRef sampleBuffer = [assetReaderOutput copyNextSampleBuffer];
@@ -778,55 +737,7 @@
 
                     CMTime currentOutputTimeStamp = CMTimeConvertScale(presentationOutputTimeStamp, duration.timescale, kCMTimeRoundingMethod_Default);
 
-                    int64_t delta = presentationTimeStamp.value - currentOutputTimeStamp.value;
-                    if (timescale == 0) {
-                        timescale = duration.timescale;
-                    }
-
                     CFDictionaryRef attachments = CMCopyDictionaryOfAttachments(NULL, sampleBuffer, kCMAttachmentMode_ShouldPropagate);
-                    CFDictionaryRef trimStart = NULL, trimEnd = NULL;
-
-                    if (attachments) {
-                        // Check if we have to trim the start or end of a sample
-                        // If so it means we need to start/end an edit
-                        if ((trimStart = CFDictionaryGetValue(attachments, kCMSampleBufferAttachmentKey_TrimDurationAtStart))) {
-                            CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
-
-                            trimStartTime = CMTimeConvertScale(trimStartTime, duration.timescale, kCMTimeRoundingMethod_Default);
-                            CMTime editStart = CMTimeMake(demuxHelper->currentTime, duration.timescale);
-                            editStart.value += trimStartTime.value;
-
-                            currentOutputTimeStamp.value += -trimStartTime.value;
-
-                            [demuxHelper startEditListAtTime:editStart];
-
-                        }
-                        if ((trimEnd = CFDictionaryGetValue(attachments, kCMSampleBufferAttachmentKey_TrimDurationAtEnd))) {
-                            CMTime trimEndTime = CMTimeMakeFromDictionary(trimEnd);
-
-                            trimEndTime = CMTimeConvertScale(trimEndTime, duration.timescale, kCMTimeRoundingMethod_Default);
-                            CMTime editEnd = CMTimeMake(demuxHelper->currentTime, duration.timescale);
-                            editEnd.value += duration.value - trimEndTime.value;
-
-                            [demuxHelper endEditListAtTime:editEnd empty:NO];
-                        }
-                    }
-
-                    if (delta != demuxHelper->delta && currentOutputTimeStamp.value > demuxHelper->currentTime) {
-                        if (![demuxHelper isEditListOpen]) {
-                            CMTime editStart = CMTimeMake(demuxHelper->currentTime + delta, duration.timescale);
-                            [demuxHelper startEditListAtTime:editStart];
-                            CMTime editEnd = CMTimeMake(demuxHelper->currentTime - delta, duration.timescale);
-                            [demuxHelper endEditListAtTime:editEnd empty:YES];
-                            demuxHelper->currentTime += delta;
-                        } else {
-                            CMTime editEnd = CMTimeMake(demuxHelper->currentTime + currentOutputTimeStamp.value, duration.timescale);
-                            [demuxHelper endEditListAtTime:editEnd empty:YES];
-                            [demuxHelper startEditListAtTime:editEnd];
-                            demuxHelper->currentTime += currentOutputTimeStamp.value;
-                        }
-                        demuxHelper->delta = delta;
-                    }
 
 #ifdef SB_AVF_DEBUG
                     NSLog(@"Delta: %lld", presentationTimeStamp.value - currentOutputTimeStamp.value);
@@ -840,10 +751,14 @@
                     sample->size = sampleSize;
                     sample->duration = duration.value;
                     sample->offset = -decodeTimeStamp.value + presentationTimeStamp.value;
-                    sample->timestamp = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer).value;
+                    sample->presentationTimestamp = presentationTimeStamp.value;
+                    sample->timestamp = currentOutputTimeStamp.value;
+                    sample->timescale = duration.timescale;
                     sample->isSync = sync;
                     sample->trackId = track.sourceId;
+                    sample->attachments = (void *)attachments;
 
+                    [demuxHelper->editsConstructor addSample:sample];
                     [self enqueue:sample];
                     [sample release];
 
@@ -884,34 +799,6 @@
                     // Get CMBlockBufferRef to extract the actual data later
                     CMBlockBufferRef buffer = CMSampleBufferGetDataBuffer(sampleBuffer);
                     size_t bufferSize = CMBlockBufferGetDataLength(buffer);
-
-                    // Check if we have to trim the start or end of a sample
-                    // If so it means we need to start/end an edit
-                    CFTypeRef trimStart = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, kCMAttachmentMode_ShouldNotPropagate);
-                    if (trimStart) {
-                        CMTime trimStartTime = CMTimeMakeFromDictionary(trimStart);
-                        trimStartTime = CMTimeConvertScale(trimStartTime, timingArrayOut[0].duration.timescale, kCMTimeRoundingMethod_Default);
-
-                        CMTime editStart = CMTimeMake(demuxHelper->currentTime, timingArrayOut[0].duration.timescale);
-                        editStart.value += trimStartTime.value;
-
-                        [demuxHelper startEditListAtTime:editStart];
-                    }
-                    CFTypeRef trimEnd = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtEnd, kCMAttachmentMode_ShouldNotPropagate);
-                    if (trimEnd) {
-                        CMTime trimEndTime = CMTimeMakeFromDictionary(trimEnd);
-                        trimEndTime = CMTimeConvertScale(trimEndTime, timingArrayOut[0].duration.timescale, kCMTimeRoundingMethod_Default);
-
-                        CMTime editEnd = CMTimeMake(demuxHelper->currentTime, timingArrayOut[0].duration.timescale);
-                        editEnd.value += timingArrayOut[0].duration.value * samplesNum  - trimEndTime.value;
-
-                        [demuxHelper endEditListAtTime:editEnd empty:NO];
-
-                    }
-
-                    if (timescale == 0) {
-                        timescale = timingArrayOut[0].duration.timescale;
-                    }
 
                     int pos = 0;
                     for (int i = 0; i < samplesNum; i++) {
@@ -977,9 +864,12 @@
                         sample->duration = sampleTimingInfo.duration.value;
                         sample->offset = -decodeTimeStamp.value + presentationTimeStamp.value;
                         sample->timestamp = sampleTimingInfo.presentationTimeStamp.value;
+                        sample->presentationTimestamp = presentationTimeStamp.value;
+                        sample->timescale = sampleTimingInfo.duration.timescale;
                         sample->isSync = sync;
                         sample->trackId = track.sourceId;
 
+                        [demuxHelper->editsConstructor addSample:sample];
                         [self enqueue:sample];
                         [sample release];
 
@@ -1000,8 +890,8 @@
                 break;
             }
         }
-        // Closes the last edit
-        [demuxHelper endEditListAtTime:CMTimeMake(demuxHelper->currentTime, timescale) empty:NO];
+
+        [demuxHelper->editsConstructor done];
     }
 
     [assetReader release];
@@ -1028,8 +918,8 @@
 
         AVFDemuxHelper *helper = inputTrack.muxer_helper->demuxer_context;
 
-        for (int i = 0; i < helper->editsCount; i++) {
-            CMTimeRange timeRange = helper->edits[i];
+        for (int i = 0; i < helper->editsConstructor.editsCount; i++) {
+            CMTimeRange timeRange = helper->editsConstructor.edits[i];
             CMTime duration = CMTimeConvertScale(timeRange.duration, timescale, kCMTimeRoundingMethod_Default);
 
             trackDuration += duration.value;
@@ -1041,8 +931,6 @@
 
         if (trackDuration)
             MP4SetTrackIntegerProperty(fileHandle, track.Id, "tkhd.duration", trackDuration);
-
-        free(helper->edits);
 
     }
     return YES;

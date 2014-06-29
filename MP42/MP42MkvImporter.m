@@ -767,7 +767,7 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 if (offset < minOffset)
                     minOffset = offset;
 
-                [demuxHelper->offsetsArray addObject:[NSNumber numberWithLongLong:offset]];
+                [demuxHelper->offsetsArray addObject:@(offset)];
 
                 demuxHelper->current_time += duration;
 

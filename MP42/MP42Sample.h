@@ -14,13 +14,20 @@
     @public
 	void        *data;
     uint64_t    size;
+
+    uint64_t    timescale;
     uint64_t    duration;
     int64_t     offset;
+
+    uint64_t    presentationTimestamp;
     uint64_t    timestamp;
+
     uint32_t    trackId;
+
     BOOL        isSync;
-    BOOL        isCompressed;
     BOOL        isForced;
+
+    void        *attachments;
 }
 
 @end
