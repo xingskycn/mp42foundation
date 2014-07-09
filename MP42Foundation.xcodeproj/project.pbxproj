@@ -58,9 +58,6 @@
 		A910B627183950B90064028F /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49C1823989C00416A4E /* libjpeg.a */; };
 		A910B628183950B90064028F /* liblept.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49D1823989C00416A4E /* liblept.a */; };
 		A910B629183950B90064028F /* libtesseract.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49E1823989C00416A4E /* libtesseract.a */; };
-		A910B62A183950C30064028F /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2E4182397F100416A4E /* libicucore.dylib */; };
-		A910B62B183950CA0064028F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2DF182397D400416A4E /* libz.dylib */; };
-		A910B62C183950D50064028F /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2E1182397DD00416A4E /* libbz2.dylib */; };
 		A910B62D183950E50064028F /* libmp4v2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2B2182393ED00416A4E /* libmp4v2.a */; };
 		A910B62E183950EB0064028F /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2DB1823972400416A4E /* QTKit.framework */; };
 		A910B62F183950F10064028F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2DD1823973200416A4E /* CoreMedia.framework */; };
@@ -69,7 +66,6 @@
 		A910B6321839510B0064028F /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C4921823986200416A4E /* Quartz.framework */; };
 		A910B6331839511A0064028F /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C2D91823971F00416A4E /* AudioToolbox.framework */; };
 		A91711E6187D547D00459495 /* MP42PreviewGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = A91711E4187D547D00459495 /* MP42PreviewGenerator.h */; };
-		A91711E7187D547D00459495 /* MP42PreviewGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = A91711E4187D547D00459495 /* MP42PreviewGenerator.h */; };
 		A91711E8187D547D00459495 /* MP42PreviewGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A91711E5187D547D00459495 /* MP42PreviewGenerator.m */; };
 		A91711E9187D547D00459495 /* MP42PreviewGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A91711E5187D547D00459495 /* MP42PreviewGenerator.m */; };
 		A925AAAF18379AF800BE84D4 /* MP42Utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = A925AAAD18379AF800BE84D4 /* MP42Utilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -84,6 +80,7 @@
 		A991714C195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
 		A991714D195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
 		A991714E195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
+		A9A268E2196D6367003AFF57 /* MP42EditListsReconstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDCA1960174500410060 /* MP42EditListsReconstructor.m */; };
 		A9B9C1F1182391DF00416A4E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1F0182391DF00416A4E /* Cocoa.framework */; };
 		A9B9C1FB182391DF00416A4E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A9B9C1F9182391DF00416A4E /* InfoPlist.strings */; };
 		A9B9C206182391DF00416A4E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C205182391DF00416A4E /* XCTest.framework */; };
@@ -193,7 +190,6 @@
 		A9B9C4A01823989C00416A4E /* liblept.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49D1823989C00416A4E /* liblept.a */; };
 		A9B9C4A11823989C00416A4E /* libtesseract.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C49E1823989C00416A4E /* libtesseract.a */; };
 		A9DFBDA1195FF5BA00410060 /* MP42Heap.h in Headers */ = {isa = PBXBuildFile; fileRef = A9DFBD9F195FF5BA00410060 /* MP42Heap.h */; };
-		A9DFBDA2195FF5BA00410060 /* MP42Heap.h in Headers */ = {isa = PBXBuildFile; fileRef = A9DFBD9F195FF5BA00410060 /* MP42Heap.h */; };
 		A9DFBDA3195FF5BA00410060 /* MP42Heap.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDA0195FF5BA00410060 /* MP42Heap.m */; };
 		A9DFBDA4195FF5BA00410060 /* MP42Heap.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDA0195FF5BA00410060 /* MP42Heap.m */; };
 		A9DFBDA5195FF5BA00410060 /* MP42Heap.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDA0195FF5BA00410060 /* MP42Heap.m */; };
@@ -405,9 +401,6 @@
 				A910B62F183950F10064028F /* CoreMedia.framework in Frameworks */,
 				A910B62E183950EB0064028F /* QTKit.framework in Frameworks */,
 				A910B62D183950E50064028F /* libmp4v2.a in Frameworks */,
-				A910B62C183950D50064028F /* libbz2.dylib in Frameworks */,
-				A910B62B183950CA0064028F /* libz.dylib in Frameworks */,
-				A910B62A183950C30064028F /* libicucore.dylib in Frameworks */,
 				A910B627183950B90064028F /* libjpeg.a in Frameworks */,
 				A910B628183950B90064028F /* liblept.a in Frameworks */,
 				A910B629183950B90064028F /* libtesseract.a in Frameworks */,
@@ -710,8 +703,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A91711E7187D547D00459495 /* MP42PreviewGenerator.h in Headers */,
-				A9DFBDA2195FF5BA00410060 /* MP42Heap.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -922,6 +913,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9A268E2196D6367003AFF57 /* MP42EditListsReconstructor.m in Sources */,
 				A91711E9187D547D00459495 /* MP42PreviewGenerator.m in Sources */,
 				A910B5C618394EB20064028F /* MP42File.m in Sources */,
 				A910B5C818394EB20064028F /* MP42Track.m in Sources */,
@@ -934,7 +926,6 @@
 				A910B5D618394EB20064028F /* MP42MediaFormat.m in Sources */,
 				A910B5D818394EB20064028F /* MP42TextSample.m in Sources */,
 				A910B5DA18394EB20064028F /* MP42Image.m in Sources */,
-				A991714E195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */,
 				A910B5DC18394EB20064028F /* MP42Languages.m in Sources */,
 				A910B5DE18394EB20064028F /* MP42Ratings.m in Sources */,
 				A910B5E018394EB20064028F /* MP42PrivateUtilities.m in Sources */,
@@ -967,6 +958,7 @@
 				A910B61818394EB20064028F /* MatroskaFile.c in Sources */,
 				A910B61A18394EB20064028F /* MatroskaParser.c in Sources */,
 				A910B61C18394EB20064028F /* mbs.cpp in Sources */,
+				A991714E195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1094,6 +1086,10 @@
 					/Users/damians/Dev/sublercli/MP42Foundation/mp4v2,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-read_only_relocs",
+					suppress,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.8;
 			};
@@ -1116,6 +1112,10 @@
 					/Users/damians/Dev/sublercli/MP42Foundation/mp4v2,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-read_only_relocs",
+					suppress,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.8;
 			};
