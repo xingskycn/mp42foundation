@@ -14,6 +14,7 @@
 
 /**
  *  Analyzes the sample buffers of a track and tries to recreate an array of edits lists.
+ *  TO-DO: doesn't work in all cases yet.
  */
 @interface MP42EditListsReconstructor : NSObject {
 @private

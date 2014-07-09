@@ -28,13 +28,15 @@
     [sample retain];
     [_queue insert:sample];
 
-    if (_timescale == 0) {
-        _timescale = sample->timescale;
-        [self startEditListAtTime:CMTimeMake(_currentTime, _timescale)];
-    }
-
     if ([_queue isFull]) {
         MP42SampleBuffer *extractedSample = [_queue extract];
+
+        if (_timescale == 0) {
+            _timescale = extractedSample->timescale;
+            [self startEditListAtTime:CMTimeMake(extractedSample->presentationTimestamp - extractedSample->timestamp, _timescale)];
+            _currentTime += extractedSample->presentationTimestamp - extractedSample->timestamp;
+        }
+
         [self analyzeSample:extractedSample];
         [extractedSample release];
     }
@@ -43,6 +45,11 @@
 - (void)done {
     while (![_queue isEmpty]) {
         MP42SampleBuffer *extractedSample = [_queue extract];
+        if (_timescale == 0) {
+            _timescale = extractedSample->timescale;
+            [self startEditListAtTime:CMTimeMake(extractedSample->presentationTimestamp - extractedSample->timestamp, _timescale)];
+        }
+
         [self analyzeSample:extractedSample];
         [extractedSample release];
     }
