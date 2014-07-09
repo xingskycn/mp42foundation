@@ -617,9 +617,6 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
             unsigned long long originalFileSize = [[[fileManager attributesOfItemAtPath:[self.URL path] error:NULL] valueForKey:NSFileSize] unsignedLongLongValue];
 
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                NSLog(@"%@", self.URL);
-                NSLog(@"%@", url);
-
                 noErr = [fileManager copyItemAtURL:self.URL toURL:url error:outError];
                 if (!noErr && *outError) {
                     [*outError retain];
