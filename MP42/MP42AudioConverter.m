@@ -14,6 +14,8 @@
 #import "MP42Fifo.h"
 #import "MP42PrivateUtilities.h"
 
+#import "MP42ComponentLoader.h"
+
 #import "MP42Track+Muxer.h"
 
 #define FIFO_DURATION (0.5f)
@@ -591,6 +593,9 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
 {
     if ((self = [super init])) {
         OSStatus err;
+
+        // Load the decoders
+        [[MP42ComponentLoader sharedLoader] loadBundledComponents];
 
         // Set the right mixdown to use
         sampleRate = [track.muxer_helper->importer timescaleForTrack:track];

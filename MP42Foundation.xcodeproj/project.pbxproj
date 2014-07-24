@@ -80,6 +80,12 @@
 		A991714C195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
 		A991714D195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
 		A991714E195AAAEF005AD68E /* MP42Track+Muxer.m in Sources */ = {isa = PBXBuildFile; fileRef = A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */; };
+		A9A0C99C19814B0800A72763 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9A0C99B19814B0800A72763 /* CoreAudio.framework */; };
+		A9A0C9A419814C9B00A72763 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9A0C9A319814C9B00A72763 /* AudioUnit.framework */; };
+		A9A0C9B11981593900A72763 /* MP42ComponentLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = A9A0C9AF1981593900A72763 /* MP42ComponentLoader.h */; };
+		A9A0C9B21981593900A72763 /* MP42ComponentLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = A9A0C9AF1981593900A72763 /* MP42ComponentLoader.h */; };
+		A9A0C9B31981593900A72763 /* MP42ComponentLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = A9A0C9B01981593900A72763 /* MP42ComponentLoader.m */; };
+		A9A0C9B41981593900A72763 /* MP42ComponentLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = A9A0C9B01981593900A72763 /* MP42ComponentLoader.m */; };
 		A9A268E2196D6367003AFF57 /* MP42EditListsReconstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DFBDCA1960174500410060 /* MP42EditListsReconstructor.m */; };
 		A9B9C1F1182391DF00416A4E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B9C1F0182391DF00416A4E /* Cocoa.framework */; };
 		A9B9C1FB182391DF00416A4E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A9B9C1F9182391DF00416A4E /* InfoPlist.strings */; };
@@ -269,6 +275,10 @@
 		A989F10D1823B3B40070AD8C /* MP42TextSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42TextSample.h; sourceTree = "<group>"; };
 		A989F10E1823B3B40070AD8C /* MP42TextSample.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42TextSample.m; sourceTree = "<group>"; };
 		A991714B195AAAEF005AD68E /* MP42Track+Muxer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MP42Track+Muxer.m"; sourceTree = "<group>"; };
+		A9A0C99B19814B0800A72763 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		A9A0C9A319814C9B00A72763 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		A9A0C9AF1981593900A72763 /* MP42ComponentLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP42ComponentLoader.h; sourceTree = "<group>"; };
+		A9A0C9B01981593900A72763 /* MP42ComponentLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP42ComponentLoader.m; sourceTree = "<group>"; };
 		A9B9C1ED182391DF00416A4E /* MP42Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MP42Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9B9C1F0182391DF00416A4E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A9B9C1F3182391DF00416A4E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -433,6 +443,8 @@
 				A9B9C2DC1823972400416A4E /* QTKit.framework in Frameworks */,
 				A925AABE1837A1A100BE84D4 /* QuickTime.framework in Frameworks */,
 				A9B9C2DA1823971F00416A4E /* AudioToolbox.framework in Frameworks */,
+				A9A0C99C19814B0800A72763 /* CoreAudio.framework in Frameworks */,
+				A9A0C9A419814C9B00A72763 /* AudioUnit.framework in Frameworks */,
 				A9B9C2D81823970E00416A4E /* AVFoundation.framework in Frameworks */,
 				A9B9C2DE1823973200416A4E /* CoreMedia.framework in Frameworks */,
 				A9B9C1F1182391DF00416A4E /* Cocoa.framework in Frameworks */,
@@ -475,6 +487,7 @@
 		A9B9C1EF182391DF00416A4E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A9A0C9A319814C9B00A72763 /* AudioUnit.framework */,
 				A9B9C2B2182393ED00416A4E /* libmp4v2.a */,
 				A9B9C49C1823989C00416A4E /* libjpeg.a */,
 				A9B9C49D1823989C00416A4E /* liblept.a */,
@@ -491,6 +504,7 @@
 				A9B9C2DD1823973200416A4E /* CoreMedia.framework */,
 				A9B9C2DB1823972400416A4E /* QTKit.framework */,
 				A9B9C2D91823971F00416A4E /* AudioToolbox.framework */,
+				A9A0C99B19814B0800A72763 /* CoreAudio.framework */,
 				A9B9C2D71823970E00416A4E /* AVFoundation.framework */,
 				A9B9C2B61823944700416A4E /* UniversalDetector.xcodeproj */,
 				A9B9C1F0182391DF00416A4E /* Cocoa.framework */,
@@ -692,6 +706,8 @@
 				A9B9C2261823923100416A4E /* MP42BitmapSubConverter.m */,
 				A9B9C21F1823923100416A4E /* MP42AudioConverter.h */,
 				A9B9C2201823923100416A4E /* MP42AudioConverter.m */,
+				A9A0C9AF1981593900A72763 /* MP42ComponentLoader.h */,
+				A9A0C9B01981593900A72763 /* MP42ComponentLoader.m */,
 			);
 			name = converters;
 			sourceTree = "<group>";
@@ -703,6 +719,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9A0C9B21981593900A72763 /* MP42ComponentLoader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -722,6 +739,7 @@
 				A9B9C2851823923200416A4E /* MP42MediaFormat.h in Headers */,
 				A9B9C2781823923200416A4E /* MP42ConverterProtocol.h in Headers */,
 				A9B9C2931823923200416A4E /* MP42Sample.h in Headers */,
+				A9A0C9B11981593900A72763 /* MP42ComponentLoader.h in Headers */,
 				A989F10F1823B3B40070AD8C /* MP42TextSample.h in Headers */,
 				A9B9C2831823923200416A4E /* MP42Image.h in Headers */,
 				A9B9C2C41823957800416A4E /* MP42Languages.h in Headers */,
@@ -932,6 +950,7 @@
 				A910B5E218394EB20064028F /* MP42Utilities.m in Sources */,
 				A910B5E418394EB20064028F /* MP42SubUtilities.m in Sources */,
 				A910B5E618394EB20064028F /* MP42XMLReader.m in Sources */,
+				A9A0C9B41981593900A72763 /* MP42ComponentLoader.m in Sources */,
 				A910B5E818394EB20064028F /* MP42HtmlParser.m in Sources */,
 				A910B5EA18394EB20064028F /* RegexKitLite.m in Sources */,
 				A910B5EC18394EB20064028F /* JSONKit.m in Sources */,
@@ -985,6 +1004,7 @@
 				A9B9C2D4182396C400416A4E /* JSONKit.m in Sources */,
 				A9B9C27C1823923200416A4E /* MP42File.m in Sources */,
 				A9B9C2771823923200416A4E /* MP42ClosedCaptionTrack.m in Sources */,
+				A9A0C9B31981593900A72763 /* MP42ComponentLoader.m in Sources */,
 				A9B9C2A51823923200416A4E /* downmix.c in Sources */,
 				A9B9C2671823923200416A4E /* MP42AACImporter.mm in Sources */,
 				A9B9C2CC1823968400416A4E /* RegexKitLite.m in Sources */,
