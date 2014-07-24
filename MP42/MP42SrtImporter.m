@@ -36,7 +36,7 @@
         newTrack.alternate_group = 2;
         newTrack.language = getFilenameLanguage((CFStringRef)[_fileURL path]);
 
-        if ([newTrack.language isEqualToString:@"Unknown"]) {
+        if ([newTrack.language isEqualToString:@"Unknown"] && NSClassFromString(@"NSLinguisticTagger")) {
 			// we couldn't deduce language from the fileURL
 			// -> Let's look into the file itself
 
