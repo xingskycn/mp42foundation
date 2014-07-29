@@ -168,7 +168,7 @@
         _name = [newName retain];
     else
         _name = [self defaultName];
-    _isEdited = YES;
+    self.isEdited = YES;
     [_updatedProperty setValue:@"True" forKey:@"name"];
 }
 
@@ -180,7 +180,7 @@
 {
     [_language autorelease];
     _language = [newLang retain];
-    _isEdited = YES;
+    self.isEdited = YES;
     [_updatedProperty setValue:@"True" forKey:@"language"];
 }
 
@@ -190,9 +190,11 @@
 
 - (void)setEnabled:(BOOL)newState
 {
-    _enabled = newState;
-    _isEdited = YES;
-    [_updatedProperty setValue:@"True" forKey:@"enabled"];
+    if (_enabled != newState) {
+        _enabled = newState;
+        self.isEdited = YES;
+        [_updatedProperty setValue:@"True" forKey:@"enabled"];
+    }
 }
 
 - (uint64_t)alternate_group {
@@ -202,7 +204,7 @@
 - (void)setAlternate_group:(uint64_t)newGroup
 {
     _alternate_group = newGroup;
-    _isEdited = YES;
+    self.isEdited = YES;
     [_updatedProperty setValue:@"True" forKey:@"alternate_group"];
 }
 
@@ -213,7 +215,7 @@
 - (void)setStartOffset:(int64_t)newOffset
 {
     _startOffset = newOffset;
-    _isEdited = YES;
+    self.isEdited = YES;
     [_updatedProperty setValue:@"True" forKey:@"start_offset"];
 }
 

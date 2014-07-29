@@ -19,7 +19,7 @@
         _name = [self defaultName];
         _format = MP42SubtitleFormatText;
         _language = @"English";
-        _isEdited = YES;
+        _isEdited = NO;
         _muxed = NO;
         _enabled = NO;
         _mediaType = MP42MediaTypeText;
@@ -100,7 +100,7 @@
 
 - (NSUInteger)addChapter:(MP42TextSample *)chapter
 {
-    _isEdited = YES;
+    self.isEdited = YES;
     _areChaptersEdited = YES;
 
     [chapters addObject:chapter];
@@ -144,14 +144,14 @@
 
 - (void)removeChaptersAtIndexes:(NSIndexSet *)indexes
 {
-    _isEdited = YES;
+    self.isEdited = YES;
     _areChaptersEdited = YES;
     [chapters removeObjectsAtIndexes:indexes];
 }
 
 - (void)setTimestamp:(MP4Duration)timestamp forChapter:(MP42TextSample *)chapterSample
 {
-    _isEdited = YES;
+    self.isEdited = YES;
     _areChaptersEdited = YES;
     [chapterSample setTimestamp:timestamp];
     [chapters sortUsingSelector:@selector(compare:)];
@@ -159,7 +159,7 @@
 
 - (void)setTitle:(NSString *)title forChapter:(MP42TextSample *)chapterSample
 {
-    _isEdited = YES;
+    self.isEdited = YES;
     _areChaptersEdited = YES;
     [chapterSample setTitle:title];
 }

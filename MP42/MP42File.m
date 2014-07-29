@@ -409,6 +409,13 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         }
     }
 
+    if ([track isMemberOfClass:[MP42AudioTrack class]]) {
+        MP42AudioTrack *audioTrack = (MP42AudioTrack *)track;
+        if (![self.itracks containsObject:audioTrack.fallbackTrack]) {
+            audioTrack.fallbackTrack = nil;
+        }
+    }
+
     [self.itracks addObject:track];
 }
 
@@ -821,7 +828,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     }
     NSRect rect = NSMakeRect(0.0, 0.0, imageSize.width, imageSize.height);
 
-    if (jpegTrack ) {
+    if (jpegTrack) {
         MP4DeleteTrack(self.fileHandle, jpegTrack);
     }
 
@@ -938,7 +945,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     if (!refTrack)
         refTrack = [self.itracks objectAtIndex:0];
 
-    if (decodable) {
+    if (decodable && (!jpegTrack ||chapterTrack.isEdited)) {
         NSArray *images = [MP42PreviewGenerator generatePreviewImagesFromChapters:[chapterTrack chapters] andFile:self.URL];
 
         // If we haven't got any images, return.
@@ -954,6 +961,16 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         [self muxChaptersPreviewTrackId:jpegTrack withChapterTrack:chapterTrack andRefTrack:refTrack];
 
         return YES;
+    } else if (chapterTrack && jpegTrack) {
+        // We already have all the tracks, so hook them up.
+        if (![self startWriting])
+            return NO;
+
+        MP4RemoveAllTrackReferences(self.fileHandle, "tref.chap", refTrack.Id);
+        MP4AddTrackReference(self.fileHandle, "tref.chap", chapterTrack.Id, refTrack.Id);
+        MP4AddTrackReference(self.fileHandle, "tref.chap", jpegTrack, refTrack.Id);
+
+        [self stopWriting];
     }
 
     return NO;
