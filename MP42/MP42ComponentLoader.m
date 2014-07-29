@@ -41,42 +41,55 @@ static NSMutableDictionary *_loadedComponents;
 }
 
 - (void)loadBundledComponents {
-    NSURL *url = [[[NSBundle mainBundle] resourceURL] URLByAppendingPathComponent:@"Decoders"];
+    @synchronized(self) {
+        NSURL *url = [[[NSBundle mainBundle] resourceURL] URLByAppendingPathComponent:@"Decoders"];
 
-    if (![[NSFileManager defaultManager] fileExistsAtPath:[url path] isDirectory:NULL]) {
-        return;
-    }
-
-    if (![self componentLoadedForFormat:kAudioFormatAC3]) {
-        OSStatus err = [self loadComponent:kAudioDecoderComponentType
-                                    format:kAudioFormatAC3
-                              manufacturer:'cd3r'
-                                       url:[url URLByAppendingPathComponent:@"A52Codec.component/Contents/MacOS/A52Codec"]
-                                     entry:"ACShepA52DecoderEntry"];
-        if (!err) {
-            NSLog(@"AC-3 Decoder loaded");
+        if (![[NSFileManager defaultManager] fileExistsAtPath:[url path] isDirectory:NULL]) {
+            return;
         }
-    }
 
-    if (![self componentLoadedForFormat:'XiVs']) {
-        OSStatus err = [self loadComponent:kAudioDecoderComponentType
-                                    format:'XiVs'
-                              manufacturer:'Xiph'
-                                       url:[url URLByAppendingPathComponent:@"XiphQT.component/Contents/MacOS/XiphQT"]
-                                     entry:"CAOggVorbisDecoderEntry"];
-        if (!err) {
-            NSLog(@"Vorbis Decoder loaded");
+        if (![self componentLoadedForFormat:kAudioFormatAC3]) {
+            OSStatus err = [self loadComponent:kAudioDecoderComponentType
+                                        format:kAudioFormatAC3
+                                  manufacturer:'cd3r'
+                                           url:[url URLByAppendingPathComponent:@"A52Codec.component/Contents/MacOS/A52Codec"]
+                                         entry:"ACShepA52DecoderEntry"];
+            if (!err) {
+                NSLog(@"AC-3 Decoder loaded");
+            }
         }
-    }
 
-    if (![self componentLoadedForFormat:'XiFL']) {
-        OSStatus err = [self loadComponent:kAudioDecoderComponentType
-                                    format:'XiFL'
-                              manufacturer:'Xiph'
-                                       url:[url URLByAppendingPathComponent:@"XiphQT.component/Contents/MacOS/XiphQT"]
-                                     entry:"CAOggFLACDecoderEntry"];
-        if (!err) {
-            NSLog(@"FLAC Decoder loaded");
+        if (![self componentLoadedForFormat:'XiVs']) {
+            OSStatus err = [self loadComponent:kAudioDecoderComponentType
+                                        format:'XiVs'
+                                  manufacturer:'Xiph'
+                                           url:[url URLByAppendingPathComponent:@"XiphQT.component/Contents/MacOS/XiphQT"]
+                                         entry:"CAOggVorbisDecoderEntry"];
+            if (!err) {
+                NSLog(@"Vorbis Decoder loaded");
+            }
+        }
+
+        if (![self componentLoadedForFormat:'XiFL']) {
+            OSStatus err = [self loadComponent:kAudioDecoderComponentType
+                                        format:'XiFL'
+                                  manufacturer:'Xiph'
+                                           url:[url URLByAppendingPathComponent:@"XiphQT.component/Contents/MacOS/XiphQT"]
+                                         entry:"CAOggFLACDecoderEntry"];
+            if (!err) {
+                NSLog(@"FLAC Decoder loaded");
+            }
+        }
+
+        if (![self componentLoadedForFormat:'DTS ']) {
+            OSStatus err = [self loadComponent:kAudioDecoderComponentType
+                                        format:'DTS '
+                                  manufacturer:'Peri'
+                                           url:[url URLByAppendingPathComponent:@"Perian.component/Contents/MacOS/Perian"]
+                                         entry:"FFissionVBRDecoderEntry"];
+            if (!err) {
+                NSLog(@"DTS Decoder loaded");
+            }
         }
     }
 }
@@ -84,16 +97,20 @@ static NSMutableDictionary *_loadedComponents;
 - (BOOL)componentLoadedForFormat:(OSType)format {
     BOOL loaded = NO;
 
-    AudioComponentDescription acd = { 0 };
-    acd.componentType = kAudioDecoderComponentType;
-    acd.componentSubType = format;
-    AudioComponent comp = NULL;
+    if ([_loadedComponents valueForKey:@(FourCC2Str(format))]) {
+        loaded = YES;;
+    } else {
+        AudioComponentDescription acd = { 0 };
+        acd.componentType = kAudioDecoderComponentType;
+        acd.componentSubType = format;
+        AudioComponent comp = NULL;
 
-    while((comp = AudioComponentFindNext(comp, &acd))) {
-        AudioComponentDescription outDesc = { 0 };
-        AudioComponentGetDescription(comp, &outDesc);
-        if (outDesc.componentSubType == format) {
-            loaded = YES;
+        while((comp = AudioComponentFindNext(comp, &acd))) {
+            AudioComponentDescription outDesc = { 0 };
+            AudioComponentGetDescription(comp, &outDesc);
+            if (outDesc.componentSubType == format) {
+                loaded = YES;
+            }
         }
     }
 
@@ -130,7 +147,7 @@ static NSMutableDictionary *_loadedComponents;
     cd.componentManufacturer = manufactorer;
     cd.componentFlags        = 0;
     cd.componentFlagsMask    = 0;
-    ComponentResult (*ComponentRoutine) (ComponentParameters * cp, Handle componentStorage);
+    ComponentResult (*ComponentRoutine) (ComponentParameters *cp, Handle componentStorage);
     void *handle = dlopen([[url path] UTF8String], RTLD_LAZY|RTLD_LOCAL);
     if (handle)
     {
@@ -169,7 +186,7 @@ static NSMutableDictionary *_loadedComponents;
     theDescription.componentManufacturer = manufactorer;
     theDescription.componentFlagsMask = 0;
 
-    AudioComponentPlugInInterface *  (*AudioComponentFactoryFunction)(const AudioComponentDescription *inDesc);
+    AudioComponentPlugInInterface * (*AudioComponentFactoryFunction)(const AudioComponentDescription *inDesc);
     void *handle = dlopen([[url path] UTF8String], RTLD_LAZY|RTLD_LOCAL);
     if (handle)
     {
