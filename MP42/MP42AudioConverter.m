@@ -20,131 +20,7 @@
 
 #define FIFO_DURATION (0.5f)
 
-@interface NSString (VersionStringCompare)
-- (BOOL)isVersionStringOlderThan:(NSString *)older;
-@end
-
-@implementation NSString (VersionStringCompare)
-- (BOOL)isVersionStringOlderThan:(NSString *)older
-{
-	if([self compare:older] == NSOrderedAscending)
-		return TRUE;
-	if([self hasPrefix:older] && [self length] > [older length] && [self characterAtIndex:[older length]] == 'b')
-		//1.0b1 < 1.0, so check for it.
-		return TRUE;
-	return FALSE;
-}
-@end
-
-#define ComponentNameKey @"Name"
-#define ComponentArchiveNameKey @"ArchiveName"
-#define ComponentTypeKey @"Type"
-
-#define BundleVersionKey @"CFBundleVersion"
-#define BundleIdentifierKey @"CFBundleIdentifier"
-
-typedef enum
-{
-	InstallStatusInstalledInWrongLocation = 0,
-	InstallStatusNotInstalled = 1,
-	InstallStatusOutdatedWithAnotherInWrongLocation = 2,
-	InstallStatusOutdated = 3,
-	InstallStatusInstalledInBothLocations = 4,
-	InstallStatusInstalled = 5
-} InstallStatus;
-
-typedef enum
-{
-	ComponentTypeQuickTime,
-	ComponentTypeCoreAudio,
-	ComponentTypeFramework
-} ComponentType;
-
-InstallStatus currentInstallStatus(InstallStatus status)
-{
-	return (status | 1);
-}
-
-InstallStatus setWrongLocationInstalled(InstallStatus status)
-{
-	return (status & ~1);
-}
-
 @implementation MP42AudioConverter
-
-- (NSString *)installationBasePath:(BOOL)userInstallation
-{
-	if(userInstallation)
-		return NSHomeDirectory();
-	return @"/";
-}
-
-- (NSString *)quickTimeComponentDir:(BOOL)userInstallation
-{
-	return [[self installationBasePath:userInstallation] stringByAppendingPathComponent:@"Library/QuickTime"];
-}
-
-- (NSString *)coreAudioComponentDir:(BOOL)userInstallation
-{
-	return [[self installationBasePath:userInstallation] stringByAppendingPathComponent:@"Library/Audio/Plug-Ins/Components"];
-}
-
-- (NSString *)frameworkComponentDir:(BOOL)userInstallation
-{
-	return [[self installationBasePath:userInstallation] stringByAppendingPathComponent:@"Library/Frameworks"];
-}
-
-- (NSString *)basePathForType:(ComponentType)type user:(BOOL)userInstallation
-{
-	NSString *path = nil;
-	
-	switch(type)
-	{
-		case ComponentTypeCoreAudio:
-			path = [self coreAudioComponentDir:userInstallation];
-			break;
-		case ComponentTypeQuickTime:
-			path = [self quickTimeComponentDir:userInstallation];
-			break;
-		case ComponentTypeFramework:
-			path = [self frameworkComponentDir:userInstallation];
-			break;
-	}
-	return path;
-}
-
-- (InstallStatus)installStatusForComponent:(NSString *)component type:(ComponentType)type version:(NSString*) version;
-{
-	NSString *path = nil;
-	InstallStatus ret = InstallStatusNotInstalled;
-
-	path = [[self basePathForType:type user:YES] stringByAppendingPathComponent:component];
-
-	NSDictionary *infoDict = [NSDictionary dictionaryWithContentsOfFile:[path stringByAppendingPathComponent:@"Contents/Info.plist"]];
-	if(infoDict != nil)
-	{
-		NSString *currentVersion = [infoDict objectForKey:BundleVersionKey];;
-		if([currentVersion isVersionStringOlderThan:version])
-			ret = InstallStatusOutdated;
-		else
-			ret = InstallStatusInstalled;
-	}
-
-	/* Check other installation type */
-	path = [[self basePathForType:type user:NO] stringByAppendingPathComponent:component];
-
-	infoDict = [NSDictionary dictionaryWithContentsOfFile:[path stringByAppendingPathComponent:@"Contents/Info.plist"]];
-	if(infoDict != nil)
-	{
-		NSString *currentVersion = [infoDict objectForKey:BundleVersionKey];;
-		if([currentVersion isVersionStringOlderThan:version])
-			ret = InstallStatusOutdated;
-		else
-			ret = InstallStatusInstalled;
-	}
-
-	return (ret);
-}
 
 OSStatus EncoderDataProc(AudioConverterRef              inAudioConverter, 
                          UInt32*                        ioNumberDataPackets,
@@ -549,46 +425,6 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
     return;
 }
 
-- (BOOL)errorMessageForFormat:(NSString *)format error:(NSError **)outError
-{
-    // Check if perian is installed
-    InstallStatus installStatus = [self installStatusForComponent:@"Perian.component" type:ComponentTypeQuickTime version:@"1.2"];
-
-    if(currentInstallStatus(installStatus) == InstallStatusNotInstalled) {
-        if (outError)
-            *outError = MP42Error(@"Perian is not installed.",
-                                  @"Perian is necessary for audio conversion in Subler. You can download it from http://perian.org/",
-                                  130);
-        
-        return YES;
-    }
-
-    // Check if xiphqt is installed
-    if ([format isEqualToString:MP42AudioFormatFLAC]) {
-        InstallStatus installStatus = [self installStatusForComponent:@"XiphQT.component" type:ComponentTypeQuickTime version:@"0.1.9"];
-
-        if(currentInstallStatus(installStatus) == InstallStatusNotInstalled) {
-            installStatus = [self installStatusForComponent:@"XiphQT (decoders).component" type:ComponentTypeQuickTime version:@"0.1.9"];
-            
-            if(currentInstallStatus(installStatus) == InstallStatusNotInstalled) {
-                if (outError)
-                    *outError = MP42Error(@"XiphQT is not installed.",
-                                          @"XiphQT is necessary for Flac audio conversion in Subler. You can download it from http://xiph.org/quicktime/",
-                                          130);
-                
-                return YES;
-            }
-        }
-    }
-    
-    if (outError)
-        *outError = MP42Error(@"Unknown Error.",
-                              @"Something went wrong in the audio converter",
-                              130);
-
-    return YES;
-}
-
 - (instancetype)initWithTrack:(MP42AudioTrack *)track andMixdownType:(NSString *) mixdownType error:(NSError **)outError
 {
     if ((self = [super init])) {
@@ -706,14 +542,14 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
         // initialize the decoder
         err = AudioConverterNew( &inputFormat, &outputFormat, &decoderData.converter );
         if (err != noErr) {
-            if (outError)
-                if (![self errorMessageForFormat:track.sourceFormat error:outError]) {
+            if (outError) {
                     *outError = MP42Error(@"Audio Converter Error.",
                                           @"The Audio Converter can not be initialized",
                                           130);
-                }
-            if (magicCookie)
+            }
+            if (magicCookie) {
                 CFRelease(magicCookie);
+            }
             [self release];
             return nil;
         }
