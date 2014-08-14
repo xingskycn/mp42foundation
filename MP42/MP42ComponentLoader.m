@@ -54,8 +54,8 @@ static NSMutableDictionary *_loadedComponents;
                                   manufacturer:'cd3r'
                                            url:[url URLByAppendingPathComponent:@"A52Codec.component/Contents/MacOS/A52Codec"]
                                          entry:"ACShepA52DecoderEntry"];
-            if (!err) {
-                NSLog(@"AC-3 Decoder loaded");
+            if (err) {
+                NSLog(@"AC-3 Decoder not loaded");
             }
         }
 
@@ -63,10 +63,10 @@ static NSMutableDictionary *_loadedComponents;
             OSStatus err = [self loadComponent:kAudioDecoderComponentType
                                         format:'XiVs'
                                   manufacturer:'Xiph'
-                                           url:[url URLByAppendingPathComponent:@"XiphQT.component/Contents/MacOS/XiphQT"]
-                                         entry:"CAOggVorbisDecoderEntry"];
-            if (!err) {
-                NSLog(@"Vorbis Decoder loaded");
+                                           url:[url URLByAppendingPathComponent:@"Perian.component/Contents/MacOS/Perian"]
+                                         entry:"FFissionVBRDecoderEntry"];
+            if (err) {
+                NSLog(@"Vorbis Decoder not loaded");
             }
         }
 
@@ -74,10 +74,10 @@ static NSMutableDictionary *_loadedComponents;
             OSStatus err = [self loadComponent:kAudioDecoderComponentType
                                         format:'XiFL'
                                   manufacturer:'Xiph'
-                                           url:[url URLByAppendingPathComponent:@"XiphQT.component/Contents/MacOS/XiphQT"]
-                                         entry:"CAOggFLACDecoderEntry"];
-            if (!err) {
-                NSLog(@"FLAC Decoder loaded");
+                                           url:[url URLByAppendingPathComponent:@"XiphQT (decoders).component/Contents/MacOS/XiphQT (decoders)"]
+                                         entry:"CAFLACDecoderEntry"];
+            if (err) {
+                NSLog(@"FLAC Decoder not loaded");
             }
         }
 
@@ -87,8 +87,8 @@ static NSMutableDictionary *_loadedComponents;
                                   manufacturer:'Peri'
                                            url:[url URLByAppendingPathComponent:@"Perian.component/Contents/MacOS/Perian"]
                                          entry:"FFissionVBRDecoderEntry"];
-            if (!err) {
-                NSLog(@"DTS Decoder loaded");
+            if (err) {
+                NSLog(@"DTS Decoder not loaded");
             }
         }
     }
