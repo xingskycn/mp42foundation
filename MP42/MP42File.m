@@ -733,9 +733,12 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
                 if (fileImporter) {
                     track.muxer_helper->importer = fileImporter;
                 } else {
-                    *outError = MP42Error(@"Missing sources.",
-                                          @"One or more sources files are missing.",
-                                          200);
+                    if (outError) {
+                        *outError = MP42Error(@"Missing sources.",
+                                              @"One or more sources files are missing.",
+                                              200);
+                    }
+
                     noErr = NO;
                     break;
                 }
