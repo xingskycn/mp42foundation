@@ -10,8 +10,6 @@
 
 @interface MP42OCRWrapper : NSObject {
     void *tess_base;
-    
-    NSString *_language;
 }
 
 - (instancetype)initWithLanguage:(NSString *)language;

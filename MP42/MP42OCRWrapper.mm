@@ -87,20 +87,15 @@ protected:
     return NO;
 }
 
-- (instancetype)init
-{
-    if ((self = [super init])) {
-        tess_base = (void *)new OCRWrapper(lang_for_english([_language UTF8String])->iso639_2, NULL);
-    }
-    return self;
-}
-
 - (instancetype)initWithLanguage:(NSString *)language
 {
     if ((self = [super init])) {
-        _language = [language retain];
+        NSString *lang = [NSString stringWithUTF8String:lang_for_english([language UTF8String])->iso639_2];
 
-        NSString *lang = [NSString stringWithUTF8String:lang_for_english([_language UTF8String])->iso639_2];
+        if ([lang isEqualToString:@"zho"]) {
+            lang = @"chi_sim";
+        }
+
         NSURL *dataURL = [self appSupportUrl];
         if (![self tessdataAvailableForLanguage:lang]) {
             lang = @"eng";
@@ -147,7 +142,6 @@ protected:
     ocr->End();
     delete ocr;
 
-    [_language release];
     [super dealloc];
 }
 
