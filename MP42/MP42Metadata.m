@@ -537,9 +537,14 @@ static const genreType_t genreType_strings[] = {
                 isEdited = YES;
             }
         }
-        else {
+        else if ([value isKindOfClass:[NSString class]]) {
             [tagsDict setValue:value forKey:key];
             isEdited = YES;
+        }
+        else {
+            NSLog(@"Weird object here");
+            NSLog(@"%@", value);
+            noErr = NO;
         }
     }
     else if ([key isEqualToString:@"Gapless"]) {
