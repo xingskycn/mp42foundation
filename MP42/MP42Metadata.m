@@ -503,7 +503,6 @@ static const genreType_t genreType_strings[] = {
 {
     BOOL noErr = YES;
     NSString *regexPositive = @"YES|Yes|yes|1|2";
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
     if ([value isKindOfClass:[NSNull class]]) {
         [tagsDict removeObjectForKey:key];
@@ -511,21 +510,20 @@ static const genreType_t genreType_strings[] = {
     }
 
     if ([key isEqualToString:@"HD Video"]) {
-        if ([value isKindOfClass:[NSNumber class]])
+        if ([value isKindOfClass:[NSNumber class]]) {
             hdVideo = [value integerValue];
-        else if( value != nil && [value length] > 0 && [value isMatchedByRegex:regexPositive])
+        } else if ([value isKindOfClass:[NSString class]] && [value length] > 0 && [value isMatchedByRegex:regexPositive]) {
             hdVideo = [value integerValue];
-        else
+        } else {
             hdVideo = 0;
-
+        }
         isEdited = YES;
-    }
-    else if ([key isEqualToString:@"Genre"]) {
+
+    } else if ([key isEqualToString:@"Genre"]) {
         if ([value isKindOfClass:[NSNumber class]]) {
             [tagsDict setValue:[self genreFromIndex:[value integerValue]] forKey:key];
             isEdited = YES;
-        }
-        else if ([value isKindOfClass:[NSData class]]) {
+        } else if ([value isKindOfClass:[NSData class]]) {
             if ([value length] >= 2) {
                 uint8_t* bytes = (uint8_t*)malloc([value length]);
                 memcpy(bytes, [value bytes], [value length]);
@@ -536,32 +534,28 @@ static const genreType_t genreType_strings[] = {
                 [tagsDict setValue:[self genreFromIndex:genre] forKey:key];
                 isEdited = YES;
             }
-        }
-        else if ([value isKindOfClass:[NSString class]]) {
+        } else if ([value isKindOfClass:[NSString class]]) {
             [tagsDict setValue:value forKey:key];
             isEdited = YES;
-        }
-        else {
-            NSLog(@"Weird object here");
-            NSLog(@"%@", value);
+        } else {
             noErr = NO;
+            NSAssert(YES, @"Invalid genre input");
         }
-    }
-    else if ([key isEqualToString:@"Gapless"]) {
+
+    } else if ([key isEqualToString:@"Gapless"]) {
         if ([value isKindOfClass:[NSNumber class]]) {
             gapless = [value integerValue];
             isEdited = YES;
         }
-        else if( value != nil && [value length] > 0 && [value isMatchedByRegex:regexPositive]) {
+        else if ([value isKindOfClass:[NSString class]] && [value length] > 0 && [value isMatchedByRegex:regexPositive]) {
             gapless = 1;
             isEdited = YES;
-        }
-        else {
+        } else {
             gapless = 0;
             isEdited = YES;
         }
-    }
-    else if ([key isEqualToString:@"Track #"]) {
+
+    } else if ([key isEqualToString:@"Track #"]) {
         isEdited = YES;
         if ([value isKindOfClass:[NSData class]]) {
             uint8_t* bytes = (uint8_t*)malloc([value length]);
@@ -574,12 +568,14 @@ static const genreType_t genreType_strings[] = {
             free(bytes);
             NSString *trackN = [NSString stringWithFormat:@"%d/%d", index, total];
             [tagsDict setValue:trackN forKey:key];
-        }
-        else {
+        } else if ([value isKindOfClass:[NSString class]]) {
             [tagsDict setValue:value forKey:key];
+        } else {
+            noErr = NO;
+            NSAssert(YES, @"Invalid input");
         }
-    }
-    else if ([key isEqualToString:@"Disk #"]) {
+
+    } else if ([key isEqualToString:@"Disk #"]) {
         isEdited = YES;
         if ([value isKindOfClass:[NSData class]]) {
             uint8_t* bytes = (uint8_t*)malloc([value length]);
@@ -592,39 +588,43 @@ static const genreType_t genreType_strings[] = {
             free(bytes);
             NSString *diskN = [NSString stringWithFormat:@"%d/%d", index, total];
             [tagsDict setValue:diskN forKey:key];
-        }
-        else {
+        } else if ([value isKindOfClass:[NSString class]]) {
             [tagsDict setValue:value forKey:key];
         }
-    }
-    else if ([key isEqualToString:@"Content Rating"]) {
+
+    } else if ([key isEqualToString:@"Content Rating"]) {
         isEdited = YES;
         if ([value isKindOfClass:[NSNumber class]]) {
             contentRating = [value integerValue];
-        }
-        else
+        } else if ([value isKindOfClass:[NSString class]]) {
             [self setContentRatingFromString:value];
-        
-    }
-    else if ([key isEqualToString:@"Media Kind"]) {
+        } else {
+            noErr = NO;
+            NSAssert(YES, @"Invalid input");
+        }
+
+    } else if ([key isEqualToString:@"Media Kind"]) {
         isEdited = YES;
         if ([value isKindOfClass:[NSNumber class]]) {
             mediaKind = [value integerValue];
-        }
-        else
+        } else if ([value isKindOfClass:[NSString class]]) {
             [self setMediaKindFromString:value];
-    }
-    else if ([key isEqualToString:@"Artwork"]) {
-         [self setArtworkFromFilePath:value];
-	}
-    else if (![[tagsDict valueForKey:key] isEqualTo:value]) {
+        } else {
+            noErr = NO;
+            NSAssert(YES, @"Invalid input");
+        }
+
+    } else if ([key isEqualToString:@"Artwork"]) {
+        [self setArtworkFromFilePath:value];
+
+	} else if (![[tagsDict valueForKey:key] isEqualTo:value]) {
         [tagsDict setValue:value forKey:key];
         isEdited = YES;
-    }
-    else
+
+    } else {
         noErr = NO;
-    
-    [pool release];
+    }
+
     return noErr;
 }
 
