@@ -8,14 +8,14 @@
 
 #import "MP42Utilities.h"
 
-NSString * SMPTEStringFromTime(long long time, long timeScale)
+NSString * StringFromTime(long long time, long timeScale)
 {
-    NSString *SMPTE_string;
+    NSString *time_string;
     int hour, minute, second, frame;
     long long result;
 
     result = time / timeScale; // second
-    frame = (time % timeScale) / 10;
+    frame = time % timeScale;
 
     second = result % 60;
 
@@ -25,20 +25,20 @@ NSString * SMPTEStringFromTime(long long time, long timeScale)
     result = result / 60; // hour
     hour = result % 24;
 
-    SMPTE_string = [NSString stringWithFormat:@"%d:%02d:%02d:%02d", hour, minute, second, frame]; // h:mm:ss:ff
+    time_string = [NSString stringWithFormat:@"%d:%02d:%02d.%03d", hour, minute, second, frame]; // h:mm:ss.mss
 
-    return SMPTE_string;
+    return time_string;
 }
 
-MP42Duration TimeFromSMPTEString(NSString* SMPTE_string, MP42Duration timeScale)
+MP42Duration TimeFromString(NSString *time_string, MP42Duration timeScale)
 {
     int hour, minute, second, frame;
     MP42Duration timeval;
 
-    sscanf([SMPTE_string UTF8String], "%d:%02d:%02d:%02d",&hour, &minute, &second, &frame);
+    sscanf([time_string UTF8String], "%d:%02d:%02d.%03d",&hour, &minute, &second, &frame);
 
     timeval = hour * 60 * 60 + minute * 60 + second;
-	timeval = timeScale * timeval + ( frame * 10 );
+	timeval = timeScale * timeval + frame;
     
     return timeval;
 }

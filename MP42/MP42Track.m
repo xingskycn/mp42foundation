@@ -142,7 +142,7 @@
 
 - (NSString *)timeString
 {
-    return SMPTEStringFromTime(_duration, 1000);
+    return StringFromTime(_duration, 1000);
 }
 
 @synthesize sourceURL = _sourceURL;

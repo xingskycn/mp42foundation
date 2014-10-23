@@ -8,8 +8,8 @@
 
 #import "MP42MediaFormat.h"
 
-NSString * SMPTEStringFromTime(long long time, long timeScale);
-MP42Duration TimeFromSMPTEString(NSString *SMPTE_string, MP42Duration timeScale);
+NSString * StringFromTime(long long time, long timeScale);
+MP42Duration TimeFromString(NSString *SMPTE_string, MP42Duration timeScale);
 
 NSArray *supportedFileFormat();
 BOOL isFileFormatSupported(NSString *fileExt);
