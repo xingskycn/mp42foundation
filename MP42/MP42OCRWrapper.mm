@@ -17,20 +17,19 @@ using namespace tesseract;
 class OCRWrapper {
 public:
     OCRWrapper(const char *lang, const char *base_path) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        NSString *path = nil;
-        if (base_path)
-            path = [[NSString stringWithUTF8String:base_path] stringByAppendingString:@"/"];
-        else
-            path = [[[NSBundle bundleForClass:[MP42OCRWrapper class]] bundlePath] stringByAppendingString:@"/Versions/A/Resources/"];
+        @autoreleasepool {
+            NSString *path = nil;
+            if (base_path)
+                path = [[NSString stringWithUTF8String:base_path] stringByAppendingString:@"/"];
+            else
+                path = [[[NSBundle bundleForClass:[MP42OCRWrapper class]] bundlePath] stringByAppendingString:@"/Versions/A/Resources/"];
 
-        setenv("TESSDATA_PREFIX", [path UTF8String], 1);
+            setenv("TESSDATA_PREFIX", [path UTF8String], 1);
 
-        path = [path stringByAppendingString:@"tessdata/"];
+            path = [path stringByAppendingString:@"tessdata/"];
 
-        tess_base_api.Init([path UTF8String], lang, OEM_DEFAULT);
-
-        [pool release];
+            tess_base_api.Init([path UTF8String], lang, OEM_DEFAULT);
+        }
     }
 
     char * OCRFrame(const unsigned char *image, size_t bytes_per_pixel, size_t bytes_per_line, size_t width, size_t height) {
