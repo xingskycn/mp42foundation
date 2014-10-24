@@ -67,6 +67,8 @@ typedef enum MP42Status : NSInteger {
 
 }
 
++ (void)redirectLogUsingBlock:(void (^)(NSString *text))block;
+
 @property(nonatomic, readwrite, assign) id <MP42FileDelegate> delegate;
 
 /**

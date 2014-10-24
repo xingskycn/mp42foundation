@@ -23,43 +23,45 @@ NSString * const MP42GenerateChaptersPreviewTrack = @"MP42ChaptersPreview";
 NSString * const MP42CustomChaptersPreviewTrack = @"MP42CustomChaptersPreview";
 NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
+void (^loggerBlock)(NSString *);
+
 static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     const char *level;
 
-    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"Debug"]) {
-        switch (loglevel) {
-            case 0:
-                level = "None";
-                break;
-            case 1:
-                level = "Error";
-                break;
-            case 2:
-                level = "Warning";
-                break;
-            case 3:
-                level = "Info";
-                break;
-            case 4:
-                level = "Verbose1";
-                break;
-            case 5:
-                level = "Verbose2";
-                break;
-            case 6:
-                level = "Verbose3";
-                break;
-            case 7:
-                level = "Verbose4";
-                break;
-            default:
-                level = "Unknown";
-                break;
-        }
-        printf("%s: ", level);
-        vprintf(fmt, ap);
-        printf("\n");
+    switch (loglevel) {
+        case 0:
+            level = "None";
+            break;
+        case 1:
+            level = "Error";
+            break;
+        case 2:
+            level = "Warning";
+            break;
+        case 3:
+            level = "Info";
+            break;
+        case 4:
+            level = "Verbose1";
+            break;
+        case 5:
+            level = "Verbose2";
+            break;
+        case 6:
+            level = "Verbose3";
+            break;
+        case 7:
+            level = "Verbose4";
+            break;
+        default:
+            level = "Unknown";
+            break;
     }
+    char buffer[2048];
+    vsnprintf(buffer, 2048, fmt, ap);
+    NSString *output = [NSString stringWithFormat:@"%s: %s\n", level, buffer];
+
+    loggerBlock(output);
 }
 
 @interface MP42File () <MP42MuxerDelegate>
@@ -98,7 +100,12 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 
 + (void)initialize {
     MP4SetLogCallback(logCallback);
-    MP4LogSetLevel(MP4_LOG_ERROR);
+    MP4LogSetLevel(MP4_LOG_INFO);
+}
+
++ (void)redirectLogUsingBlock:(void (^)(NSString *text))block
+{
+    loggerBlock = Block_copy(block);
 }
 
 - (BOOL)startReading {
@@ -802,7 +809,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         if (outError)
             *outError = MP42Error(@"File excedes 4 GB.",
                                   @"The file is bigger than 4 GB, but it was created with 32bit data chunk offset.\nSelect 64bit data chunk offset in the save panel.",
-                                  100);
+                                  102);
         return NO;
     }
 
