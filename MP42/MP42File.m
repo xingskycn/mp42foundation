@@ -710,16 +710,16 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 - (BOOL)updateMP4FileWithAttributes:(NSDictionary *)attributes error:(NSError **)outError {
     BOOL noErr = YES;
 
-    // Organize the alternate groups
-    if ([[attributes valueForKey:MP42OrganizeAlternateGroups] boolValue])
-        [self organizeAlternateGroups];
-
     // Open the mp4 file
     if (![self startWriting]) {
         if (outError)
-            *outError = MP42Error(@"Unable to open the file", nil, 100);
+            *outError = MP42Error(@"The file could not be saved.", @"You may do not have sufficient permissions for this operation.", 101);
         return NO;
     }
+
+    // Organize the alternate groups
+    if ([[attributes valueForKey:MP42OrganizeAlternateGroups] boolValue])
+        [self organizeAlternateGroups];
 
     // Delete tracks
     for (MP42Track *track in _tracksToBeDeleted)
