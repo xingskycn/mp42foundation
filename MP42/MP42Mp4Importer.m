@@ -249,6 +249,11 @@
                 bool isSyncSample;
 
                 demuxHelper->currentSampleId = demuxHelper->currentSampleId + 1;
+                if (demuxHelper->currentSampleId >= demuxHelper->totalSampleNumber) {
+                    demuxHelper->done++;
+                    tracksDone++;
+                    break;
+                }
 
                 if (!MP4ReadSample(_fileHandle,
                                    srcTrackId,
