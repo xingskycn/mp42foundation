@@ -643,14 +643,25 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
 
 #ifdef VARIABLE_AUDIO_RATE
                 if (demuxHelper->previousSample) {
-                    uint64_t duration = sample->timestamp / (double)1000000.f * (mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq) / 1000.f) - demuxHelper->current_time;
+                    uint64_t duration = (sample->timestamp * (double)mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq) / 1000000000.f) - demuxHelper->current_time;
+
+                    // MKV timestamps are a bit random, try to round them
+                    // to make the sample table in the mp4 smaller.
+
+                    // Round aac
+                    if (duration < 1060 && duration > 990)
+                        duration = 1024;
+
+                    // Round ac3
+                    if (duration < 1576 && duration > 1500)
+                        duration = 1536;
 
                     demuxHelper->previousSample->duration = duration;
                     [self enqueue:demuxHelper->previousSample];
 
                     demuxHelper->current_time += duration;
                 } else {
-                    demuxHelper->current_time = sample->timestamp / (double)1000000.f * (mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq) / 1000.f);
+                    demuxHelper->current_time = sample->timestamp * (double)mkv_TruncFloat(trackInfo->AV.Audio.SamplingFreq) / 1000000000.f;
                 }
 
                 [demuxHelper->previousSample release];
@@ -906,6 +917,13 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
                 demuxHelper->samplesWritten++;
             }
         }
+
+        if (demuxHelper->previousSample && [track.mediaType isEqualToString:MP42MediaTypeAudio]) {
+            [self enqueue:demuxHelper->previousSample];
+            [demuxHelper->previousSample release];
+            demuxHelper->previousSample = nil;
+        }
+
     }
 
     [self setDone:YES];
