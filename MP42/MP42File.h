@@ -17,6 +17,7 @@
 #import "MP42Metadata.h"
 
 #import "MP42MediaFormat.h"
+#import "MP42Logging.h"
 
 extern NSString * const MP4264BitData;
 extern NSString * const MP4264BitTime;
@@ -67,7 +68,7 @@ typedef enum MP42Status : NSInteger {
 
 }
 
-+ (void)redirectLogUsingBlock:(void (^)(NSString *text))block;
++ (void)setGlobalLogger:(id <MP42Logging>)logger;
 
 @property(nonatomic, readwrite, assign) id <MP42FileDelegate> delegate;
 

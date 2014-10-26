@@ -27,11 +27,12 @@
     return self;
 }
 
-- (instancetype)initWithDelegate:(id <MP42FileDelegate>)del
+- (instancetype)initWithDelegate:(id <MP42MuxerDelegate>)del andLogger:(id <MP42Logging>)logger
 {
     if ((self = [super init])) {
         _workingTracks = [[NSMutableArray alloc] init];
         _delegate = del;
+        _logger = [logger retain];
     }
 
     return self;
@@ -448,6 +449,7 @@
 
 - (void)dealloc
 {
+    [_logger release];
     [_workingTracks release];
     [super dealloc];
 }

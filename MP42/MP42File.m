@@ -23,7 +23,7 @@ NSString * const MP42GenerateChaptersPreviewTrack = @"MP42ChaptersPreview";
 NSString * const MP42CustomChaptersPreviewTrack = @"MP42CustomChaptersPreview";
 NSString * const MP42OrganizeAlternateGroups = @"MP42AlternateGroups";
 
-void (^loggerBlock)(NSString *);
+static id <MP42Logging> _logger = nil;
 
 static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     const char *level;
@@ -61,7 +61,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     vsnprintf(buffer, 2048, fmt, ap);
     NSString *output = [NSString stringWithFormat:@"%s: %s\n", level, buffer];
 
-    loggerBlock(output);
+    [_logger writeToLog:output];
 }
 
 @interface MP42File () <MP42MuxerDelegate>
@@ -103,9 +103,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     MP4LogSetLevel(MP4_LOG_INFO);
 }
 
-+ (void)redirectLogUsingBlock:(void (^)(NSString *text))block
++ (void)setGlobalLogger:(id<MP42Logging>)logger
 {
-    loggerBlock = Block_copy(block);
+    _logger = [logger retain];
 }
 
 - (BOOL)startReading {
@@ -767,7 +767,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     }
 
     if ([tracksToMux count]) {
-        self.muxer = [[[MP42Muxer alloc] initWithDelegate:self] autorelease];
+        self.muxer = [[[MP42Muxer alloc] initWithDelegate:self andLogger:_logger] autorelease];
 
         for (MP42Track *track in tracksToMux) {
             [self.muxer addTrack:track];

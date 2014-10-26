@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "mp4v2.h"
+#import "MP42Logging.h"
 
 @class MP42Track;
 
@@ -17,14 +18,16 @@
 
 @interface MP42Muxer : NSObject {
 @private
-    MP4FileHandle   _fileHandle;
-    id              _delegate;
+    MP4FileHandle    _fileHandle;
+
+    id <MP42MuxerDelegate>  _delegate;
+    id <MP42Logging>        _logger;
 
     NSMutableArray *_workingTracks;
     int32_t         _cancelled;
 }
 
-- (instancetype)initWithDelegate:(id <MP42MuxerDelegate>)del;
+- (instancetype)initWithDelegate:(id <MP42MuxerDelegate>)del andLogger:(id <MP42Logging>)logger;
 
 - (void)addTrack:(MP42Track *)track;
 
