@@ -604,11 +604,11 @@
 {      
     OSStatus err = noErr;
 
-    QTTrack * qtTrack = [_sourceFile trackWithTrackID:[track sourceId]];;
-    NSString* mediaType = [qtTrack attributeForKey:QTTrackMediaTypeAttribute];
+    QTTrack *qtTrack = [_sourceFile trackWithTrackID:[track sourceId]];;
+    NSString *mediaType = [qtTrack attributeForKey:QTTrackMediaTypeAttribute];
     Track qtcTrack = [qtTrack quickTimeTrack];
     Media media = GetTrackMedia(qtcTrack);
-    NSMutableData * magicCookie;
+    NSData *magicCookie;
 
     // Get the sample description
     SampleDescriptionHandle desc = (SampleDescriptionHandle) NewHandle(0);
