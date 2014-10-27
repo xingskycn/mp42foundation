@@ -372,7 +372,7 @@
                 [trackImportersArray addObject:track.muxer_helper->importer];
         }
 
-        for (id importerHelper in trackImportersArray)
+        for (MP42FileImporter *importerHelper in trackImportersArray)
             [importerHelper startReading];
 
         NSUInteger tracksImportersCount = [trackImportersArray count];
@@ -410,7 +410,7 @@
             // Update progress
             if (!(update % 200)) {
                 progress = 0;
-                for (id importerHelper in trackImportersArray)
+                for (MP42FileImporter *importerHelper in trackImportersArray)
                     progress += [importerHelper progress];
 
                 progress /= tracksImportersCount;
@@ -431,7 +431,7 @@
         }
         
         // Stop the importers and clean ups
-        for (id importerHelper in trackImportersArray) {
+        for (MP42FileImporter *importerHelper in trackImportersArray) {
             if (_cancelled)
                 [importerHelper cancelReading];
             else

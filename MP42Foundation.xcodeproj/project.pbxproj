@@ -1192,7 +1192,7 @@
 					"-read_only_relocs",
 					suppress,
 				);
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -1237,7 +1237,7 @@
 					"-read_only_relocs",
 					suppress,
 				);
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
