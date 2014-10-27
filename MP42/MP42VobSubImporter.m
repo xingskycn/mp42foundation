@@ -267,7 +267,7 @@ static NSArray* LoadVobSubSubtitles(NSURL *theDirectory, NSString *filename)
 - (NSData *)magicCookieForTrack:(MP42Track *)track
 {
     SBVobSubTrack *vobTrack = [_VobSubTracks objectAtIndex:track.sourceId];
-    NSMutableData *magicCookie = nil;
+    NSData *magicCookie = nil;
 
     for (NSString *line in vobTrack->privateData) {
         if ([line hasPrefix:@"palette: "]) {
