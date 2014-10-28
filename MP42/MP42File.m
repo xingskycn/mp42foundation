@@ -958,7 +958,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
     if (!refTrack)
         refTrack = [self.itracks objectAtIndex:0];
 
-    if (chapterTrack && decodable && (!jpegTrack ||chapterTrack.isEdited)) {
+    if (chapterTrack && decodable && (!jpegTrack)) {
         NSArray *images = [MP42PreviewGenerator generatePreviewImagesFromChapters:[chapterTrack chapters] andFile:self.URL];
 
         // If we haven't got any images, return.
