@@ -128,7 +128,7 @@ protected:
     if (string && strlen(string)) {
         text = [NSMutableString stringWithUTF8String:string];
         if (text && [text characterAtIndex:[text length] -1] == '\n')
-            [text replaceOccurrencesOfString:@"\n\n" withString:@"" options:nil range:NSMakeRange(0,[text length])];
+            [text replaceOccurrencesOfString:@"\n\n" withString:@"" options:NSLiteralSearch range:NSMakeRange(0,[text length])];
     }
 
     delete[]string;
