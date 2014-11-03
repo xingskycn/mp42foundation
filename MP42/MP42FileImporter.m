@@ -66,6 +66,7 @@
     // If we are on 10.7 or later, use the AVFoundation path
     else if (NSClassFromString(@"AVAsset")) {
         if ([[fileURL pathExtension] caseInsensitiveCompare: @"m2ts"] == NSOrderedSame ||
+            [[fileURL pathExtension] caseInsensitiveCompare: @"ts"] == NSOrderedSame ||
             [[fileURL pathExtension] caseInsensitiveCompare: @"mts"] == NSOrderedSame ||
             [[fileURL pathExtension] caseInsensitiveCompare: @"mov"] == NSOrderedSame) {
             self = [MP42AVFImporter alloc];
