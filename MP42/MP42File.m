@@ -700,7 +700,9 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
             success = [self updateMP4FileWithAttributes:attributes error:outError];
         } else {
             success = NO;
-            *outError = MP42Error(@"The file could not be saved.", @"You do not have sufficient permissions for this operation.", 101);
+            if (outError) {
+                *outError = MP42Error(@"The file could not be saved.", @"You do not have sufficient permissions for this operation.", 101);
+            }
         }
     }
 
