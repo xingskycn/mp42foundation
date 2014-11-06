@@ -1416,31 +1416,32 @@ static const genreType_t genreType_strings[] = {
     return YES;
 }
 
-- (BOOL) mergeMetadata: (MP42Metadata *) newMetadata
+- (BOOL) mergeMetadata: (MP42Metadata *)newMetadata
 {
-    @autoreleasepool {
-        NSString *tagValue;
+    NSString *tagValue;
 
-        [newMetadata retain];
+    [newMetadata retain];
 
-        for (NSString *key in [self writableMetadata])
-            if((tagValue = [newMetadata.tagsDict valueForKey:key]))
-                [tagsDict setObject:tagValue forKey:key];
-
-        for (NSImage *artwork in newMetadata.artworks) {
-            isArtworkEdited = YES;
-            [artworks addObject:artwork];
+    for (NSString *key in [self writableMetadata]) {
+        if ((tagValue = [newMetadata.tagsDict valueForKey:key])) {
+            [tagsDict setObject:tagValue forKey:key];
         }
-
-        mediaKind = newMetadata.mediaKind;
-        contentRating = newMetadata.contentRating;
-        gapless = newMetadata.gapless;
-        hdVideo = newMetadata.hdVideo;
-
-        isEdited = YES;
-
-        [newMetadata release];
     }
+
+    for (NSImage *artwork in newMetadata.artworks) {
+        isArtworkEdited = YES;
+        [artworks addObject:artwork];
+    }
+
+    mediaKind = newMetadata.mediaKind;
+    contentRating = newMetadata.contentRating;
+    gapless = newMetadata.gapless;
+    hdVideo = newMetadata.hdVideo;
+
+    isEdited = YES;
+
+    [newMetadata release];
+
     return YES;
 }
 
