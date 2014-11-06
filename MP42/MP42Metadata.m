@@ -1546,6 +1546,7 @@ static const genreType_t genreType_strings[] = {
     [artworkProviderNames release];
 
     [tagsDict release];
+
     [super dealloc];
 }
 
