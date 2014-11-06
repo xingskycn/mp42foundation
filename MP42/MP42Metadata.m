@@ -940,10 +940,11 @@ static const genreType_t genreType_strings[] = {
                 NSString *splitElements  = @"\\|";
                 NSArray *ratingItems = [ratingString componentsSeparatedByRegex:splitElements];
                 [ratingString release];
-                if ([ratingItems count] > 2)
-                    ratingiTunesCode = [NSString stringWithFormat:@"%@|%@|%@|",[ratingItems objectAtIndex:0], [ratingItems objectAtIndex:1], [ratingItems objectAtIndex:2]];
-                else
+                if ([ratingItems count] > 2) {
+                    ratingiTunesCode = [[NSString stringWithFormat:@"%@|%@|%@|",[ratingItems objectAtIndex:0], [ratingItems objectAtIndex:1], [ratingItems objectAtIndex:2]] retain];
+                } else {
                     ratingiTunesCode = nil;
+                }
 
 				[tagsDict setObject:[NSNumber numberWithUnsignedInteger:[[MP42Ratings defaultManager] ratingIndexForiTunesCode:ratingiTunesCode]] forKey:@"Rating"];
                 if ([ratingItems count] >= 4)
@@ -1288,6 +1289,7 @@ static const genreType_t genreType_strings[] = {
         if (![[tagsDict valueForKey:@"Rating"] isKindOfClass:[NSNumber class]] ||
             [[tagsDict valueForKey:@"Rating"] unsignedIntegerValue] == [[MP42Ratings defaultManager] unknownIndex]) {
             if (!ratingiTunesCode) {
+                NSLog(@"%@", [[MP42Ratings defaultManager] iTunesCodes]);
                 ratingiTunesCode = [[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[MP42Ratings defaultManager] unknownIndex]];
             }
         } else {
