@@ -148,7 +148,7 @@ static const genreType_t genreType_strings[] = {
     {90,  "bluegrass",         "Bluegrass" },
     {91,  "avantgarde",        "Avantgarde" },
     {92,  "gothicrock",        "Gothic Rock" },
-    {93,  "progressiverock",   "Progresive Rock" },
+    {93,  "progressiverock",   "Progressive Rock" },
     {94,  "psychedelicrock",   "Psychedelic Rock" },
     {95,  "symphonicrock",     "SYMPHONIC_ROCK" },
     {96,  "slowrock",          "Slow Rock" },
@@ -195,6 +195,25 @@ static const genreType_t genreType_strings[] = {
 
 @implementation MP42Metadata
 
+@synthesize presetName;
+
+@synthesize isEdited;
+
+@synthesize artworks;
+
+@synthesize isArtworkEdited;
+@synthesize artworkThumbURLs;
+@synthesize artworkFullsizeURLs;
+@synthesize artworkProviderNames;
+
+@synthesize mediaKind;
+@synthesize contentRating;
+@synthesize hdVideo;
+@synthesize gapless;
+@synthesize podcast;
+
+@synthesize tagsDict;
+
 - (instancetype)init
 {
 	if ((self = [super init]))
@@ -212,15 +231,9 @@ static const genreType_t genreType_strings[] = {
 
 - (instancetype)initWithSourceURL:(NSURL *)URL fileHandle:(MP4FileHandle)fileHandle
 {
-	if ((self = [super init]))
-	{
-		sourceURL = URL;
-        tagsDict = [[NSMutableDictionary alloc] init];
-        artworks = [[NSMutableArray alloc] init];
-
+	if ((self = [self init])) {
+        sourceURL = [URL copy];
         [self readMetaDataFromFileHandle: fileHandle];
-        isEdited = NO;
-        isArtworkEdited = NO;
 	}
 
     return self;
@@ -228,17 +241,10 @@ static const genreType_t genreType_strings[] = {
 
 - (instancetype)initWithFileURL:(NSURL *)URL;
 {
-    if ((self = [super init]))
-	{
-		sourceURL = URL;
-        tagsDict = [[NSMutableDictionary alloc] init];
-        artworks = [[NSMutableArray alloc] init];
+    if ((self = [self init])) {
+        sourceURL = [URL copy];
 
-        isEdited = NO;
-        isArtworkEdited = NO;
-
-        NSError *error;
-        MP42XMLReader *xmlReader = [[MP42XMLReader alloc] initWithURL:URL error:&error];
+        MP42XMLReader *xmlReader = [[MP42XMLReader alloc] initWithURL:URL error:NULL];
         [self mergeMetadata:[xmlReader mMetadata]];
         [xmlReader release];
 	}
@@ -246,27 +252,24 @@ static const genreType_t genreType_strings[] = {
     return self;
 }
 
-- (NSString *)stringFromArray:(NSArray *)array
+-(void) dealloc
 {
-    NSString *result = [NSString string];
-    for (NSDictionary* name in array) {
-        if ([result length])
-            result = [result stringByAppendingString:@", "];
-        result = [result stringByAppendingString:[name valueForKey:@"name"]];
-    }
-    return result;
+    [presetName release];
+    [sourceURL release];
+
+    [artworks release];
+
+    [artworkThumbURLs release];
+    [artworkFullsizeURLs release];
+    [artworkProviderNames release];
+
+    [ratingiTunesCode release];
+    [tagsDict release];
+
+    [super dealloc];
 }
 
-- (NSArray *) dictArrayFromString:(NSString *)data
-{
-    NSString *splitElements  = @",\\s*+";
-    NSArray *stringArray = [data componentsSeparatedByRegex:splitElements];
-    NSMutableArray *dictElements = [[[NSMutableArray alloc] init] autorelease];
-    for (NSString *name in stringArray) {
-        [dictElements addObject:[NSDictionary dictionaryWithObject:name forKey:@"name"]];
-    }
-    return dictElements;
-}
+#pragma mark - Supported metadata
 
 - (NSArray *) availableMetadata
 {
@@ -416,6 +419,47 @@ static const genreType_t genreType_strings[] = {
             @"Sort TV Show", nil];
 }
 
+#pragma mark - Array conversion
+
+- (NSString *)stringFromArray:(NSArray *)array
+{
+    NSString *result = [NSString string];
+    for (NSDictionary* name in array) {
+        if ([result length])
+            result = [result stringByAppendingString:@", "];
+        result = [result stringByAppendingString:[name valueForKey:@"name"]];
+    }
+    return result;
+}
+
+- (NSArray *) dictArrayFromString:(NSString *)data
+{
+    NSString *splitElements  = @",\\s*+";
+    NSArray *stringArray = [data componentsSeparatedByRegex:splitElements];
+    NSMutableArray *dictElements = [[[NSMutableArray alloc] init] autorelease];
+    for (NSString *name in stringArray) {
+        [dictElements addObject:[NSDictionary dictionaryWithObject:name forKey:@"name"]];
+    }
+    return dictElements;
+}
+
+#pragma mark - Metadata conversion helpers
+
+- (NSString *) stringFromMetadata:(const char*)cString {
+    NSString *string;
+
+    if ((string = [NSString stringWithCString:cString encoding: NSUTF8StringEncoding]))
+        return string;
+
+    if ((string = [NSString stringWithCString:cString encoding: NSASCIIStringEncoding]))
+        return string;
+
+    if ((string = [NSString stringWithCString:cString encoding: NSUTF16StringEncoding]))
+        return string;
+
+    return @"";
+}
+
 - (BOOL) setMediaKindFromString:(NSString *)mediaKindString;
 {
     mediaKind_t *mediaKindList;
@@ -491,6 +535,37 @@ static const genreType_t genreType_strings[] = {
     return [NSArray arrayWithObjects:  @"Animation", @"Classic TV", @"Comedy", @"Drama", 
             @"Fitness & Workout", @"Kids", @"Non-Fiction", @"Reality TV", @"Sci-Fi & Fantasy",
             @"Sports", nil];
+}
+
+#pragma mark - Mutators
+
+- (BOOL) mergeMetadata: (MP42Metadata *)newMetadata
+{
+    NSString *tagValue;
+
+    [newMetadata retain];
+
+    for (NSString *key in [self writableMetadata]) {
+        if ((tagValue = [newMetadata.tagsDict valueForKey:key])) {
+            [tagsDict setObject:tagValue forKey:key];
+        }
+    }
+
+    for (NSImage *artwork in newMetadata.artworks) {
+        isArtworkEdited = YES;
+        [artworks addObject:artwork];
+    }
+
+    mediaKind = newMetadata.mediaKind;
+    contentRating = newMetadata.contentRating;
+    gapless = newMetadata.gapless;
+    hdVideo = newMetadata.hdVideo;
+
+    isEdited = YES;
+
+    [newMetadata release];
+    
+    return YES;
 }
 
 - (void) removeTagForKey:(NSString *)aKey
@@ -628,20 +703,7 @@ static const genreType_t genreType_strings[] = {
     return noErr;
 }
 
-- (NSString *) stringFromMetadata:(const char*)cString {
-    NSString *string;
-    
-    if ((string = [NSString stringWithCString:cString encoding: NSUTF8StringEncoding]))
-        return string;
-
-    if ((string = [NSString stringWithCString:cString encoding: NSASCIIStringEncoding]))
-        return string;
-    
-    if ((string = [NSString stringWithCString:cString encoding: NSUTF16StringEncoding]))
-        return string;
-
-    return @"";
-}
+#pragma mark - MP42Foundation/mp4v2 read/write mapping
 
 -(void) readMetaDataFromFileHandle:(MP4FileHandle)sourceHandle
 {
@@ -1418,54 +1480,7 @@ static const genreType_t genreType_strings[] = {
     return YES;
 }
 
-- (BOOL) mergeMetadata: (MP42Metadata *)newMetadata
-{
-    NSString *tagValue;
-
-    [newMetadata retain];
-
-    for (NSString *key in [self writableMetadata]) {
-        if ((tagValue = [newMetadata.tagsDict valueForKey:key])) {
-            [tagsDict setObject:tagValue forKey:key];
-        }
-    }
-
-    for (NSImage *artwork in newMetadata.artworks) {
-        isArtworkEdited = YES;
-        [artworks addObject:artwork];
-    }
-
-    mediaKind = newMetadata.mediaKind;
-    contentRating = newMetadata.contentRating;
-    gapless = newMetadata.gapless;
-    hdVideo = newMetadata.hdVideo;
-
-    isEdited = YES;
-
-    [newMetadata release];
-
-    return YES;
-}
-
-@synthesize presetName;
-
-@synthesize isEdited;
-
-@synthesize artworks;
-
-@synthesize isArtworkEdited;
-@synthesize artworkThumbURLs;
-@synthesize artworkFullsizeURLs;
-@synthesize artworkProviderNames;
-
-@synthesize mediaKind;
-@synthesize contentRating;
-@synthesize hdVideo;
-@synthesize gapless;
-@synthesize podcast;
-
-@synthesize tagsDict;
-
+#pragma mark - NSCoder
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
@@ -1520,6 +1535,8 @@ static const genreType_t genreType_strings[] = {
     return self;
 }
 
+#pragma mark - NSCoding
+
 - (id)copyWithZone:(NSZone *)zone
 {
     MP42Metadata *newObject = [[MP42Metadata allocWithZone:zone] init];
@@ -1535,21 +1552,6 @@ static const genreType_t genreType_strings[] = {
     newObject.podcast = podcast;
 
     return newObject;
-}
-
--(void) dealloc
-{
-    [presetName release];
-
-    [artworks release];
-
-    [artworkThumbURLs release];
-    [artworkFullsizeURLs release];
-    [artworkProviderNames release];
-
-    [tagsDict release];
-
-    [super dealloc];
 }
 
 @end
