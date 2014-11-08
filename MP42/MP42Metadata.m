@@ -1351,11 +1351,10 @@ static const genreType_t genreType_strings[] = {
         if (![[tagsDict valueForKey:@"Rating"] isKindOfClass:[NSNumber class]] ||
             [[tagsDict valueForKey:@"Rating"] unsignedIntegerValue] == [[MP42Ratings defaultManager] unknownIndex]) {
             if (!ratingiTunesCode) {
-                NSLog(@"%@", [[MP42Ratings defaultManager] iTunesCodes]);
-                ratingiTunesCode = [[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[MP42Ratings defaultManager] unknownIndex]];
+                ratingiTunesCode = [[[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[MP42Ratings defaultManager] unknownIndex]] retain];
             }
         } else {
-            ratingiTunesCode = [[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[tagsDict valueForKey:@"Rating"] unsignedIntegerValue]];
+            ratingiTunesCode = [[[[MP42Ratings defaultManager] iTunesCodes] objectAtIndex:[[tagsDict valueForKey:@"Rating"] unsignedIntegerValue]] retain];
         }
         NSString *ratingString = ratingiTunesCode;
         if ([[tagsDict valueForKey:@"Rating Annotation"] length] && [ratingString length]) {

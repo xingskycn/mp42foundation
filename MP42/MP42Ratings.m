@@ -88,6 +88,10 @@
 	return [NSArray arrayWithArray:ratings];
 }
 
+- (NSArray *) iTunesCodes {
+    return [NSArray arrayWithArray:iTunesCodes];
+}
+
 - (NSUInteger) unknownIndex {
 	return 0;
 }

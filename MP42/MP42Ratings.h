@@ -14,8 +14,8 @@
 	NSMutableArray *iTunesCodes;
 }
 
-@property(readonly) NSMutableArray *ratings;
-@property(readonly) NSMutableArray *iTunesCodes;
+@property(readonly) NSArray *ratings;
+@property(readonly) NSArray *iTunesCodes;
 
 + (MP42Ratings *) defaultManager;
 
