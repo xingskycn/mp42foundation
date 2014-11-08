@@ -219,7 +219,6 @@ static const genreType_t genreType_strings[] = {
 	if ((self = [super init]))
 	{
         presetName = @"Unnamed Set";
-		sourceURL = nil;
         tagsDict = [[NSMutableDictionary alloc] init];
         artworks = [[NSMutableArray alloc] init];
         isEdited = NO;
@@ -229,10 +228,9 @@ static const genreType_t genreType_strings[] = {
     return self;
 }
 
-- (instancetype)initWithSourceURL:(NSURL *)URL fileHandle:(MP4FileHandle)fileHandle
+- (instancetype)initWithFileHandle:(MP4FileHandle)fileHandle
 {
 	if ((self = [self init])) {
-        sourceURL = [URL copy];
         [self readMetaDataFromFileHandle: fileHandle];
 	}
 
@@ -242,8 +240,6 @@ static const genreType_t genreType_strings[] = {
 - (instancetype)initWithFileURL:(NSURL *)URL;
 {
     if ((self = [self init])) {
-        sourceURL = [URL copy];
-
         MP42XMLReader *xmlReader = [[MP42XMLReader alloc] initWithURL:URL error:NULL];
         [self mergeMetadata:[xmlReader mMetadata]];
         [xmlReader release];
@@ -255,7 +251,6 @@ static const genreType_t genreType_strings[] = {
 -(void) dealloc
 {
     [presetName release];
-    [sourceURL release];
 
     [artworks release];
 

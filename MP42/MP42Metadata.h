@@ -12,7 +12,6 @@
 @interface MP42Metadata : NSObject <NSCoding, NSCopying> {
 @private
     NSString                *presetName;
-    NSURL                   *sourceURL;
     NSMutableDictionary     *tagsDict;
 
     NSMutableArray          *artworks;
@@ -28,11 +27,12 @@
     uint8_t hdVideo;
     uint8_t gapless;
     uint8_t podcast;
+
     BOOL isEdited;
     BOOL isArtworkEdited;
 }
 
-- (instancetype) initWithSourceURL:(NSURL *)URL fileHandle:(MP42FileHandle)fileHandle;
+- (instancetype) initWithFileHandle:(MP42FileHandle)fileHandle;
 - (instancetype) initWithFileURL:(NSURL *)URL;
 
 - (NSArray *) availableMetadata;

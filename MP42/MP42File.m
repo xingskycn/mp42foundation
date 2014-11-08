@@ -237,7 +237,7 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         [self loadPreviewsFromTrackID:previewsId];
 
         // Load the metadata
-        _metadata = [[MP42Metadata alloc] initWithSourceURL:_fileURL fileHandle:_fileHandle];
+        _metadata = [[MP42Metadata alloc] initWithFileHandle:_fileHandle];
 
         // Initialize things
         _hasFileRepresentation = YES;
