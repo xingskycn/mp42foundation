@@ -13,8 +13,7 @@
 #import "RegexKitLite.h"
 #import "MP42Ratings.h"
 
-typedef struct mediaKind_t
-{
+typedef struct mediaKind_t {
     uint8_t stik;
     NSString *english_name;
 } mediaKind_t;
@@ -34,8 +33,7 @@ static const mediaKind_t mediaKind_strings[] = {
     {0, NULL},
 };
 
-typedef struct contentRating_t
-{
+typedef struct contentRating_t {
     uint8_t rtng;
     NSString *english_name;
 } contentRating_t;
@@ -47,8 +45,7 @@ static const contentRating_t contentRating_strings[] = {
     {0, NULL},
 };
 
-typedef struct genreType_t
-{
+typedef struct genreType_t {
     uint8_t index;
     const char *short_name;
     const char *english_name;
@@ -268,7 +265,7 @@ static const genreType_t genreType_strings[] = {
 
 - (NSArray *) availableMetadata
 {
-    return [NSArray arrayWithObjects:
+    return @[
             @"Name",
             @"Artist",
             @"Album Artist",
@@ -337,12 +334,12 @@ static const genreType_t genreType_strings[] = {
             @"Sort Album Artist",
             @"Sort Album",
             @"Sort Composer",
-            @"Sort TV Show", nil];
+            @"Sort TV Show"];
 }
 
 - (NSArray *) writableMetadata
 {
-    return [NSArray arrayWithObjects:
+    return @[
             @"Name",
             @"Artist",
             @"Album Artist",
@@ -411,7 +408,7 @@ static const genreType_t genreType_strings[] = {
             @"Sort Album Artist",
             @"Sort Album",
             @"Sort Composer",
-            @"Sort TV Show", nil];
+            @"Sort TV Show"];
 }
 
 #pragma mark - Array conversion
@@ -702,8 +699,8 @@ static const genreType_t genreType_strings[] = {
 
 -(void) readMetaDataFromFileHandle:(MP4FileHandle)sourceHandle
 {
-    const MP4Tags* tags = MP4TagsAlloc();
-    MP4TagsFetch( tags, sourceHandle );
+    const MP4Tags *tags = MP4TagsAlloc();
+    MP4TagsFetch (tags, sourceHandle);
 
     if (tags->name)
         [tagsDict setObject:[self stringFromMetadata:tags->name]
@@ -1050,7 +1047,7 @@ static const genreType_t genreType_strings[] = {
     if (!fileHandle)
         return NO;
 
-    const MP4Tags* tags = MP4TagsAlloc();
+    const MP4Tags *tags = MP4TagsAlloc();
 
     MP4TagsFetch(tags, fileHandle);
 

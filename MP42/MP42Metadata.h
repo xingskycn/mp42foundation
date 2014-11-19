@@ -15,11 +15,11 @@
     NSMutableDictionary     *tagsDict;
 
     NSMutableArray          *artworks;
-    
+
     NSArray                 *artworkThumbURLs;
     NSArray                 *artworkFullsizeURLs;
     NSArray                 *artworkProviderNames;
-	
+
 	NSString *ratingiTunesCode;
 
     uint8_t mediaKind;
@@ -52,7 +52,7 @@
 
 @property(nonatomic, readonly) NSMutableDictionary *tagsDict;
 
-@property(nonatomic, readwrite, retain) NSString   *presetName;
+@property(nonatomic, readwrite, copy) NSString *presetName;
 
 @property(nonatomic, readwrite, retain) NSMutableArray *artworks;
 
