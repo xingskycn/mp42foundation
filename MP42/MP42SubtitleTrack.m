@@ -210,7 +210,7 @@ static void insertTagsFromStyleRecord(style_record record, NSMutableString *samp
             insertTag(@"</i>", sampleText, &index, fontStyles, kStyleItalic, kTagClose);
 
         if (!(record.fontStyles & kStyleBold) && *fontStyles & kStyleBold)
-            insertTag(@"</b>", sampleText, &index, fontStyles, kStyleBold, kStyleColor);
+            insertTag(@"</b>", sampleText, &index, fontStyles, kStyleBold, kTagClose);
 
 
         if ((!(record.fontStyles & kStyleColor) && *fontStyles & kStyleColor))

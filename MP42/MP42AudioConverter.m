@@ -307,8 +307,8 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
 
 - (void)DecoderThreadMainRoutine:(id)sender
 {
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    OSStatus    err;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    OSStatus err;
 
     // set up buffers and data proc info struct
 	decoderData.srcBufferSize = 32768;
@@ -323,7 +323,7 @@ OSStatus DecoderDataProc(AudioConverterRef              inAudioConverter,
 	AudioStreamPacketDescription* outputPktDescs = NULL;
 	int outputSizePerPacket = decoderData.outputFormat.mBytesPerPacket; // this will be non-zero if the format is CBR
 	UInt32 theOutputBufSize = 32768;
-	char* outputBuffer = (char*)malloc(theOutputBufSize);
+	char *outputBuffer = (char *)malloc(theOutputBufSize);
 
 	UInt32 numOutputPackets = theOutputBufSize / outputSizePerPacket;
 
