@@ -73,8 +73,10 @@
 				NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en"];
 				NSString *languageName = [locale displayNameForKey:NSLocaleLanguageCode
 															 value:language];
-                
-				newTrack.language = languageName;
+
+                if (languageName) {
+                    newTrack.language = languageName;
+                }
                 [locale release];
 			}
 		}
