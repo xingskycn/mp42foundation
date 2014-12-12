@@ -26,6 +26,7 @@ NSString *const MP42MediaTypeTimecode = @"TimeCode Track";
 
 
 // Video Format
+NSString *const MP42VideoFormatH265 = @"H.265";
 NSString *const MP42VideoFormatH264 = @"H.264";
 NSString *const MP42VideoFormatMPEG4Visual = @"MPEG-4 Visual";
 NSString *const MP42VideoFormatSorenson = @"Sorenson Video";
@@ -62,9 +63,11 @@ NSString *const MP42SubtitleFormatText = @"Text";
 NSString *const MP42SubtitleFormatVobSub = @"VobSub";
 NSString *const MP42SubtitleFormatPGS = @"PGS";
 NSString *const MP42SubtitleFormatSSA = @"SSA";
+NSString *const MP42SubtitleFormatFairPlay = @"FairPlay Tx3g";
 
 
-// Closed Caption Fromat
+// Closed Caption Format
+NSString *const MP42ClosedCaptionFormatFairPlay = @"FairPlay CEA-608";
 NSString *const MP42ClosedCaptionFormatCEA608 = @"CEA-608";
 NSString *const MP42ClosedCaptionFormatCEA708 = @"CEA-708";
 

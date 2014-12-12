@@ -32,6 +32,7 @@ extern NSString *const MP42MediaTypeMuxed;
 
 
 // Video Format
+extern NSString *const MP42VideoFormatH265;
 extern NSString *const MP42VideoFormatH264;
 extern NSString *const MP42VideoFormatMPEG4Visual;
 extern NSString *const MP42VideoFormatSorenson;
@@ -68,10 +69,13 @@ extern NSString *const MP42SubtitleFormatText;
 extern NSString *const MP42SubtitleFormatVobSub;
 extern NSString *const MP42SubtitleFormatPGS;
 extern NSString *const MP42SubtitleFormatSSA;
+extern NSString *const MP42SubtitleFormatFairPlay;
+
 
 // Closed Caption Fromat
 extern NSString *const MP42ClosedCaptionFormatCEA608;
 extern NSString *const MP42ClosedCaptionFormatCEA708;
+extern NSString *const MP42ClosedCaptionFormatFairPlay;
 
 
 // TimeCode Format

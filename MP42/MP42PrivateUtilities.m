@@ -213,6 +213,8 @@ NSString* getHumanReadableTrackMediaDataName(MP4FileHandle fileHandle, MP4TrackI
     if (dataName) {
         if (!strcmp(dataName, "avc1"))
             return MP42VideoFormatH264;
+        else if (!strcmp(dataName, "hev1"))
+            return MP42VideoFormatH265;
         else if (!strcmp(dataName, "mp4a")) {
             uint8_t audiotype = MP4GetTrackEsdsObjectTypeId(fileHandle, Id);
             if (audiotype == MP4_MPEG4_AUDIO_TYPE)
@@ -246,6 +248,8 @@ NSString* getHumanReadableTrackMediaDataName(MP4FileHandle fileHandle, MP4TrackI
             return MP42AudioFormatFairPlay;
         else if (!strcmp(dataName, "drmi"))
             return MP42VideoFormatFairPlay;
+        else if (!strcmp(dataName, "p608"))
+            return MP42ClosedCaptionFormatFairPlay;
         else if (!strcmp(dataName, "tmcd"))
             return MP42TimeCodeFormat;
         else if (!strcmp(dataName, "mp4s") && !strcmp(type, "subp"))
