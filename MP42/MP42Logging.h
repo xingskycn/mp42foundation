@@ -10,6 +10,9 @@
 
 @protocol MP42Logging <NSObject>
 
+@required
 - (void)writeToLog:(NSString *)string;
+@optional
+- (void)writeErrorToLog:(NSError *)error;
 
 @end

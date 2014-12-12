@@ -48,6 +48,7 @@
 {
     BOOL noErr = YES;
     _fileHandle = fileHandle;
+    NSMutableArray *unsupportedTracks = [[NSMutableArray alloc] init];;
 
     for (MP42Track *track in _workingTracks) {
         MP4TrackId dstTrackId = 0;
@@ -58,17 +59,23 @@
         if (helper) {
             magicCookie = [helper->importer magicCookieForTrack:track];
             timeScale = [helper->importer timescaleForTrack:track];
-        }
-        else
+        } else {
             continue;
+        }
 
         if([track isMemberOfClass:[MP42AudioTrack class]] && track.needConversion) {
             MP42AudioConverter *audioConverter = [[MP42AudioConverter alloc] initWithTrack:(MP42AudioTrack *)track
                                                                         andMixdownType:[(MP42AudioTrack *)track mixdownType]
                                                                                  error:outError];
 
-            if (audioConverter == nil)
+            if (audioConverter == nil) {
                 noErr = NO;
+                if (outError && *outError) {
+                    [_logger writeErrorToLog:*outError];
+                }
+                [unsupportedTracks addObject:track];
+                continue;
+            }
 
             helper->converter = audioConverter;
         }
@@ -76,8 +83,14 @@
             MP42BitmapSubConverter *subConverter = [[MP42BitmapSubConverter alloc] initWithTrack:(MP42SubtitleTrack *)track
                                                                                        error:outError];
 
-            if (subConverter == nil)
+            if (subConverter == nil) {
                 noErr = NO;
+                if (outError && *outError) {
+                    [_logger writeErrorToLog:*outError];
+                }
+                [unsupportedTracks addObject:track];
+                continue;
+            }
 
             helper->converter = subConverter;
         }
@@ -345,14 +358,28 @@
             dstTrackId = MP4AddCCTrack(fileHandle, timeScale, videoSize.width, videoSize.height);
 
             [helper->importer setActiveTrack:track];
-        }
-        else {
+        } else {
+            // We don't know how to handle this type of track.
+            // Alert the user.
+            NSError *error = MP42Error(@"Unsupported track",
+                                       [NSString stringWithFormat:@"%@, %@, has not been muxed.", track.name, track.format],
+                                       140);
+
+            [_logger writeErrorToLog:error];
+            if (outError) { *outError = error; }
+            [unsupportedTracks addObject:track];
+
             continue;
         }
 
-        MP4SetTrackDurationPerChunk(fileHandle, dstTrackId, timeScale / 8);
-        track.Id = dstTrackId;
+        if (dstTrackId) {
+            MP4SetTrackDurationPerChunk(fileHandle, dstTrackId, timeScale / 8);
+            track.Id = dstTrackId;
+        }
     }
+
+    [_workingTracks removeObjectsInArray:unsupportedTracks];
+    [unsupportedTracks release];
 
     return noErr;
 }

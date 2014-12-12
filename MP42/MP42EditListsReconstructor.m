@@ -61,7 +61,9 @@
 
 - (void)analyzeSample:(MP42SampleBuffer *)sample {
     if (sample->attachments) {
+#ifdef DEBUG
         NSLog(@"Attachments found: %@", sample->attachments);
+#endif
     }
 
     CFDictionaryRef trimStart = NULL, trimEnd = NULL;
@@ -96,7 +98,9 @@
         }
     }
 
+#ifdef DEBUG
     NSLog(@"%llu, %llu, %llu, %llu", _count++, _delta, _currentTime, sample->timestamp);
+#endif
 }
 
 /**

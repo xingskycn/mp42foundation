@@ -777,14 +777,6 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 
         // Setup the muxer
         noErr = [self.muxer setup:self.fileHandle error:outError];
-
-        if (!noErr) {
-            self.muxer = nil;
-            [self stopWriting];
-            return NO;
-        }
-
-        // Start the muxer and wait
         [self.muxer work];
         self.muxer = nil;
     }
