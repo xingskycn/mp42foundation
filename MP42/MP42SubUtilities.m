@@ -118,8 +118,13 @@ canOutput:
 		if (l->begin_time > begin_time)
 			end_time = MIN(end_time, l->begin_time);
 		
-		if (l->begin_time <= begin_time)
-			[str appendString:l->line];
+        if (l->begin_time <= begin_time) {
+            // Try to be a bit smart and avoid duplicated lines
+            // from ssa.
+            if (!ssa || ![str containsString:l->line]) {
+                [str appendString:l->line];
+            }
+        }
 	}
 	
 	for (i = 0; i < nlines; i++) {
@@ -184,6 +189,11 @@ canOutput:
 -(void)setForced:(BOOL)info
 {
     forced = info;
+}
+
+-(void)setSSA:(BOOL)isSSA
+{
+    ssa = isSSA;
 }
 
 -(NSString*)description
@@ -958,13 +968,7 @@ NSString* removeNewLines(NSString* string) {
     while ([mutableString length] && [mutableString characterAtIndex:[mutableString length] - 1] == '\n')
         [mutableString deleteCharactersInRange:NSMakeRange([mutableString length] -1, 1)];
 
-    NSMutableString *mutableString2 = [NSMutableString stringWithString:mutableString];
-
-    NSUInteger replacedCount = [mutableString2 replaceOccurrencesOfString:@"\n" withString:@" " options:0 range:NSMakeRange(0,[mutableString2 length])];
-    if (replacedCount >= 2)
-        return mutableString2;
-    else
-        return mutableString;
+    return mutableString;
 }
 
 void createForcedAtom(u_int8_t* buffer) {

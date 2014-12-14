@@ -676,8 +676,12 @@ int readMkvPacket(struct StdIoStream  *ioStream, TrackInfo *trackInfo, uint64_t 
         if (trackInfo->Type == TT_SUB) {
             if (readMkvPacket(_ioStream, trackInfo, FilePos, &frame, &FrameSize)) {
                 if (strcmp(trackInfo->CodecID, "S_VOBSUB") && strcmp(trackInfo->CodecID, "S_HDMV/PGS")) {
-                    if (!demuxHelper->ss)
+                    if (!demuxHelper->ss) {
                         demuxHelper->ss = [[SBSubSerializer alloc] init];
+                        if (!strcmp(trackInfo->CodecID, "S_TEXT/ASS") || !strcmp(trackInfo->CodecID, "S_TEXT/SSA")) {
+                            [demuxHelper->ss setSSA:YES];
+                        }
+                    }
 
                     NSString *string = [[[NSString alloc] initWithBytes:frame length:FrameSize encoding:NSUTF8StringEncoding] autorelease];
                     if (!strcmp(trackInfo->CodecID, "S_TEXT/ASS") || !strcmp(trackInfo->CodecID, "S_TEXT/SSA")) {

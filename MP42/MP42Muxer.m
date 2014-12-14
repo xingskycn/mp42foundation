@@ -27,10 +27,11 @@
     return self;
 }
 
-- (instancetype)initWithDelegate:(id <MP42MuxerDelegate>)del andLogger:(id <MP42Logging>)logger
+- (instancetype)initWithFileHandle:(MP4FileHandle)fileHandle delegate:(id <MP42MuxerDelegate>)del logger:(id <MP42Logging>)logger
 {
-    if ((self = [super init])) {
-        _workingTracks = [[NSMutableArray alloc] init];
+    if ((self = [self init])) {
+        NSParameterAssert(fileHandle);
+        _fileHandle = fileHandle;
         _delegate = del;
         _logger = [logger retain];
     }
@@ -38,16 +39,29 @@
     return self;
 }
 
-- (void)addTrack:(MP42Track*)track
+- (BOOL)canAddTrack:(MP42Track *)track
+{
+    NSArray *supportedFormats = @[MP42VideoFormatH264, MP42VideoFormatMPEG4Visual, MP42VideoFormatJPEG,
+                                  MP42AudioFormatAAC, MP42AudioFormatAC3, MP42AudioFormatALAC, MP42AudioFormatDTS,
+                                  MP42SubtitleFormatTx3g, MP42SubtitleFormatVobSub, MP42ClosedCaptionFormatCEA608];
+    if ([supportedFormats containsObject:track.format]) {
+        return YES;
+        if ([track isMemberOfClass:[MP42AudioTrack class]]) {
+            // TO-DO Check if we can initialize the audio converter
+        }
+    } else {
+        return NO;
+    }
+}
+
+- (void)addTrack:(MP42Track *)track
 {
     if (![track isMemberOfClass:[MP42ChapterTrack class]])
         [_workingTracks addObject:track];
 }
 
-- (BOOL)setup:(MP4FileHandle)fileHandle error:(NSError **)outError
+- (BOOL)setup:(NSError **)outError
 {
-    BOOL noErr = YES;
-    _fileHandle = fileHandle;
     NSMutableArray *unsupportedTracks = [[NSMutableArray alloc] init];;
 
     for (MP42Track *track in _workingTracks) {
@@ -60,16 +74,17 @@
             magicCookie = [helper->importer magicCookieForTrack:track];
             timeScale = [helper->importer timescaleForTrack:track];
         } else {
+            [unsupportedTracks addObject:track];
             continue;
         }
 
-        if([track isMemberOfClass:[MP42AudioTrack class]] && track.needConversion) {
+        // Setup the converters
+        if ([track isMemberOfClass:[MP42AudioTrack class]] && track.needConversion) {
             MP42AudioConverter *audioConverter = [[MP42AudioConverter alloc] initWithTrack:(MP42AudioTrack *)track
                                                                         andMixdownType:[(MP42AudioTrack *)track mixdownType]
                                                                                  error:outError];
 
             if (audioConverter == nil) {
-                noErr = NO;
                 if (outError && *outError) {
                     [_logger writeErrorToLog:*outError];
                 }
@@ -79,12 +94,11 @@
 
             helper->converter = audioConverter;
         }
-        if([track isMemberOfClass:[MP42SubtitleTrack class]] && ([track.sourceFormat isEqualToString:MP42SubtitleFormatVobSub] || [track.sourceFormat isEqualToString:MP42SubtitleFormatPGS]) && track.needConversion) {
+        if ([track isMemberOfClass:[MP42SubtitleTrack class]] && ([track.sourceFormat isEqualToString:MP42SubtitleFormatVobSub] || [track.sourceFormat isEqualToString:MP42SubtitleFormatPGS]) && track.needConversion) {
             MP42BitmapSubConverter *subConverter = [[MP42BitmapSubConverter alloc] initWithTrack:(MP42SubtitleTrack *)track
                                                                                        error:outError];
 
             if (subConverter == nil) {
-                noErr = NO;
                 if (outError && *outError) {
                     [_logger writeErrorToLog:*outError];
                 }
@@ -93,9 +107,9 @@
             }
 
             helper->converter = subConverter;
-        }
-        else if([track isMemberOfClass:[MP42SubtitleTrack class]] && track.needConversion)
+        } else if ([track isMemberOfClass:[MP42SubtitleTrack class]] && track.needConversion) {
             track.format = MP42SubtitleFormatTx3g;
+        }
 
         // H.264 video track
         if ([track isMemberOfClass:[MP42VideoTrack class]] && [track.format isEqualToString:MP42VideoFormatH264]) {
@@ -105,7 +119,7 @@
             NSSize size = [helper->importer sizeForTrack:track];
 
             uint8_t *avcCAtom = (uint8_t*)[magicCookie bytes];
-            dstTrackId = MP4AddH264VideoTrack(fileHandle, timeScale,
+            dstTrackId = MP4AddH264VideoTrack(_fileHandle, timeScale,
                                               MP4_INVALID_DURATION,
                                               size.width, size.height,
                                               avcCAtom[1],  // AVCProfileIndication
@@ -119,7 +133,7 @@
             for (i = 0; i < spsCount; i++) {
                 uint16_t spsSize = (avcCAtom[ptrPos++] << 8) & 0xff00;
                 spsSize += avcCAtom[ptrPos++] & 0xff;
-                MP4AddH264SequenceParameterSet(fileHandle, dstTrackId,
+                MP4AddH264SequenceParameterSet(_fileHandle, dstTrackId,
                                                avcCAtom+ptrPos, spsSize);
                 ptrPos += spsSize;
             }
@@ -128,27 +142,27 @@
             for (i = 0; i < ppsCount; i++) {
                 uint16_t ppsSize = (avcCAtom[ptrPos++] << 8) & 0xff00;
                 ppsSize += avcCAtom[ptrPos++] & 0xff;
-                MP4AddH264PictureParameterSet(fileHandle, dstTrackId,
+                MP4AddH264PictureParameterSet(_fileHandle, dstTrackId,
                                               avcCAtom+ptrPos, ppsSize);
                 ptrPos += ppsSize;
             }
 
-            MP4SetVideoProfileLevel(fileHandle, 0x15);
+            MP4SetVideoProfileLevel(_fileHandle, 0x15);
 
             [helper->importer setActiveTrack:track];
         }
 
         // MPEG-4 Visual video track
         else if ([track isMemberOfClass:[MP42VideoTrack class]] && [track.format isEqualToString:MP42VideoFormatMPEG4Visual]) {
-            MP4SetVideoProfileLevel(fileHandle, MPEG4_SP_L3);
+            MP4SetVideoProfileLevel(_fileHandle, MPEG4_SP_L3);
             // Add video track
-            dstTrackId = MP4AddVideoTrack(fileHandle, timeScale,
+            dstTrackId = MP4AddVideoTrack(_fileHandle, timeScale,
                                           MP4_INVALID_DURATION,
                                           [(MP42VideoTrack*)track width], [(MP42VideoTrack*)track height],
                                           MP4_MPEG4_VIDEO_TYPE);
 
             if ([magicCookie length])
-                MP4SetTrackESConfiguration(fileHandle, dstTrackId,
+                MP4SetTrackESConfiguration(_fileHandle, dstTrackId,
                                            [magicCookie bytes],
                                            [magicCookie length]);
 
@@ -158,7 +172,7 @@
         // Photo-JPEG video track
         else if ([track isMemberOfClass:[MP42VideoTrack class]] && [track.format isEqualToString:MP42VideoFormatJPEG]) {
             // Add video track
-            dstTrackId = MP4AddJpegVideoTrack(fileHandle, timeScale,
+            dstTrackId = MP4AddJpegVideoTrack(_fileHandle, timeScale,
                                   MP4_INVALID_DURATION, [(MP42VideoTrack*)track width], [(MP42VideoTrack*)track height]);
 
             [helper->importer setActiveTrack:track];
@@ -166,12 +180,12 @@
 
         // AAC audio track
         else if ([track isMemberOfClass:[MP42AudioTrack class]] && [track.format isEqualToString:MP42AudioFormatAAC]) {
-            dstTrackId = MP4AddAudioTrack(fileHandle,
+            dstTrackId = MP4AddAudioTrack(_fileHandle,
                                           timeScale,
                                           1024, MP4_MPEG4_AUDIO_TYPE);
 
             if (!track.needConversion && [magicCookie length]) {
-                MP4SetTrackESConfiguration(fileHandle, dstTrackId,
+                MP4SetTrackESConfiguration(_fileHandle, dstTrackId,
                                            [magicCookie bytes],
                                            [magicCookie length]);
             }
@@ -186,7 +200,7 @@
 
             const uint64_t * ac3Info = (const uint64_t *)[magicCookie bytes];
 
-            dstTrackId = MP4AddAC3AudioTrack(fileHandle,
+            dstTrackId = MP4AddAC3AudioTrack(_fileHandle,
                                              timeScale,
                                              ac3Info[0],
                                              ac3Info[1],
@@ -200,21 +214,21 @@
 
         // ALAC audio track
         else if ([track isMemberOfClass:[MP42AudioTrack class]] && [track.format isEqualToString:MP42AudioFormatALAC]) {
-            dstTrackId = MP4AddALACAudioTrack(fileHandle,
+            dstTrackId = MP4AddALACAudioTrack(_fileHandle,
                                           timeScale);
             if ([magicCookie length])
-                MP4SetTrackBytesProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.alac.alac.AppleLosslessMagicCookie", [magicCookie bytes], [magicCookie length]);
+                MP4SetTrackBytesProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.alac.alac.AppleLosslessMagicCookie", [magicCookie bytes], [magicCookie length]);
 
             [helper->importer setActiveTrack:track];
         }
 
         // DTS audio track
         else if ([track isMemberOfClass:[MP42AudioTrack class]] && [track.format isEqualToString:MP42AudioFormatDTS]) {
-            dstTrackId = MP4AddAudioTrack(fileHandle,
+            dstTrackId = MP4AddAudioTrack(_fileHandle,
                                           timeScale,
                                           512, 0xA9);
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.*.channels", [(MP42AudioTrack*)track channels]);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.*.channels", [(MP42AudioTrack*)track channels]);
             [helper->importer setActiveTrack:track];
         }
 
@@ -233,10 +247,10 @@
                 }
 
             if (!videoSize.width) {
-                MP4TrackId videoTrack = findFirstVideoTrack(fileHandle);
+                MP4TrackId videoTrack = findFirstVideoTrack(_fileHandle);
                 if (videoTrack) {
-                    videoSize.width = getFixedVideoWidth(fileHandle, videoTrack);
-                    videoSize.height = MP4GetTrackVideoHeight(fileHandle, videoTrack);
+                    videoSize.width = getFixedVideoWidth(_fileHandle, videoTrack);
+                    videoSize.height = MP4GetTrackVideoHeight(_fileHandle, videoTrack);
                 }
                 else {
                     videoSize.width = 640;
@@ -253,11 +267,11 @@
                 subSize.height = videoSize.height;
 
             const uint8_t textColor[4] = { 255,255,255,255 };
-            dstTrackId = MP4AddSubtitleTrack(fileHandle, timeScale, videoSize.width, subSize.height);
+            dstTrackId = MP4AddSubtitleTrack(_fileHandle, timeScale, videoSize.width, subSize.height);
 
-            MP4SetTrackDurationPerChunk(fileHandle, dstTrackId, timeScale / 8);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "tkhd.alternate_group", 2);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "tkhd.layer", -1);
+            MP4SetTrackDurationPerChunk(_fileHandle, dstTrackId, timeScale / 8);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "tkhd.alternate_group", 2);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "tkhd.layer", -1);
 
             int32_t displayFlags = 0;
             if (vPlacement)
@@ -267,25 +281,25 @@
             else if ([(MP42SubtitleTrack *)track allSamplesAreForced])
                 displayFlags += 0xC0000000;
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.displayFlags", displayFlags);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.displayFlags", displayFlags);
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.horizontalJustification", 1);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.verticalJustification", -1);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.horizontalJustification", 1);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.verticalJustification", -1);
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorRed", 0);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorGreen", 0);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorBlue", 0);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorAlpha", 0);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorRed", 0);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorGreen", 0);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorBlue", 0);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.bgColorAlpha", 0);
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.defTextBoxBottom", subSize.height);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.defTextBoxRight", videoSize.width);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.defTextBoxBottom", subSize.height);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.defTextBoxRight", videoSize.width);
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontSize", videoSize.height * 0.05);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontSize", videoSize.height * 0.05);
 
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorRed", textColor[0]);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorGreen", textColor[1]);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorBlue", textColor[2]);
-            MP4SetTrackIntegerProperty(fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorAlpha", textColor[3]);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorRed", textColor[0]);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorGreen", textColor[1]);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorBlue", textColor[2]);
+            MP4SetTrackIntegerProperty(_fileHandle, dstTrackId, "mdia.minf.stbl.stsd.tx3g.fontColorAlpha", textColor[3]);
 
             /* translate the track */
             if (!vPlacement) {
@@ -294,11 +308,11 @@
                 uint32_t *ptr32 = (uint32_t*) nval;
                 uint32_t size;
 
-                MP4GetTrackBytesProperty(fileHandle, dstTrackId, "tkhd.matrix", &val, &size);
+                MP4GetTrackBytesProperty(_fileHandle, dstTrackId, "tkhd.matrix", &val, &size);
                 memcpy(nval, val, size);
                 ptr32[7] = CFSwapInt32HostToBig( (videoSize.height * 0.85) * 0x10000);
 
-                MP4SetTrackBytesProperty(fileHandle, dstTrackId, "tkhd.matrix", nval, size);
+                MP4SetTrackBytesProperty(_fileHandle, dstTrackId, "tkhd.matrix", nval, size);
                 free(val);
             }
 
@@ -312,7 +326,7 @@
             if ([magicCookie length] < sizeof(uint32_t) * 16)
                 continue;
 
-            dstTrackId = MP4AddSubpicTrack(fileHandle, timeScale, 640, 480);
+            dstTrackId = MP4AddSubpicTrack(_fileHandle, timeScale, 640, 480);
 
             uint32_t *subPalette = (uint32_t*) [magicCookie bytes];
             int ii;
@@ -326,7 +340,7 @@
                 palette[ii][2] = (subPalette[ii] >> 8) & 0xff;
                 palette[ii][3] = (subPalette[ii]) & 0xff;
             }
-            MP4SetTrackESConfiguration( fileHandle, dstTrackId,
+            MP4SetTrackESConfiguration(_fileHandle, dstTrackId,
                                              (uint8_t*)palette, 16 * 4 );
 
             [helper->importer setActiveTrack:track];
@@ -344,10 +358,10 @@
                 }
 
             if (!videoSize.width) {
-                MP4TrackId videoTrack = findFirstVideoTrack(fileHandle);
+                MP4TrackId videoTrack = findFirstVideoTrack(_fileHandle);
                 if (videoTrack) {
-                    videoSize.width = getFixedVideoWidth(fileHandle, videoTrack);
-                    videoSize.height = MP4GetTrackVideoHeight(fileHandle, videoTrack);
+                    videoSize.width = getFixedVideoWidth(_fileHandle, videoTrack);
+                    videoSize.height = MP4GetTrackVideoHeight(_fileHandle, videoTrack);
                 }
                 else {
                     videoSize.width = 640;
@@ -355,25 +369,16 @@
                 }
             }
 
-            dstTrackId = MP4AddCCTrack(fileHandle, timeScale, videoSize.width, videoSize.height);
+            dstTrackId = MP4AddCCTrack(_fileHandle, timeScale, videoSize.width, videoSize.height);
 
             [helper->importer setActiveTrack:track];
         } else {
-            // We don't know how to handle this type of track.
-            // Alert the user.
-            NSError *error = MP42Error(@"Unsupported track",
-                                       [NSString stringWithFormat:@"%@, %@, has not been muxed.", track.name, track.format],
-                                       140);
-
-            [_logger writeErrorToLog:error];
-            if (outError) { *outError = error; }
             [unsupportedTracks addObject:track];
-
             continue;
         }
 
         if (dstTrackId) {
-            MP4SetTrackDurationPerChunk(fileHandle, dstTrackId, timeScale / 8);
+            MP4SetTrackDurationPerChunk(_fileHandle, dstTrackId, timeScale / 8);
             track.Id = dstTrackId;
         }
     }
@@ -381,7 +386,7 @@
     [_workingTracks removeObjectsInArray:unsupportedTracks];
     [unsupportedTracks release];
 
-    return noErr;
+    return YES;
 }
 
 - (void)work

@@ -27,11 +27,12 @@
     int32_t         _cancelled;
 }
 
-- (instancetype)initWithDelegate:(id <MP42MuxerDelegate>)del andLogger:(id <MP42Logging>)logger;
+- (instancetype)initWithFileHandle:(MP4FileHandle)fileHandle delegate:(id <MP42MuxerDelegate>)del logger:(id <MP42Logging>)logger;
 
+- (BOOL)canAddTrack:(MP42Track *)track;
 - (void)addTrack:(MP42Track *)track;
 
-- (BOOL)setup:(MP4FileHandle)fileHandle error:(NSError **)outError;
+- (BOOL)setup:(NSError **)outError;
 - (void)work;
 - (void)cancel;
 

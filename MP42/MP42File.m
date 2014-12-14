@@ -710,100 +710,113 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
 }
 
 - (BOOL)updateMP4FileWithAttributes:(NSDictionary *)attributes error:(NSError **)outError {
-    BOOL noErr = YES;
-
     // Organize the alternate groups
-    if ([[attributes valueForKey:MP42OrganizeAlternateGroups] boolValue])
+    if ([[attributes valueForKey:MP42OrganizeAlternateGroups] boolValue]) {
         [self organizeAlternateGroups];
+    }
 
     // Open the mp4 file
     if (![self startWriting]) {
-        if (outError)
+        if (outError) {
             *outError = MP42Error(@"The file could not be saved.", @"You may do not have sufficient permissions for this operation.", 101);
+            [_logger writeErrorToLog:*outError];
+        }
         return NO;
     }
 
     // Delete tracks
-    for (MP42Track *track in _tracksToBeDeleted)
+    for (MP42Track *track in _tracksToBeDeleted) {
         [self removeMuxedTrack:track];
+    }
 
     // Init the muxer and prepare the work
-    NSMutableArray *tracksToMux = [[NSMutableArray alloc] init];
+    NSMutableArray *unsupportedTracks = [[NSMutableArray alloc] init];
+    self.muxer = [[[MP42Muxer alloc] initWithFileHandle:self.fileHandle delegate:self logger:_logger] autorelease];
 
     for (MP42Track *track in self.itracks) {
         if (!track.muxed) {
             // Reopen the file importer is they are not already open
-            // this happens when the object was unarchived from a file
-            if (![track isMemberOfClass:[MP42ChapterTrack class]] && !track.muxer_helper->importer && [track sourceURL]) {
-                MP42FileImporter *fileImporter = [self.importers valueForKey:[[track sourceURL] path]];
+            // this happens when the object was unarchived from a file.
+            if (![track isMemberOfClass:[MP42ChapterTrack class]] && !track.muxer_helper->importer && track.sourceURL) {
+                MP42FileImporter *fileImporter = [self.importers valueForKey:track.sourceURL.path];
 
                 if (!fileImporter) {
-                    fileImporter = [[[MP42FileImporter alloc] initWithURL:[track sourceURL] error:outError] autorelease];
-                    [self.importers setObject:fileImporter forKey:[[track sourceURL] path]];
+                    fileImporter = [[[MP42FileImporter alloc] initWithURL:track.sourceURL error:outError] autorelease];
+                    [self.importers setObject:fileImporter forKey:track.sourceURL.path];
                 }
 
                 if (fileImporter) {
                     track.muxer_helper->importer = fileImporter;
                 } else {
                     if (outError) {
-                        *outError = MP42Error(@"Missing sources.",
-                                              @"One or more sources files are missing.",
-                                              200);
+                        NSError *error = MP42Error(@"Missing sources.", @"One or more sources files are missing.", 200);
+                        [_logger writeErrorToLog:error];
+                        if (outError) { *outError = error; }
                     }
 
-                    noErr = NO;
                     break;
                 }
-
             }
 
             // Add the track to the muxer
-            if (track.muxer_helper->importer)
-                [tracksToMux addObject:track];
+            if (track.muxer_helper->importer) {
+                if ([self.muxer canAddTrack:track]) {
+                    [self.muxer addTrack:track];
+                } else {
+                    // We don't know how to handle this type of track.
+                    NSError *error = MP42Error(@"Unsupported track",
+                                               [NSString stringWithFormat:@"%@, %@, has not been muxed.", track.name, track.format],
+                                               201);
+
+                    [_logger writeErrorToLog:error];
+                    if (outError) { *outError = error; }
+
+                    [unsupportedTracks addObject:track];
+                }
+            }
         }
     }
 
-    if (!noErr) {
-        [self stopWriting];
-        return NO;
-    }
+    [self.muxer setup:outError];
+    [self.muxer work];
+    self.muxer = nil;
 
-    if ([tracksToMux count]) {
-        self.muxer = [[[MP42Muxer alloc] initWithDelegate:self andLogger:_logger] autorelease];
+    // Remove the unsupported tracks from the array of the tracks
+    // to update. Unsupported tracks haven't been muxed, so there is no
+    // to update them.
+    NSMutableArray *tracksToUpdate = [self.itracks mutableCopy];
+    [tracksToUpdate removeObjectsInArray:unsupportedTracks];
+    [unsupportedTracks release];
 
-        for (MP42Track *track in tracksToMux) {
-            [self.muxer addTrack:track];
-        }
-
-        // Setup the muxer
-        noErr = [self.muxer setup:self.fileHandle error:outError];
-        [self.muxer work];
-        self.muxer = nil;
-    }
-
-    [tracksToMux release];
     [self.importers removeAllObjects];
 
     // Update modified tracks properties
     updateMoovDuration(self.fileHandle);
-    for (MP42Track *track in self.itracks) {
+    for (MP42Track *track in tracksToUpdate) {
         if (track.isEdited) {
-            noErr = [track writeToFile:self.fileHandle error:outError];
-            if (!noErr)
-                break;
+            if (![track writeToFile:self.fileHandle error:outError]) {
+                if (*outError) {
+                    [_logger writeErrorToLog:*outError];
+                }
+            }
         }
     }
 
+    [tracksToUpdate release];
+
     // Update metadata
-    if (self.metadata.isEdited)
+    if (self.metadata.isEdited) {
         [self.metadata writeMetadataWithFileHandle:self.fileHandle];
+    }
 
     // Close the mp4 file handle
     if (![self stopWriting]) {
-        if (outError)
+        if (*outError == nil) {
             *outError = MP42Error(@"File excedes 4 GB.",
                                   @"The file is bigger than 4 GB, but it was created with 32bit data chunk offset.\nSelect 64bit data chunk offset in the save panel.",
                                   102);
+            [_logger writeErrorToLog:*outError];
+        }
         return NO;
     }
 
@@ -814,10 +827,11 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         [self customChaptersPreview];
     }
 
-    if ([self.delegate respondsToSelector:@selector(saveDidEnd:)])
+    if ([self.delegate respondsToSelector:@selector(saveDidEnd:)]) {
         [self.delegate performSelector:@selector(saveDidEnd:) withObject:self];
+    }
 
-    return noErr;
+    return YES;
 }
 
 #pragma mark - Chapters previews

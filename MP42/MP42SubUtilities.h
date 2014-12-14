@@ -33,6 +33,8 @@
     BOOL position_information, forced;
 	unsigned last_begin_time, last_end_time;
 	unsigned linesInput;
+
+    BOOL ssa;
 }
 -(void)addLine:(SBSubLine *)sline;
 -(void)setFinished:(BOOL)finished;
@@ -42,6 +44,8 @@
 -(void)setPositionInformation:(BOOL)info;
 -(BOOL)forced;
 -(void)setForced:(BOOL)info;
+-(void)setSSA:(BOOL)ssa;
+
 @end
 
 NSMutableString *STStandardizeStringNewlines(NSString *str);
