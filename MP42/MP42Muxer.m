@@ -41,10 +41,7 @@
 
 - (BOOL)canAddTrack:(MP42Track *)track
 {
-    NSArray *supportedFormats = @[MP42VideoFormatH264, MP42VideoFormatMPEG4Visual, MP42VideoFormatJPEG,
-                                  MP42AudioFormatAAC, MP42AudioFormatAC3, MP42AudioFormatALAC, MP42AudioFormatDTS,
-                                  MP42SubtitleFormatTx3g, MP42SubtitleFormatVobSub, MP42ClosedCaptionFormatCEA608];
-    if ([supportedFormats containsObject:track.format]) {
+    if (isTrackMuxable(track.format)) {
         return YES;
         if ([track isMemberOfClass:[MP42AudioTrack class]]) {
             // TO-DO Check if we can initialize the audio converter

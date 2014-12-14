@@ -59,25 +59,20 @@ BOOL isFileFormatSupported(NSString * fileExt) {
     return NO;
 }
 
-BOOL isTrackMuxable(NSString * formatName)
+BOOL isTrackMuxable(NSString *formatName)
 {
-    NSArray* supportedFormats = [NSArray arrayWithObjects:MP42VideoFormatH264, MP42VideoFormatMPEG4Visual, MP42AudioFormatAAC, MP42AudioFormatALAC, MP42AudioFormatAC3, MP42AudioFormatDTS, MP42SubtitleFormatTx3g, MP42SubtitleFormatText, MP42ClosedCaptionFormatCEA608, MP42VideoFormatJPEG, MP42SubtitleFormatVobSub, nil];
+    NSArray *supportedFormats = @[MP42VideoFormatH264, MP42VideoFormatMPEG4Visual, MP42AudioFormatAAC, MP42AudioFormatALAC,
+                                  MP42AudioFormatAC3, MP42AudioFormatDTS, MP42SubtitleFormatTx3g, MP42SubtitleFormatText,
+                                  MP42ClosedCaptionFormatCEA608, MP42VideoFormatJPEG, MP42SubtitleFormatVobSub];
 
-    for (NSString* type in supportedFormats)
-        if ([formatName isEqualToString:type])
-            return YES;
-
-    return NO;
+    return [supportedFormats containsObject:formatName];
 }
 
-BOOL trackNeedConversion(NSString * formatName) {
-    NSArray* supportedConversionFormats = [NSArray arrayWithObjects:MP42AudioFormatVorbis, MP42AudioFormatFLAC, MP42AudioFormatMP3, MP42AudioFormatTrueHD, MP42SubtitleFormatSSA, MP42SubtitleFormatText, MP42SubtitleFormatPGS, nil];
+BOOL trackNeedConversion(NSString *formatName) {
+    NSArray *supportedConversionFormats = @[MP42AudioFormatVorbis, MP42AudioFormatFLAC, MP42AudioFormatMP3,
+                                            MP42AudioFormatTrueHD, MP42SubtitleFormatSSA, MP42SubtitleFormatText, MP42SubtitleFormatPGS];
 
-    for (NSString* type in supportedConversionFormats)
-        if ([formatName isEqualToString:type])
-            return YES;
-
-    return NO;
+    return [supportedConversionFormats containsObject:formatName];
 }
 
 int isHdVideo(uint64_t width, uint64_t height)
