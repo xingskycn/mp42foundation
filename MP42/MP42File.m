@@ -737,41 +737,43 @@ static void logCallback(MP4LogLevel loglevel, const char *fmt, va_list ap) {
         if (!track.muxed) {
             // Reopen the file importer is they are not already open
             // this happens when the object was unarchived from a file.
-            if (![track isMemberOfClass:[MP42ChapterTrack class]] && !track.muxer_helper->importer && track.sourceURL) {
-                MP42FileImporter *fileImporter = [self.importers valueForKey:track.sourceURL.path];
+            if (![track isMemberOfClass:[MP42ChapterTrack class]]) {
+                if (!track.muxer_helper->importer && track.sourceURL) {
+                    MP42FileImporter *fileImporter = [self.importers valueForKey:track.sourceURL.path];
 
-                if (!fileImporter) {
-                    fileImporter = [[[MP42FileImporter alloc] initWithURL:track.sourceURL error:outError] autorelease];
-                    [self.importers setObject:fileImporter forKey:track.sourceURL.path];
-                }
-
-                if (fileImporter) {
-                    track.muxer_helper->importer = fileImporter;
-                } else {
-                    if (outError) {
-                        NSError *error = MP42Error(@"Missing sources.", @"One or more sources files are missing.", 200);
-                        [_logger writeErrorToLog:error];
-                        if (outError) { *outError = error; }
+                    if (!fileImporter) {
+                        fileImporter = [[[MP42FileImporter alloc] initWithURL:track.sourceURL error:outError] autorelease];
+                        [self.importers setObject:fileImporter forKey:track.sourceURL.path];
                     }
 
-                    break;
+                    if (fileImporter) {
+                        track.muxer_helper->importer = fileImporter;
+                    } else {
+                        if (outError) {
+                            NSError *error = MP42Error(@"Missing sources.", @"One or more sources files are missing.", 200);
+                            [_logger writeErrorToLog:error];
+                            if (outError) { *outError = error; }
+                        }
+
+                        break;
+                    }
                 }
-            }
 
-            // Add the track to the muxer
-            if (track.muxer_helper->importer) {
-                if ([self.muxer canAddTrack:track]) {
-                    [self.muxer addTrack:track];
-                } else {
-                    // We don't know how to handle this type of track.
-                    NSError *error = MP42Error(@"Unsupported track",
-                                               [NSString stringWithFormat:@"%@, %@, has not been muxed.", track.name, track.format],
-                                               201);
+                // Add the track to the muxer
+                if (track.muxer_helper->importer) {
+                    if ([self.muxer canAddTrack:track]) {
+                        [self.muxer addTrack:track];
+                    } else {
+                        // We don't know how to handle this type of track.
+                        NSError *error = MP42Error(@"Unsupported track",
+                                                   [NSString stringWithFormat:@"%@, %@, has not been muxed.", track.name, track.format],
+                                                   201);
 
-                    [_logger writeErrorToLog:error];
-                    if (outError) { *outError = error; }
-
-                    [unsupportedTracks addObject:track];
+                        [_logger writeErrorToLog:error];
+                        if (outError) { *outError = error; }
+                        
+                        [unsupportedTracks addObject:track];
+                    }
                 }
             }
         }
