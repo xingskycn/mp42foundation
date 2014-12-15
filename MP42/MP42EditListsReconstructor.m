@@ -61,7 +61,7 @@
 
 - (void)analyzeSample:(MP42SampleBuffer *)sample {
     if (sample->attachments) {
-#ifdef DEBUG
+#ifdef AVF_DEBUG
         NSLog(@"Attachments found: %@", sample->attachments);
 #endif
     }
@@ -98,7 +98,7 @@
         }
     }
 
-#ifdef DEBUG
+#ifdef AVF_DEBUG
     NSLog(@"%llu, %llu, %llu, %llu", _count++, _delta, _currentTime, sample->timestamp);
 #endif
 }
